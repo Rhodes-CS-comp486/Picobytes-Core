@@ -1,0 +1,31 @@
+/* CSS for homepage profile overlay  */
+
+.overlay-home {
+    position: absolute;
+    top: 70px; /* Adjust this to align it right below the profile icon */
+    right: 20px;
+    background-color: white;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Make sure it appears above other elements */
+    width: 150px; /* Adjust this to your desired size */
+  }
+  
+  
+  .overlay-home li {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .overlay-home button {
+    background-color: white;
+    width: 100%;
+    border: None;
+  }
+
+  .overlay-home button:hover {
+    background-color: darkcyan;
+    color: white;
+  }

@@ -2,13 +2,12 @@
 
 import React from "react";
 import { useState } from "react";
+import { useParams } from "react-router";
 
-interface Prop {
-  id: number;
-}
-
-const Question = ({ id }: Prop) => {
+const Question = () => {
   const [answer, setAnswer] = useState([false, false, false, false]);
+  let params = useParams();
+  let id = params.id;
 
   const updateAnswer = (n: number) => {
     setAnswer(
@@ -24,9 +23,9 @@ const Question = ({ id }: Prop) => {
 
   /// Hard coded example question
 
-  const question = "Example Question"
+  const question = "Example Question";
 
-  const options = [ 
+  const options = [
     "Example answer 1",
     "Example answer 2",
     "Example answer 3",
@@ -36,6 +35,7 @@ const Question = ({ id }: Prop) => {
   return (
     <div>
       <h1>{question}</h1>
+      <p>Question ID: {id} </p>
       <br></br>
       <ul>
         {options.map((o, i) => (

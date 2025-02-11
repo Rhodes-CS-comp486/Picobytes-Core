@@ -1,21 +1,32 @@
  //import React from 'react';
 
+import './login.css'
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    const navigate = useNavigate();
+  
+    const homepage = () => {
+        navigate('/homepage'); // Navigate to the login page
+    };
     
     return(
-        <div style={{ textAlign: 'center', padding: '50px', backgroundColor: 'gray' }}>
-            <h1 style={{marginBottom: '20px'}}>LOGIN</h1>
-            <div>
-                <label>Username:</label>
-                <input id='UsernameBox' style={{backgroundColor: "white", color: "black", margin: '1em'}}></input>
+
+        <div className='login-container'>
+            <h1 className='login'>LOGIN</h1>
+            <div className='login-container-input'>
+                <div className='login-container-input-button'>
+                    <label>Username:</label>
+                    <input id='UsernameBox' className='login-input-button'></input>
+                </div>
+
+                <div className='login-container-input-button'>
+                    <label>Password:</label>
+                    <input id='PasswordBox' className='login-input-button'></input>
+                </div>
             </div>
-            <div>
-                <label>Password:</label>
-                <input id='PasswordBox' style={{backgroundColor: "white", color: "black", margin: '1em'}}></input>
-            </div>
-            <div style={{justifyContent: 'space-between'}}>
-                <button>LOGIN</button>
+            <div className='login-button-container'>
+                <button onClick={homepage}>LOGIN</button>
                 <button>CREATE ACCOUNT</button>
             </div>
         </div>
@@ -25,4 +36,4 @@ const Login = () => {
 export default Login
 // log in page (possibly with OneLogin)
 
-main
+//main

@@ -1,20 +1,51 @@
 // The individual question and possibly feedback
 
 import React from "react";
+import { useState } from "react";
 
-const Question = () => {
+interface Prop {
+  id: number;
+}
+
+const Question = ({ id }: Prop) => {
+  const [answer, setAnswer] = useState([false, false, false, false]);
+
+  const updateAnswer = (n: number) => {
+    setAnswer(
+      answer.map((a, j) => {
+        if (n == j) {
+          return !a;
+        } else {
+          return a;
+        }
+      })
+    );
+  };
+
+  /// Hard coded example question
+
+  const question = "Example Question"
+
+  const options = [ 
+    "Example answer 1",
+    "Example answer 2",
+    "Example answer 3",
+    "Example answer 4",
+  ];
+
   return (
     <div>
-      <h1>Example Question</h1>
+      <h1>{question}</h1>
       <br></br>
-      <select>
-        <option key="1">Example answer 1</option>
-        <option key="2">Example answer 2</option>
-        <option key="3">Example answer 3</option>
-      </select>
+      <ul>
+        {options.map((o, i) => (
+          <li key={i}>
+            <input type="checkbox" onClick={() => updateAnswer(i)} /> {o}
+          </li>
+        ))}
+      </ul>
       <br></br>
-      <br></br>
-      <button>Submit</button>
+      <button onClick={() => console.log(answer)}>Submit</button>
     </div>
   );
 };

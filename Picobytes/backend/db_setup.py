@@ -30,6 +30,23 @@ def create_table():
                 );""")
 
         connection.commit()
+
+        print("true_false table created successfully")
+
+
+        # creating Multiple choice Table
+        cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS multiple_choice (
+                        qid INTEGER PRIMARY KEY,  -- Matches qid from questions
+                        option1 STRING NOT NULL,
+                        option2 STRING NOT NULL,
+                        option3 STRING NOT NULL,
+                        option4 STRING NOT NULL,
+                        answer INTEGER CHECK (answer BETWEEN 1 AND 4),
+                        FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
+                        );""")
+
+        connection.commit()
         connection.close()
 
         print("true_false table created successfully")

@@ -1,28 +1,44 @@
-// the home page
-//import React from 'react';
+import { useState } from 'react';
+import Homepage_Prof_Overlay from './home_prof_overlay';
+import reactLogo from '../assets/react.svg'
+
+import './home.css'
+
 
 const Homepage = () => {
-    return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <h1>Welcome to Picobytes!</h1>
-        <p>This is a simple homepage.</p>
-        <button
-          onClick={() => alert('Welcome to Picobytes!')}
-          style={{
-            padding: '10px 20px',
-            fontSize: '16px',
-            cursor: 'pointer',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-          }}
-        >
-          Click Me
-        </button>
-      </div>
-    );
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  const toggleOverlay = () => {
+    setShowOverlay(!showOverlay);
   };
-  
-  export default Homepage;
-  
+
+
+  return (
+    <div className='homepage-container'>
+      <h1>This is the user homepage.</h1>
+      <p>Welcome back, Agent 41</p>
+      
+      {/* Profile Icon */}
+      <div className='homepage-header'>
+        <div className="profile-icon-container" onClick={toggleOverlay}>
+          <img
+            src={reactLogo} //"https://via.placeholder.com/50"
+            alt="Profile"
+            className="profile-icon"
+          />
+        </div>
+
+        {/* Profile Overlay in the corner */}
+        {showOverlay && <Homepage_Prof_Overlay />}
+      </div>
+
+      {/* Button */}
+      <button className="homepage-button" onClick={() => alert('Welcome to Picobytes!')}>
+        Click Me
+      </button>
+
+    </div>
+  );
+};
+
+export default Homepage;

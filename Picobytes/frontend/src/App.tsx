@@ -3,6 +3,8 @@ import { useState } from 'react'
 //import viteLogo from '/vite.svg'
 import './App.css'
 import Homepage from './pages/home'
+import Login from './pages/login'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 
 function App() {
@@ -11,7 +13,13 @@ function App() {
   return (
     <>
       <div>
-        <Homepage /> {/* Homepage content goes here from homepage.tsx*/}
+      <Router>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </Router>
+        
       </div>
       <h1>Vite + React</h1>
       <div className="card">

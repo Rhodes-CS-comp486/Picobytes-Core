@@ -15,8 +15,8 @@ const Homepage = () => {
 
   return (
     <div className='homepage-container'>
-      <h1>Welcome to Picobytes!</h1>
-      <p>NVM IM DUMB</p>
+      <h1>This is the user homepage.</h1>
+      <p>Welcome back, Agent 41</p>
       
       {/* Profile Icon */}
       <div className='homepage-header'>

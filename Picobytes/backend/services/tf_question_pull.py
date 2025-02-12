@@ -2,8 +2,13 @@ import sqlite3
 import os
 
 class QuestionService:
-    def __init__(self, db_filename='qa.db'):
-        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+    #def __init__(self, db_filename='qa.db'):
+     #   self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+
+    def __init__(self, db_path=None):
+        if db_path is None:
+            db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "qa.db"))
+        self.db_path = db_path
 
     def pull_questions(self):
         try:

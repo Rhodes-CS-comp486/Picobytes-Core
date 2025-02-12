@@ -10,11 +10,17 @@ class QuestionService:
             conn = sqlite3.connect(self.db_path)
             c = conn.cursor()
 
-            c.execute('SELECT * FROM tf_questions')
+            # Changed the query to join questions and true_false tables
+            c.execute('''
+                SELECT q.qid, q.qtext, q.qlevel, tf.correct 
+                FROM questions q 
+                JOIN true_false tf ON q.qid = tf.qid 
+                WHERE q.qtype = 'tf' AND q.qactive = 1
+            ''')
             questions = c.fetchall()
-
             conn.close()
             return questions
+
         
         except Exception as e:
             print(f"Error fetching questions: {e}")

@@ -1,21 +1,28 @@
 import sqlite3
-def pull_questions():
-    try:
-        conn = sqlite3.connect('../backend/qa.db')
-        c = conn.cursor()
+import os
 
-        c.execute('SELECT * FROM tf_questions')
-        questions = c.fetchall()
+class QuestionService:
+    def __init__(self), db_filename='qa.db'):
+        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".." db_filename))
 
-        conn.close()
-        return questions
-    
-    except Exception as e:
-        print(f"Error fetching questions: {e}")
-        return []
-    
+    def pull_questions(self):
+        try:
+            conn = sqlite3.connect('self.db_path')
+            c = conn.cursor()
+
+            c.execute('SELECT * FROM tf_questions')
+            questions = c.fetchall()
+
+            conn.close()
+            return questions
+        
+        except Exception as e:
+            print(f"Error fetching questions: {e}")
+            return []
+        
 if __name__ == '__main__':
-    questions = pull_questions()
+    service = QuestionService()
+    questions = service.pull_questions()
     for question in questions:
         print(question)   
 

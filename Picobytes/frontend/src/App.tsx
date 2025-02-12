@@ -4,7 +4,7 @@ import { useState } from 'react';
 import './App.css';
 import Homepage from './pages/home';
 import Login from './pages/login';
-import Questions from './pages/questions';
+import Questions from './pages/question';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 
@@ -40,5 +40,6 @@ function App() {
       </>
     );
   }
+}
 
 export default App;

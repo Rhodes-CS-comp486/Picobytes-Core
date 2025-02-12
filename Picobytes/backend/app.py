@@ -1,5 +1,5 @@
 # Treat this as app.py
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from services.tf_question_pull import pull_questions
 
 app = Flask(__name__, template_folder='../frontend', static_folder='../../public')

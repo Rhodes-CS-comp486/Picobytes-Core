@@ -1,18 +1,29 @@
-// The individual question and possibly feedback
-
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router";
 
 const Question = () => {
-  const [answer, setAnswer] = useState([false, false, false, false]);
+  const [question, setQuestion] = useState<string>("");
+  const [options, setOptions] = useState<string[]>([]);
+  const [answer, setAnswer] = useState<boolean[]>([]);
   let params = useParams();
   let id = params.id;
+
+  useEffect(() => {
+    // Fetch the question data from the backend
+    fetch(`/api/questions/${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setQuestion(data.qtext);
+        setOptions(data.options);
+        setAnswer(new Array(data.options.length).fill(false));
+      })
+      .catch((error) => console.error("Error fetching question:", error));
+  }, [id]);
 
   const updateAnswer = (n: number) => {
     setAnswer(
       answer.map((a, j) => {
-        if (n == j) {
+        if (n === j) {
           return !a;
         } else {
           return a;
@@ -21,22 +32,11 @@ const Question = () => {
     );
   };
 
-  /// Hard coded example question
-
-  const question = "Example Question";
-
-  const options = [
-    "Example answer 1",
-    "Example answer 2",
-    "Example answer 3",
-    "Example answer 4",
-  ];
-
   return (
     <div>
       <h1>{question}</h1>
-      <p>Question ID: {id} </p>
-      <br></br>
+      <p>Question ID: {id}</p>
+      <br />
       <ul>
         {options.map((o, i) => (
           <li key={i}>
@@ -44,7 +44,7 @@ const Question = () => {
           </li>
         ))}
       </ul>
-      <br></br>
+      <br />
       <button onClick={() => console.log(answer)}>Submit</button>
     </div>
   );

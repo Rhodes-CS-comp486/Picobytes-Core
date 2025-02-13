@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 
 const Question = () => {
   const [question, setQuestion] = useState<string>("");
   const [options, setOptions] = useState<string[]>([]);
   const [answer, setAnswer] = useState<boolean[]>([]);
-  let params = useParams();
-  let id = params.id;
+  let { id } = useParams<{ id: string }>();
 
   useEffect(() => {
     // Fetch the question data from the backend
     fetch(`/api/questions/${id}`)
       .then((response) => response.json())
       .then((data) => {
-        setQuestion(data.qtext);
-        setOptions(data.options);
-        setAnswer(new Array(data.options.length).fill(false));
+        console.log("Fetched data:", data); // Add logging
+        if (data.error) {
+          console.error("Error fetching question:", data.error);
+        } else {
+          setQuestion(data.qtext);
+          setOptions(data.options);
+          setAnswer(new Array(data.options.length).fill(false));
+        }
       })
       .catch((error) => console.error("Error fetching question:", error));
   }, [id]);

@@ -6,7 +6,7 @@ import sys
 # Add the backend directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from services.tf_question_pull import QuestionService
+from services.tf_question_pull import TF_QuestionFetcher as QuestionService
 
 class TestTFQuestionPull(unittest.TestCase):
     def setUp(self):

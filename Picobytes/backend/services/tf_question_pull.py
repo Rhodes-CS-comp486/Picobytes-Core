@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-class QuestionService:
+class TF_QuestionFetcher:
     #def __init__(self, db_filename='qa.db'):
      #   self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
 
@@ -32,7 +32,7 @@ class QuestionService:
             return []
         
 if __name__ == '__main__':
-    service = QuestionService()
+    service = TF_QuestionFetcher()
     questions = service.pull_questions()
     for question in questions:
         print(question)

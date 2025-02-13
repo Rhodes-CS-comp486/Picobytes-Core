@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, jsonify
-from services.tf_question_pull import QuestionService
+from services.tf_question_pull import TF_QuestionFetcher as QuestionService
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

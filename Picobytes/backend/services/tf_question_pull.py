@@ -5,10 +5,9 @@ class TF_QuestionFetcher:
     #def __init__(self, db_filename='qa.db'):
      #   self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
 
-    def __init__(self, db_path=None):
-        if db_path is None:
-            db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "qa.db"))
-        self.db_path = db_path
+    def __init__(self, db_filename="qa.db"):
+        """Initialize the connection to the SQLite database located one directory above."""
+        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
 
     def pull_questions(self):
         try:

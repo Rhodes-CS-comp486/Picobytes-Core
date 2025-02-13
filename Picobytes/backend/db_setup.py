@@ -13,6 +13,7 @@ def create_table():
                 qtext TEXT NOT NULL,
                 qtype TEXT NOT NULL,
                 qlevel TEXT NOT NULL,
+                qtopic TEXT NOT NULL,
                 qactive BOOLEAN NOT NULL
             );""")
 

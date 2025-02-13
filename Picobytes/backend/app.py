@@ -1,7 +1,8 @@
 # Treat this as app.py
 import os
 from flask import Flask, render_template, jsonify
-from services.tf_question_pull import QuestionService # type: ignore
+from services.tf_question_pull import QuestionService
+from services.mc_question_pull import MC_QuestionFetcher# type: ignore
 import os 
 
 # get absolute path of current file's directory
@@ -25,6 +26,15 @@ def home():
 def api_get_questions():
     questions = question_service.pull_questions()
     return jsonify(questions)
+
+@app.route('/api/question/<int:qid>', methods=['GET'])
+def question(qid):
+    """API endpoint to fetch a question by ID."""
+    question_data = MC_QuestionFetcher.get_question_by_id(qid)
+    if question_data:
+        return jsonify(question_data)
+    else:
+        return jsonify({"error": "Question not found"}), 404
 
 
 if __name__ == '__main__':

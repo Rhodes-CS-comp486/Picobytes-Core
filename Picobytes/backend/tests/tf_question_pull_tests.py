@@ -48,7 +48,7 @@ class TestTFQuestionPull(unittest.TestCase):
 
     def test_pull_questions(self):
         # Initialize the QuestionService with the test database path
-        service = QuestionService(db_path=self.db_path)
+        service = QuestionService(self.db_path)
         
         # Fetch questions and verify the results
         result = service.pull_questions()

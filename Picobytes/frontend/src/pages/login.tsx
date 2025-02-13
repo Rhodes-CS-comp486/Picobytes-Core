@@ -2,6 +2,8 @@
  import { useState } from 'react';
  import './login.css'
 
+import './login.css'
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 
@@ -34,6 +36,7 @@ const Login = () => {
                     <button id='btnCreateAcc'>CREATE ACCOUNT</button>
                 </div>
                 
+
             </div>
         </div>
     )

@@ -1,69 +1,40 @@
-/* Login Page CSS */
+@import "tailwindcss";
 
-body {
-    background-color: cadetblue ;
-}
-.login-container {
+#Login{
     text-align: center;
     padding: 50px;
+    background-color:rgb(169, 122, 213);
+    border-radius: 10px;
+    margin:auto; 
+    height:auto; 
+    overflow: auto;
+}
+#UsernameBox{
     background-color: white;
-    border-radius: 10%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    gap:10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    
-}
-
-.login-container-input {
-    gap: 10px;
-    margin-bottom: 30px;
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
-
-/* This is for input label and input box*/
-.login-container-input-button
-{
-    display: flex;
-    justify-content: flex-end;
-    padding: 10px;
-
-}
-
-.login-container-input-button label {
-    margin-right: 10px;
-}
-.login-input-button {
-    background-color: #e1e1e1;
-    border-color: black;
     color: black;
-    border-radius: 5px;
-    padding: 5px;
-    min-width: 200px;
-    outline: None;
+    margin: 1em;
+    border-color: blue;
+    border-radius: 10px;
+    padding-left: 5px;
 }
-
-.login h1 {
-    margin-bottom: 20px;
+#PasswordBox{
+    background-color: white;
+    color: black;
+    margin: 1em;
+    border-color: blue;
+    border-radius: 10px;
+    padding-left: 5px;
 }
-
-
-
-.login-button-container {
+#btnLogin{
+    background-color: blue;
+    flex: 1;
+}
+#btnCreateAcc{
+    background-color: blue;
+    flex: 2;
+}
+#ButtonSections{
+    margin-top: 5px;
     display: flex;
-    justify-content: center;
-    gap: 15px; /* Space between buttons */
+    justify-content: space-between;
 }
-
-button {
-    padding: 10px 20px;
-    cursor: pointer;
-    background-color: cadetblue;
-    color: white;
-    border: none;
-    border-radius: 5px;
-  }

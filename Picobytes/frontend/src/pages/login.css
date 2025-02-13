@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+#Login{
+    text-align: center;
+    padding: 50px;
+    background-color:rgb(169, 122, 213);
+    border-radius: 10px;
+    margin:auto; 
+    height:auto; 
+    overflow: auto;
+}
+#UsernameBox{
+    background-color: white;
+    color: black;
+    margin: 1em;
+    border-color: blue;
+    border-radius: 10px;
+    padding-left: 5px;
+}
+#PasswordBox{
+    background-color: white;
+    color: black;
+    margin: 1em;
+    border-color: blue;
+    border-radius: 10px;
+    padding-left: 5px;
+}
+#btnLogin{
+    background-color: blue;
+    flex: 1;
+}
+#btnCreateAcc{
+    background-color: blue;
+    flex: 2;
+}
+#ButtonSections{
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+}

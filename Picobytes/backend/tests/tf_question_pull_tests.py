@@ -1,6 +1,11 @@
 import unittest
 import sqlite3
 import os
+import sys
+
+# Add the backend directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from services.tf_question_pull import QuestionService
 
 class TestTFQuestionPull(unittest.TestCase):

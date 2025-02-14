@@ -2,7 +2,7 @@ import sqlite3
 import random
 import os
 
-class QuestionFetcher:
+class MC_QuestionFetcher:
 
     def __init__(self, db_filename="qa.db"):
         """Initialize the connection to the SQLite database located one directory above."""

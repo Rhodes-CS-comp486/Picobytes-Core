@@ -7,6 +7,7 @@ import Homepage from "./pages/home";
 import Login from "./pages/login";
 import Question from "./pages/question";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import "./App.css"
 
 
 function App() {

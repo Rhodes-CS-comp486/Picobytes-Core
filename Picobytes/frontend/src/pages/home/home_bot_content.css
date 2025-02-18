@@ -1,0 +1,34 @@
+/* Home Bot Content CSS */
+
+.hbc {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Full width */
+    overflow-x: hidden;
+    background-color: #ffffff;
+    height: auto; 
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.hbc-grid {
+    
+    display: grid;
+    grid-template-columns: auto auto;
+    padding: 40px;
+    column-gap: 30px;
+    row-gap: 50px;
+
+    
+}
+.hbc-grid button {
+    width: 100%;
+
+    padding: 20px;
+    background-color: cadetblue;
+    color: white;
+    font-size: 20px;
+    
+}
+

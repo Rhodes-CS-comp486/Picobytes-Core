@@ -5,10 +5,9 @@ import Home_Top_Content from './home_top_content';
 import Home_Bot_Content from './home_bot_content';
 
 
-import reactLogo from '../assets/react.svg'
+import reactLogo from '../../assets/react.svg'
 
 import './home.css'
-//import './home_top_content.css'
 
 
 const Homepage = () => {

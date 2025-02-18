@@ -3,10 +3,11 @@ import { useState } from "react";
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 // import "./App.css";
-import Homepage from "./pages/home";
+import Homepage from "./pages/home/home";
 import Login from "./pages/login";
 import Question from "./pages/question";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import "./App.css"
 
 
 function App() {

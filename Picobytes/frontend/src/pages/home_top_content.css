@@ -1,0 +1,45 @@
+/* Home Top Content CSS */
+
+
+.htc {
+
+
+    background-image: url('header.jpg');
+    
+    background-position: center;
+    background-size: cover;
+    max-width: 100vw;
+    width: 1920px;
+    height: 500px; 
+    
+    
+    box-sizing: border-box;
+  }
+
+  .htc h1 {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    color: white;
+  }
+
+  
+  /* Button styling */
+
+  
+  .htc-button {
+    position: relative;
+    align-self: center;
+
+    padding: 20px;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 70px;
+    width: 300px;
+  }
+
+  

@@ -1,5 +1,10 @@
 import sqlite3
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
 def create_table():
     try:
 

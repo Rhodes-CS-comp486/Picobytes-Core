@@ -14,9 +14,9 @@ class QuestionService:
             # Use provided path
             self.db_path = db_path
 
-
     def pull_questions(self):
         try:
+            print(f"Using database path: {self.db_path}")
             conn = sqlite3.connect(self.db_path)
             c = conn.cursor()
             c.execute('''
@@ -26,6 +26,7 @@ class QuestionService:
                 WHERE q.qtype = 'tf' AND q.qactive = 1
             ''')
             questions = c.fetchall()
+            print(f"Fetched questions: {questions}")
             conn.close()
             return questions
         

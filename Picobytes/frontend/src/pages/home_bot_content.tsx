@@ -5,14 +5,35 @@ import './home_bot_content.css'
 
 const Home_Bot_Content = () => {
     return (
+        
         <div className='hbc'>
             <h1>Lesson Plans</h1>
-            <div className='hbc-container'>
-                <ul>
-                    <li>HI</li>
-                    <li>HI</li>
-                    <li>HI</li>
-                </ul>
+            <div className='hbc-grid'>
+                <div>
+                    <button>click me</button>
+                </div>
+                <div>
+                    <button>click me</button>
+                </div>
+                <div>
+                    <button>click me</button>
+                </div>
+                <div>
+                    <button>click me</button>
+                </div>
+                <div>
+                    <button>click me</button>
+                </div>
+                <div>
+                    <button>click me</button>
+                </div>
+                <div>
+                    <button>click me</button>
+                </div>
+                <div>
+                    <button>click me</button>
+                </div>
+                
 
             </div>
         </div>

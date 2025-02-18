@@ -8,10 +8,20 @@
     overflow-x: hidden;
     background-color: #ffffff;
     height: 300px; 
-    margin-top: 70px;
+    margin-top: 0px;
+    justify-content: center;
 }
 
-.hbc-container {
-    position: relative;
-    grid-template-columns: 2;
+.hbc-grid {
+    
+    display: grid;
+    grid-template-columns: auto auto;
+    padding: 20px;
+    gap: 10px;
+
+    
 }
+button {
+    width: 100%;
+}
+

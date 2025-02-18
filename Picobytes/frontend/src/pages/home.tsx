@@ -1,8 +1,14 @@
 import { useState } from 'react';
+
 import Homepage_Prof_Overlay from './home_prof_overlay';
+import Home_Top_Content from './home_top_content';
+import Home_Bot_Content from './home_bot_content';
+
+
 import reactLogo from '../assets/react.svg'
 
 import './home.css'
+//import './home_top_content.css'
 
 
 const Homepage = () => {
@@ -14,30 +20,29 @@ const Homepage = () => {
 
 
   return (
-    <div className='homepage-container'>
-      <h1>This is the user homepage.</h1>
-      <p>Welcome back, Agent 41</p>
+    <div className='homepage'>
       
-      {/* Profile Icon */}
+      
+      {/* Profile Icon & header */}
       <div className='homepage-header'>
-        <div className="profile-icon-container" onClick={toggleOverlay}>
-          <img
-            src={reactLogo} //"https://via.placeholder.com/50"
-            alt="Profile"
-            className="profile-icon"
-          />
-        </div>
+          <div className="profile-icon-container" onClick={toggleOverlay}>
+            <img
+              src={reactLogo} //"https://via.placeholder.com/50"
+              alt="Profile"
+              className="profile-icon"
+            />
+          </div>
 
-        {/* Profile Overlay in the corner */}
-        {showOverlay && <Homepage_Prof_Overlay />}
+          {/* Profile Overlay in the corner */}
+          {showOverlay && <Homepage_Prof_Overlay />}
       </div>
-
-      {/* Button */}
-      <button className="homepage-button" onClick={() => alert('Welcome to Picobytes!')}>
-        Click Me
-      </button>
-
+      <div className='homepage-content-container'>
+        {<Home_Top_Content/>}
+        {<Home_Bot_Content/>}
+      </div>
+      
     </div>
+        
   );
 };
 

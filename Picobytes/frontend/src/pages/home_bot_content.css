@@ -1,0 +1,17 @@
+/* Home Bot Content CSS */
+
+.hbc {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Full width */
+    overflow-x: hidden;
+    background-color: #ffffff;
+    height: 300px; 
+    margin-top: 70px;
+}
+
+.hbc-container {
+    position: relative;
+    grid-template-columns: 2;
+}

@@ -1,11 +1,14 @@
 import sqlite3
 
-<<<<<<< Updated upstream
-=======
+########################################################
+########################################################
 
+####    CAREFUL! - THIS WILL DELETE THE DATABASE    ####
 
->>>>>>> Stashed changes
-def create_table():
+########################################################
+########################################################
+
+def delete_table():
     try:
 
         #creating questions table
@@ -18,6 +21,7 @@ def create_table():
                 qtext TEXT NOT NULL,
                 qtype TEXT NOT NULL,
                 qlevel TEXT NOT NULL,
+                qtopic TEXT NOT NULL,
                 qactive BOOLEAN NOT NULL
             );""")
 
@@ -59,34 +63,6 @@ def create_table():
     except Exception as e:
         print(f"Error creating table: {e}")
 
-def insert_sample_data():
-    try:
-        connection = sqlite3.connect("../backend/qa.db")
-        cursor = connection.cursor()
-        
-        # Insert a true/false question
-        cursor.execute("""
-            INSERT INTO questions (qtext, qtype, qlevel, qactive)
-            VALUES (?, ?, ?, ?)
-        """, ("The sky is blue", "tf", "easy", True))
-        
-        # Get the qid of the inserted question
-        qid = cursor.lastrowid
-        
-        # Insert the true/false answer
-        cursor.execute("""
-            INSERT INTO true_false (qid, correct)
-            VALUES (?, ?)
-        """, (qid, True))
-        
-        connection.commit()
-        connection.close()
-        print("Sample data inserted successfully")
-        
-    except Exception as e:
-        print(f"Error inserting sample data: {e}")
-
 
 if __name__ == "__main__":
-    create_table()
-    insert_sample_data()
+  delete_table()

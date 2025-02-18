@@ -1,29 +1,53 @@
-// The individual question and possibly feedbacuk
+// The individual question and possibly feedback
 
-//filler code essentially / helps with tests
-// Picobytes/frontend/src/pages/Questions.tsx
-import { useEffect, useState } from 'react';
+import React from "react";
+import { useState } from "react";
+import { useParams } from "react-router";
 
-const Questions = () => {
-  const [questions, setQuestions] = useState([]);
+const Question = () => {
+  const [answer, setAnswer] = useState([false, false, false, false]);
+  let params = useParams();
+  let id = params.id;
 
-  useEffect(() => {
-    fetch('/api/questions')
-      .then(response => response.json())
-      .then(data => setQuestions(data))
-      .catch(error => console.error('Error fetching questions:', error));
-  }, []);
+  const updateAnswer = (n: number) => {
+    setAnswer(
+      answer.map((a, j) => {
+        if (n == j) {
+          return !a;
+        } else {
+          return a;
+        }
+      })
+    );
+  };
+
+  /// Hard coded example question
+
+  const question = "Example Question";
+
+  const options = [
+    "Example answer 1",
+    "Example answer 2",
+    "Example answer 3",
+    "Example answer 4",
+  ];
 
   return (
     <div>
-      <h1>Questions</h1>
+      <h1>{question}</h1>
+      <p>Question ID: {id} </p>
+      <br></br>
       <ul>
-        {questions.map((question: any) => (
-          <li key={question.qid}>{question.qtext}</li>
+        {options.map((o, i) => (
+          <li key={i}>
+            <input type="checkbox" onClick={() => updateAnswer(i)} /> {o}
+          </li>
         ))}
       </ul>
+      <br></br>
+      <button onClick={() => console.log(answer)}>Submit</button>
     </div>
   );
 };
 
-export default Questions;
+export default Question;

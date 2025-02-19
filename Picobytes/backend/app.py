@@ -4,6 +4,7 @@ from flask import Flask, render_template, jsonify
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
 import os 
+from flask_cors import CORS
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -15,6 +16,7 @@ public_dir = os.path.join(base_dir, 'public')
 app = Flask(__name__, 
             template_folder=frontend_dir, 
             static_folder=public_dir)
+CORS(app)
 
 question_service = QuestionService()
 
@@ -25,7 +27,12 @@ def home():
 @app.route('/api/questions', methods=['GET'])
 def api_get_questions():
     questions = question_service.pull_questions()
-    return jsonify(questions)
+    return jsonify(
+        {
+            "questions": questions,
+            "total_questions": len(questions)
+        }
+    )
 
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):

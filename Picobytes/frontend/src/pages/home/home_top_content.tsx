@@ -13,7 +13,7 @@ const Home_Top_Content = () => {
     
     const [totalQuestions, setTotalQuestions] = useState(0);
     
-    // Fetch total number MC questions
+    // Fetch total number questions
     useEffect(() => {
         fetch('http://localhost:5000/api/questions')
             .then(response => response.json())

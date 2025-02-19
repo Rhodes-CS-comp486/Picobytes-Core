@@ -38,6 +38,7 @@ def api_get_questions():
         }
     )
 
+
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):
     """API endpoint to fetch a question by ID."""

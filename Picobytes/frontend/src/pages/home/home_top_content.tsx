@@ -15,7 +15,7 @@ const Home_Top_Content = () => {
     
     // Fetch total number MC questions
     useEffect(() => {
-        fetch('/api/question/<int:qid>')
+        fetch('http://localhost:5000/api/questions')
             .then(response => response.json())
             .then(data => {
                 setTotalQuestions(data.total_questions);
@@ -32,15 +32,14 @@ const Home_Top_Content = () => {
         <div className='htc'>
             <div>
                 <h1>Welcome back, Agent 41!</h1>
-                <p>Continue your progress?</p>
             </div>
 
             {/* PROGRESS BAR */}
+            <p>Total Questions: {totalQuestions}</p>
             <div className='htc-progress-bar'>
                 {/*<div className={`progress progress-${progress}`}>*/}
                 
             </div>
-            <p>Total Questions: {totalQuestions}</p>
 
             {/* Button */}
             <button className='htc-button' onClick={question}>

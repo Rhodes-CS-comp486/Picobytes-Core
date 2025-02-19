@@ -1,8 +1,10 @@
 # Treat this as app.py
 import os
-from flask import Flask, render_template, jsonify
+
+from flask import Flask, render_template, jsonify, request
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher
+from services.user_funcs import UserFuncs
 import hashlib
 import os 
 
@@ -17,7 +19,9 @@ app = Flask(__name__,
             template_folder=frontend_dir, 
             static_folder=public_dir)
 
-question_service = QuestionService()
+tf_question_service = QuestionService()
+mc_question_service = MC_QuestionFetcher()
+user_service = UserFuncs()
 
 @app.route('/')
 def home():
@@ -25,49 +29,36 @@ def home():
 
 @app.route('/api/questions', methods=['GET'])
 def api_get_questions():
-    questions = question_service.pull_questions()
+    questions = tf_question_service.pull_questions()
     return jsonify(questions)
 
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):
     """API endpoint to fetch a question by ID."""
-    question_data = MC_QuestionFetcher.get_question_by_id(qid)
+    question_data = mc_question_service.get_question_by_id(qid)
     if question_data:
         return jsonify(question_data)
     else:
         return jsonify({"error": "Question not found"}), 404
 
 
-
-import sqlite3
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-
-def get_user_by_credentials(uname, hashed_password):
-    conn = sqlite3.connect('your_database.db')  # Replace with your actual DB
-    cursor = conn.cursor()
-    cursor.execute("SELECT uid FROM users WHERE uname = ? AND upassword = ?", (uname, hashed_password))
-    user = cursor.fetchone()
-    conn.close()
-    return user[0] if user else -1
-
-
-@app.route('/api/login', methods=['GET'])
+@app.route('/api/login', methods=['POST'])
 def login():
-    uname = request.args.get('uname')
-    upassword = request.args.get('upassword')
+    data = request.get_json()
+    uname = data.get('uname')
+    upassword = data.get('upassword')
 
     if not uname or not upassword:
         return jsonify({'error': 'Missing username or password'}), 400
 
-    hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
-    uid = get_user_by_credentials(uname, hashed_password)
 
+    #hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
+    uid = user_service.get_user_by_credentials(uname, upassword)
+    if uid is None:
+        return jsonify({'error': 'Invalid username or password'}), 401
     return jsonify({'uid': uid})
 
 
 
 if __name__ == '__main__':
-    app.run(debug=True
+    app.run(debug=True)

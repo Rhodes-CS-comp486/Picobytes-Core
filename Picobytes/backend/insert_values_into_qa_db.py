@@ -10,7 +10,7 @@ def insert_sample_questions():
         mc_questions = [
             (
                 "What is the capital of France?",
-                "mc",
+                "multiple_choice",
                 "easy",
                 "Geography",
                 1,
@@ -22,7 +22,7 @@ def insert_sample_questions():
             ),
             (
                 "Which planet is known as the Red Planet?",
-                "mc",
+                "multiple_choice",
                 "easy",
                 "Science",
                 1,
@@ -34,7 +34,7 @@ def insert_sample_questions():
             ),
             (
                 "What is the largest organ in the human body?",
-                "mc",
+                "multiple_choice",
                 "medium",
                 "Biology",
                 1,
@@ -50,7 +50,7 @@ def insert_sample_questions():
         tf_questions = [
             (
                 "The Earth is flat.",
-                "tf",
+                "true_false",
                 "easy",
                 "Science",
                 1,
@@ -58,7 +58,7 @@ def insert_sample_questions():
             ),
             (
                 "Water boils at 100 degrees Celsius at sea level.",
-                "tf",
+                "true_false",
                 "easy",
                 "Science",
                 1,
@@ -66,7 +66,7 @@ def insert_sample_questions():
             ),
             (
                 "Python is a compiled programming language.",
-                "tf",
+                "true_false",
                 "medium",
                 "Programming",
                 1,

@@ -1,47 +1,27 @@
 import sqlite3
 
-########################################################
-########################################################
-
-####    CAREFUL! - THIS WILL DELETE THE DATABASE    ####
-
-########################################################
-########################################################
-
-
 def reset_tables():
     try:
+        with sqlite3.connect("qa.db") as connection:
+            cursor = connection.cursor()
 
-        # creating questions table
-        connection = sqlite3.connect("../backend/qa.db")
-        cursor = connection.cursor()
+            # Disable foreign key constraints to avoid issues
+            cursor.execute("PRAGMA foreign_keys = OFF;")
 
-        cursor.execute("""
-            DROP TABLE IF EXISTS questions;""")
+            # Dropping tables
+            tables = ["questions", "true_false", "multiple_choice"]
+            for table in tables:
+                cursor.execute(f"DROP TABLE IF EXISTS {table};")
+                print(f"{table} table dropped")
 
-        connection.commit()
-        print("questions table dropped")
+            # Ensure changes are committed
+            connection.commit()
 
-        # creating True/False Table
-        cursor.execute("""
-            DROP TABLE IF EXISTS true_false;""")
-
-        connection.commit()
-
-        print("true_false table dropped")
-
-        # creating Multiple choice Table
-        cursor.execute("""
-            DROP TABLE IF EXISTS multiple_choice;""")
-
-        connection.commit()
-        connection.close()
-
-        print("true_false table dropped")
 
     except Exception as e:
-        print(f"Error dropping table: {e}")
+        print(f"Error dropping tables: {e}")
 
+    connection.close()
 
 if __name__ == "__main__":
     reset_tables()

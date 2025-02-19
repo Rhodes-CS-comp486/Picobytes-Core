@@ -1,18 +1,10 @@
 import sqlite3
 
-########################################################
-########################################################
-
-####    CAREFUL! - THIS WILL DELETE THE DATABASE    ####
-
-########################################################
-########################################################
-
 def delete_table():
     try:
 
         #creating questions table
-        connection = sqlite3.connect("../backend/qa.db")
+        connection = sqlite3.connect("qa.db")
         cursor = connection.cursor()
 
         cursor.execute("""

@@ -37,7 +37,7 @@ class MC_QuestionFetcher:
         """Fetch a specific question by its ID."""
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel from multiple_choice natural join questions where qactive = 1 and question.qid = ?", (question_id,))
+        cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel from multiple_choice natural join questions where qactive = 1 and multiple_choice.qid = ?", (question_id,))
         question = cursor.fetchone()
         conn.close()
         return question

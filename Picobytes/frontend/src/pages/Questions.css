@@ -1,0 +1,20 @@
+.questions-page {
+    padding: 20px;
+  }
+  
+  .questions-page h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .questions-page ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .questions-page li {
+    background: #f5f5f5;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+  }

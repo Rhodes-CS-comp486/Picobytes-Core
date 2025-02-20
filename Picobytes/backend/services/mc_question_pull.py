@@ -19,6 +19,7 @@ class MC_QuestionFetcher:
         cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel from multiple_choice natural join questions where qactive = 1;")
         all_questions = cursor.fetchall()
         conn.close()
+        print("fetched all mc questions")
         return all_questions
 
 

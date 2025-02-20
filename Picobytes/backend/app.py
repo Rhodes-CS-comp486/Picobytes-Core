@@ -30,11 +30,20 @@ def home():
 
 @app.route('/api/questions', methods=['GET'])
 def api_get_questions():
-    questions = tf_question_service.pull_questions()
+    tf_questions = tf_question_service.pull_questions()
+    mc_questions = mc_question_service.pull_questions()
+
+    print(f"TF Questions: {tf_questions}")
+    print(f"MC Questions: {mc_questions}")
+
+    questions = {
+        'tf': tf_questions,
+        'mc': mc_questions
+    }
     return jsonify(
         {
-            "questions": questions,
-            "total_questions": len(questions)
+            'questions': questions,
+            'total_questions': len(tf_questions) + len(mc_questions)
         }
     )
 

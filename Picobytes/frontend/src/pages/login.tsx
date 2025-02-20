@@ -9,11 +9,40 @@ const Login = () => {
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
+    const [userId, setUserId] = useState(null);
+
+    const handleLogin = async (e: any) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch("http://localhost:5000/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ uname: username, upassword: password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Login failed");
+            }
+
+            setUserId(data.uid);
+            setError(null);
+
+        } catch (err:any) {
+            setError(err.message);
+        }
+    };
 
     const login = (username: string, password: string) => {
         //will be changed to store to data base
         alert(username)
         alert(password)
+        fetch("localhost:5173/api/login").then()
     }
     
 
@@ -30,7 +59,7 @@ const Login = () => {
             </div>
             <div id='ButtonSections'>
                 <div>
-                    <button onClick={() => login(username,password)} id='btnLogin'>LOGIN</button>
+                    <button onClick={(e) => handleLogin(e)} id='btnLogin'>LOGIN</button>
                 </div>
                 <div>
                     <button id='btnCreateAcc'>CREATE ACCOUNT</button>

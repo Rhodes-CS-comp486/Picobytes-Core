@@ -5,12 +5,13 @@ def insert_sample_questions():
         # Connect to the database
         connection = sqlite3.connect("qa.db")
         cursor = connection.cursor()
-        
-        # Multiple choice questions
+
+
+       # Multiple choice questions
         mc_questions = [
             (
                 "What is the capital of France?",
-                "multiple_choice",
+                "mc",  # Changed from "multiple_choice"
                 "easy",
                 "Geography",
                 1,
@@ -18,11 +19,11 @@ def insert_sample_questions():
                 "London",
                 "Berlin",
                 "Madrid",
-                1  # 1 indicates first option (Paris) is correct
+                1
             ),
             (
                 "Which planet is known as the Red Planet?",
-                "multiple_choice",
+                "mc",  # Changed from "multiple_choice"
                 "easy",
                 "Science",
                 1,
@@ -30,11 +31,11 @@ def insert_sample_questions():
                 "Venus",
                 "Jupiter",
                 "Saturn",
-                1  # 1 indicates first option (Mars) is correct
+                1
             ),
             (
                 "What is the largest organ in the human body?",
-                "multiple_choice",
+                "mc",  # Changed from "multiple_choice"
                 "medium",
                 "Biology",
                 1,
@@ -42,15 +43,15 @@ def insert_sample_questions():
                 "Heart",
                 "Liver",
                 "Brain",
-                1  # 1 indicates first option (Skin) is correct
+                1
             )
         ]
-        
+
         # True/false questions
         tf_questions = [
             (
                 "The Earth is flat.",
-                "true_false",
+                "tf",  # Changed from "true_false"
                 "easy",
                 "Science",
                 1,
@@ -58,7 +59,7 @@ def insert_sample_questions():
             ),
             (
                 "Water boils at 100 degrees Celsius at sea level.",
-                "true_false",
+                "tf",  # Changed from "true_false"
                 "easy",
                 "Science",
                 1,
@@ -66,13 +67,14 @@ def insert_sample_questions():
             ),
             (
                 "Python is a compiled programming language.",
-                "true_false",
+                "tf",  # Changed from "true_false"
                 "medium",
                 "Programming",
                 1,
                 False
             )
         ]
+
         
         # Insert multiple choice questions
         for q in mc_questions:

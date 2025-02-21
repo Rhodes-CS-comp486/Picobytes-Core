@@ -1,8 +1,6 @@
  import React from 'react';
  import { useState } from 'react';
  import './login.css'
-
-import './login.css'
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -11,6 +9,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const [userId, setUserId] = useState(null);
+    const navigate = useNavigate();
 
     const handleLogin = async (e: any) => {
         e.preventDefault();
@@ -32,6 +31,10 @@ const Login = () => {
 
             setUserId(data.uid);
             setError(null);
+
+            if(data.uid > 0){
+                navigate('/homepage');
+            }
 
         } catch (err:any) {
             setError(err.message);

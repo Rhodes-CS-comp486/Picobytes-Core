@@ -1,49 +1,59 @@
 import { useEffect, useState } from 'react';
 import './questions.css';
 
-interface Question {
-  tf: any[];
-  mc: any[];
+interface QuestionData {
+  questions: {
+    tf: [number, string, string, number][];
+    mc: [number, string, string, string, string, string, number, string][];
+  };
+  total_questions: number;
 }
 
 const Questions = () => {
-  const [questions, setQuestions] = useState<Question>({ tf: [], mc: [] });
+  console.log("Questions component rendering"); // Debug log
+
+  const [data, setData] = useState<QuestionData | null>(null);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    fetch('http://localhost:5000/api/questions')
+    console.log("Starting fetch request"); // Debug log
+    
+    fetch('http://127.0.0.1:5000/api/questions')
       .then(response => {
+        console.log("Response received:", response.status); // Debug log
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         return response.json();
       })
-      .then(data => {
-        console.log('Received data:', data); // Debug log
-        setQuestions(data.questions);
+      .then((responseData) => {
+        console.log("Data received:", responseData); // Debug log
+        setData(responseData);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Error fetching questions:', error);
-        setError('Failed to load questions');
+        console.log("Error caught:", error); // Debug log
+        setError(error.message);
         setLoading(false);
       });
   }, []);
 
+  console.log("Current state:", { loading, error, data }); // Debug log
+
   if (loading) return <div>Loading questions...</div>;
   if (error) return <div>Error: {error}</div>;
+  if (!data) return <div>No questions available</div>;
 
   return (
     <div className="questions-page">
-      <h1>All Questions</h1>
+      <h1>All Questions ({data.total_questions} total)</h1>
       
       <h2>True/False Questions</h2>
       <ul>
-        {questions.tf && questions.tf.map((question, index) => (
-          <li key={index}>
-            <strong>Question:</strong> {question[1]}
+        {data.questions.tf.map((question) => (
+          <li key={question[0]} className="question-item">
+            <strong>Question {question[0]}:</strong> {question[1]}
             <br />
             <strong>Level:</strong> {question[2]}
             <br />
@@ -54,9 +64,9 @@ const Questions = () => {
 
       <h2>Multiple Choice Questions</h2>
       <ul>
-        {questions.mc && questions.mc.map((question, index) => (
-          <li key={index}>
-            <strong>Question:</strong> {question[1]}
+        {data.questions.mc.map((question) => (
+          <li key={question[0]} className="question-item">
+            <strong>Question {question[0]}:</strong> {question[1]}
             <br />
             <strong>Level:</strong> {question[7]}
             <br />

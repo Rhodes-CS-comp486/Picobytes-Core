@@ -1,20 +1,49 @@
 .questions-page {
-    padding: 20px;
-  }
-  
-  .questions-page h1 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .questions-page ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .questions-page li {
-    background: #f5f5f5;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 5px;
-  }
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.questions-page h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.questions-page h2 {
+  color: #333;
+  margin: 30px 0 20px;
+}
+
+.questions-page ul {
+  list-style: none;
+  padding: 0;
+}
+
+.questions-page li {
+  background: #f5f5f5;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.question-item {
+  margin-bottom: 20px;
+}
+
+.question-item strong {
+  color: #444;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.question-item ol {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.question-item li {
+  background: none;
+  box-shadow: none;
+  padding: 5px;
+}

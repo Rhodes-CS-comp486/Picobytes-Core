@@ -10,7 +10,6 @@ import Questions from "./pages/Questions"; //import new Questions component
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css"
 
-
 function App() {
   return (
     <>

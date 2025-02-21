@@ -1,0 +1,9 @@
+Branches:
+  should follow this format -  "us-<epic>.<user story>"
+
+Frontend:
+  TextFont:  Keep default from index.css
+  ColorTheme: background should be desktop default(light or dark mode), buttons - blue
+
+Backend:
+  

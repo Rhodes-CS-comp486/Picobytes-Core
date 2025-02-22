@@ -1,10 +1,5 @@
 /* Homepage.css */
 
-* {
-  margin: 0;
-  padding: 0;
-}
-
 /* Homepage container should take full width */
 .homepage {
   width:100%;
@@ -42,5 +37,7 @@
   background-color: white;
 }
  
-
+button {
+  color: black;
+}
 

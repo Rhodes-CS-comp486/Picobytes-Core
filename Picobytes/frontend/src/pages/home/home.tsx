@@ -21,7 +21,6 @@ const Homepage = () => {
   return (
     <div className='homepage'>
       
-      
       {/* Profile Icon & header */}
       <div className='homepage-header'>
           <div className="profile-icon-container" onClick={toggleOverlay}>

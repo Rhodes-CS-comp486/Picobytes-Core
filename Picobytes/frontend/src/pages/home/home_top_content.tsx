@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
+
 import './home_top_content.css'
 
 const Home_Top_Content = () => {
@@ -9,6 +10,10 @@ const Home_Top_Content = () => {
 
     const question = () => {
         navigate('/question/:id')
+    }
+
+    const topic_select = () => {
+        navigate('/topic_select')
     }
     
     const [totalQuestions, setTotalQuestions] = useState(0);
@@ -32,6 +37,7 @@ const Home_Top_Content = () => {
         <div className='htc'>
             <div>
                 <h1>Welcome back, Agent 41!</h1>
+                <button onClick={topic_select}>To topic select</button>
             </div>
 
             {/* PROGRESS BAR */}

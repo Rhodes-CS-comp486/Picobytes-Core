@@ -5,6 +5,7 @@ from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
 from services.user_funcs import UserFuncs
 import os
+import hashlib
 from flask_cors import CORS
 
 # get absolute path of current file's directory
@@ -71,6 +72,7 @@ def question(qid):
     else:
         return jsonify({"error": "Question not found"}), 404
 
+
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -79,13 +81,12 @@ def login():
 
     if not uname or not upassword:
         return jsonify({'error': 'Missing username or password'}), 400
-
-
-    #hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
-    uid = user_service.get_user_by_credentials(uname, upassword)
+    hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
+    uid = user_service.get_user_by_credentials(uname, hashed_password)
     if uid is None:
         return jsonify({'error': 'Invalid username or password'}), 401
     return jsonify({'uid': uid})
+
 
 
 if __name__ == '__main__':

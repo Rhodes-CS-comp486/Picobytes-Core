@@ -67,7 +67,20 @@ def question(qid):
     """API endpoint to fetch a question by ID."""
     question_data = mc_question_service.get_question_by_id(qid)
     if question_data:
-        return jsonify(question_data)
+        response = {
+            'question_id': question_data['qid'],
+            'question_type': question_data['qtype'],
+            'question_text': question_data['qtext'],
+            'option1': question_data['option1'],
+            'option2': question_data['option2'],
+            'option3': question_data['option3'],
+            'option4': question_data['option4'],
+            'answer': question_data['answer'],
+            'question_level': question_data['qlevel'],
+            'question_topic': question_data['qtopic']
+        }
+
+        return jsonify(response)
     else:
         return jsonify({"error": "Question not found"}), 404
 

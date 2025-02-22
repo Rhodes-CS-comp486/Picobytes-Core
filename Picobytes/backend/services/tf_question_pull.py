@@ -26,7 +26,7 @@ class QuestionService:
                 WHERE q.qtype = 'tf' AND q.qactive = 1
             ''')
             questions = c.fetchall()
-            print(f"Fetched questions: {questions}")
+            print(f"Fetched t/f questions: {questions}")
             conn.close()
             return questions
         

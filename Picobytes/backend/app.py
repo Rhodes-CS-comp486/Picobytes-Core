@@ -18,7 +18,14 @@ app = Flask(__name__,
             template_folder=frontend_dir, 
             static_folder=public_dir)
 
-CORS(app)
+# Update CORS configuration to explicitly allow requests from your frontend
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+        }
+})
 
 tf_question_service = QuestionService()
 mc_question_service = MC_QuestionFetcher()
@@ -28,16 +35,32 @@ user_service = UserFuncs()
 def home():
     return render_template('index.html')
 
+
 @app.route('/api/questions', methods=['GET'])
 def api_get_questions():
-    questions = tf_question_service.pull_questions()
-    return jsonify(
-        {
-            "questions": questions,
-            "total_questions": len(questions)
-        }
-    )
+    try:
+        tf_questions = tf_question_service.pull_questions()
+        mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
 
+        print(f"TF Questions: {tf_questions}")
+        print(f"MC Questions: {mc_questions}")
+
+        questions = {
+            'tf': tf_questions,
+            'mc': mc_questions
+        }
+        
+        response = {
+            'questions': questions,
+            'total_questions': len(tf_questions) + len(mc_questions)
+        }
+        
+        print(f"Sending response: {response}")  # Debug log
+        return jsonify(response)
+    
+    except Exception as e:
+        print(f"Error in api_get_questions: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):

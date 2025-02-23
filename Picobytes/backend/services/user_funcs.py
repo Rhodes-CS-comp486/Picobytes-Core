@@ -39,6 +39,7 @@ class UserFuncs:
             connection.commit()
             print(f"User {uname} added successfully with UID: {uid}")
             connection.close()
+            return uid
 
         except Exception as e:
             print(f"Error adding user: {e}")

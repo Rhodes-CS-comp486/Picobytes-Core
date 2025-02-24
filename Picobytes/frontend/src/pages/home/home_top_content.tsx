@@ -11,11 +11,13 @@ const Home_Top_Content = () => {
     const question = () => {
         navigate('/question/:id')
     }
-
     const topic_select = () => {
         navigate('/topic_select')
     }
+    const allQuestions = () => {
+        navigate('/questions')
     
+    }
     const [totalQuestions, setTotalQuestions] = useState(0);
     
     // Fetch total number questions
@@ -42,19 +44,18 @@ const Home_Top_Content = () => {
 
             {/* PROGRESS BAR */}
             <p>Total Questions: {totalQuestions}</p>
-            <div className='htc-progress-bar'>
-                {/*<div className={`progress progress-${progress}`}>*/}
-                
+            <div className='htc-progress-bar'></div>
+
+            <div className='button-container'>
+                <button className='htc-button' onClick={question}>
+                    Resume Questions <span>&#10233;</span>
+                </button>
+                <button className='htc-button' onClick={allQuestions}>
+                    All Questions <span>&#10233;</span>
+                </button>
             </div>
-
-            {/* Button */}
-            <button className='htc-button' onClick={question}>
-                Resume Questions <span>&#10233;</span>
-            </button>
-
         </div>
     );
-
 };
 
 export default Home_Top_Content

@@ -1,6 +1,6 @@
 import sqlite3
 
-def delete_table():
+def create_table():
     try:
 
         #creating questions table
@@ -57,4 +57,4 @@ def delete_table():
 
 
 if __name__ == "__main__":
-  delete_table()
+  create_table()

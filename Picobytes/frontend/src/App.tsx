@@ -7,14 +7,11 @@ import Homepage from "./pages/home/home";
 import Login from "./pages/login";
 import Question from "./pages/question";
 import Topic_Select from "./pages/topic selection/topic_select";
+import Questions from "./pages/Questions"; //import new Questions component
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css"
 
-
 function App() {
-  //const [count, setCount] = useState(0)
-
-
   return (
     <>
       <div>
@@ -25,6 +22,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/question/:id" element={<Question />} />
             <Route path="topic_select" element={<Topic_Select />} />
+            <Route path="/questions" element={<Questions />} /> {/* Add new route for Questions component */}
           </Routes>
         </Router>
       </div>

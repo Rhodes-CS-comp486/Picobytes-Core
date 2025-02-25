@@ -13,16 +13,19 @@ const Homepage = () => {
 
 
   return (
+    <>
+    <Home_Header />
     <div className='homepage'>
       
       {/* Profile Icon & header */}
-      {<Home_Header/>}
+      {/* {<Home_Header />} */}
       <div className='homepage-content-container'>
         {<Home_Top_Content/>}
         {<Home_Bot_Content/>}
       </div>
       
     </div>
+    </>
         
   );
 };

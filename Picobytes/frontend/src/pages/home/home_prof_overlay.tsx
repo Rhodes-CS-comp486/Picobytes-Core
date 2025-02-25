@@ -17,7 +17,6 @@ const Home_Prof_Overlay = () => {
             <li><button>Settings</button></li>
             <li><button onClick={logout}>Logout</button></li>
         </ul>
-      
     </div>
   );
 };

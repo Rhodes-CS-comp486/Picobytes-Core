@@ -1,6 +1,6 @@
 /* Home Header CSS */
 .homepage-header {
-    position: fixed;
+    position: sticky;
     background-color: cadetblue;
     width: 100%;
     height: 70px;

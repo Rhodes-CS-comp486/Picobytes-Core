@@ -4,7 +4,7 @@
 .htc {
 
 
-    background-color: #292c2e;
+    /* background-color: #292c2e; */
     
     background-position: center;
     background-size: cover;
@@ -21,7 +21,7 @@
     justify-content: left;
     margin-left: 50px;
     padding-top: 50px;
-    color: white;
+    /* color: white; */
     font-size: 70px;
   }
 
@@ -30,7 +30,7 @@
     justify-content: left;
     margin-left: 55px;
     margin-top: 10px;
-    color: white;
+    /* color: white; */
     font-size: 30px;
   }
 

@@ -3,7 +3,7 @@
 #Login{
     text-align: center;
     padding: 50px;
-    background-color:rgb(169, 122, 213);
+    background-color:cadetblue;
     border-radius: 10px;
     margin:auto; 
     height:auto; 
@@ -26,11 +26,11 @@
     padding-left: 5px;
 }
 #btnLogin{
-    background-color: blue;
+    /* background-color: blue; */
     flex: 1;
 }
 #btnCreateAcc{
-    background-color: blue;
+    /* background-color: blue; */
     flex: 2;
 }
 #ButtonSections{

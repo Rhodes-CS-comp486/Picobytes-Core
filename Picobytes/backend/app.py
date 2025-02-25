@@ -7,6 +7,7 @@ from services.user_funcs import UserFuncs
 import os
 import hashlib
 from flask_cors import CORS
+from services.admin_service import AdminService
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -31,6 +32,7 @@ CORS(app, resources={
 tf_question_service = QuestionService()
 mc_question_service = MC_QuestionFetcher()
 user_service = UserFuncs()
+admin_service = AdminService()
 
 @app.route('/')
 def home():
@@ -123,6 +125,42 @@ def login():
         return jsonify({'error': 'Invalid username or password'}), 401
     return jsonify({'uid': uid})
 
+##########################################
+##########      ADMIN SHIT      ##########
+##########################################
+
+@app.route('/api/admin/check', methods=['GET'])
+def check_admin():
+    # This is a simple verification that would need to be replaced with
+    # proper authentication in a production environment
+    uid = request.args.get('uid')
+    is_admin = user_service.is_admin(uid)
+    return jsonify({'is_admin': is_admin})
+
+@app.route('/api/admin/dashboard/active-users', methods=['GET'])
+def get_active_users():
+    # In a production environment, you should add admin authentication here
+    period = request.args.get('period', '24h')
+    data = admin_service.get_active_users(period)
+    return jsonify(data)
+
+@app.route('/api/admin/dashboard/performance', methods=['GET'])
+def get_performance_metrics():
+    # In a production environment, you should add admin authentication here
+    data = admin_service.get_performance_metrics()
+    return jsonify(data)
+
+@app.route('/api/admin/dashboard/question-stats', methods=['GET'])
+def get_question_stats():
+    # In a production environment, you should add admin authentication here
+    data = admin_service.get_question_stats()
+    return jsonify(data)
+
+@app.route('/api/admin/dashboard/usage-stats', methods=['GET'])
+def get_usage_stats():
+    # In a production environment, you should add admin authentication here
+    data = admin_service.get_usage_stats()
+    return jsonify(data)
 
 
 if __name__ == '__main__':

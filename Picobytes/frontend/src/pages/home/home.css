@@ -34,10 +34,11 @@
   min-width: 50px;
   min-height: 50px;
   object-fit: scale-down;
-  background-color: white;
+  background-color: white;  
 }
  
 button {
-  color: black;
+  /* color: black; */
+  /* background-color: cadetblue; */
 }
 

@@ -6,7 +6,7 @@
     flex-direction: column;
     width: 100%; /* Full width */
     overflow-x: hidden;
-    background-color: #ffffff;
+    /* background-color: #ffffff; */
     height: auto; 
     margin-top: 20px;
     justify-content: center;

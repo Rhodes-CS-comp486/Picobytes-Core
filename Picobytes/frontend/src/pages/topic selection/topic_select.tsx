@@ -19,6 +19,9 @@ const Topic_Select = () => {
                 <div id="left">
                     List of topics here
                 </div>
+                <div id="right">
+                    Topic description.
+                </div>
             </div>
         </>
     );

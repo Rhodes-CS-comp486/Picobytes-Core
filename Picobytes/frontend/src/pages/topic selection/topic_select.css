@@ -17,18 +17,23 @@
 #main-wrap {
     /* overflow to handle inner floating block */
     overflow: hidden;
+    display: grid;
+    grid-template-columns: auto auto;
 }
 
 #left {
-    background-color: #d2d2d2;
-    float: left;
+    background-color: beige;
+    display: flex;
+    justify-content: flex-start;
     width: 100%;
 }
 
 #right {
-    background-color: #959595;
-    float: right;
-    width: 50%;
+    background-color: gray;
+    display: flex;
+    flex-flow: column;
+    
+    width: 100%;
 }  
 
 	

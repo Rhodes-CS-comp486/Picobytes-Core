@@ -45,11 +45,6 @@ class UserFuncs:
             print(f"Error adding user: {e}")
 
 
-
-
-
-
-
     ##################################################
     ########## AUTHENTICATING CURRENT USERS ##########
     ##################################################
@@ -61,6 +56,26 @@ class UserFuncs:
         user = cursor.fetchone()
         conn.close()
         return user[0] if user else -1
+    
+
+
+    ##################################################
+    ##########        ADMIN CHECK           ##########
+    ##################################################
+    def is_admin(self, uid):
+        """Check if a user is an admin"""
+        if not uid:
+            return False
+            
+        conn = self._get_db_connection()
+        cursor = conn.execute(
+            "SELECT is_admin FROM users WHERE uid = ?", 
+            (uid,)
+        )
+        result = cursor.fetchone()
+        conn.close()
+        
+        return bool(result and result['is_admin'] == 1)
 
 
 if __name__ == '__main__':

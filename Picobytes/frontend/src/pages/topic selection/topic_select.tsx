@@ -1,6 +1,8 @@
 /* Topic Selection */
 import './topic_select.css'
 
+import Topic_Select_Topic from './topic_select_topic';
+
 const Topic_Select = () => {
     return(
         <>
@@ -15,14 +17,9 @@ const Topic_Select = () => {
 
             {/* Main Body */}
             
-            <div id="main-wrap">
-                <div id="left">
-                    List of topics here
-                </div>
-                <div id="right">
-                    Topic description.
-                </div>
-            </div>
+            
+            {<Topic_Select_Topic/>}
+            
         </>
     );
 };

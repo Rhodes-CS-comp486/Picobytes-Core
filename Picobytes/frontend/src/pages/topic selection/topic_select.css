@@ -7,7 +7,6 @@
 }
 
 
-
 #main-wrap > div { 
     min-height: 450px; 
 }
@@ -18,21 +17,21 @@
     /* overflow to handle inner floating block */
     overflow: hidden;
     display: grid;
-    grid-template-columns: auto auto;
+    /* Topic buttons should be smaller width */
+    grid-template-columns: 30% 70%;
 }
 
-#left {
-    background-color: beige;
+#ts-left {
+    
     display: flex;
     justify-content: flex-start;
     width: 100%;
 }
 
-#right {
-    background-color: gray;
+#ts-right {
+    
     display: flex;
     flex-flow: column;
-    
     width: 100%;
 }  
 

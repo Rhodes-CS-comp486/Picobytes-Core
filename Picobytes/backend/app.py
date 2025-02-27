@@ -2,7 +2,7 @@
 import os
 from flask import Flask, render_template, jsonify, request
 
-from Picobytes.backend.services.free_response_question_pull import FR_QuestionFetcher
+from services.free_response_question_pull import FR_QuestionFetcher
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
 from services.user_funcs import UserFuncs
@@ -10,7 +10,6 @@ import os
 import hashlib
 from flask_cors import CORS
 from services.admin_service import AdminService
-from services import free_response_question_pull
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -90,7 +89,7 @@ def question(qid):
 ### Free Response Questions ###
 
 @app.route('/api/fr_question/<int:qid>', methods=['GET'])
-def question(qid):
+def fr_question(qid):
     """API endpoint to fetch a question by ID."""
     question_data = fr_question_service.get_question_by_id(qid)
     if question_data:

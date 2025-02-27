@@ -20,23 +20,25 @@ const AccountCreate = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch("http://localhost:5000/api/login", {
+            const response = await fetch("http://localhost:5000/api/create_account", { 
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ uname: username, upassword: password }),
+                body: JSON.stringify({ uname: username, upassword: password }), 
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || "Login failed");
+                throw new Error(data.error || "Account creation failed");
             }
 
             setUserId(data.uid);
             setError(null);
-        } catch (err:any) {
+            alert("Account created successfully! Redirecting to login...");
+            navigate("/");  
+        } catch (err: any) {
             setError(err.message);
         }
     };    

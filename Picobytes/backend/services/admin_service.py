@@ -13,47 +13,83 @@ class AdminService:
         conn.row_factory = sqlite3.Row
         return conn
 
+
+    # Add debug prints to both methods to understand what's happening
+
     def get_active_users(self, period: str = "24h") -> Dict[str, Any]:
-        # Since we don't have timestamp data for tracking active users,
-        # we'll just count all users in the database
+        """
+        Get count of active users within a specified time period
+        Period can be: 24h, 7d, 30d
+        """
         conn = self._get_db_connection()
+        
+        # Debug: Check what we have in the users table
         cursor = conn.execute("SELECT COUNT(*) as count FROM users")
         result = cursor.fetchone()
-        active_count = result['count'] if result else 0
+        total_users = result['count'] if result else 0
+        print(f"DEBUG - Total users in database: {total_users}")
+        
+        # For now, simply return all users as the active count
+        # Since we don't have timestamp data
+        active_count = total_users
+        
         conn.close()
         
         return {
             "active_users": active_count,
             "period": period
-    }
+        }
 
     def get_active_users_list(self, period: str = "24h"):
         """
-        Get list of all users with their details
+        Get list of active users within a specified time period
+        Returns a list of user dictionaries with their details
         """
-        users = []
         conn = self._get_db_connection()
         
-        try:
-            # Directly execute the most basic query possible
-            cursor = conn.execute("SELECT uid, uname, uadmin FROM users")
-            
-            # Convert rows to list of dictionaries
-            for row in cursor:
-                user = {
-                    "uid": row[0],             # First column: uid
-                    "username": row[1],        # Second column: uname
-                    "last_active": "N/A",      # We don't have timestamp data
-                    "user_type": "Admin" if row[2] == 1 else "Student"  # Third column: uadmin
-                }
-                users.append(user)
-                
-        except Exception as e:
-            print(f"Error getting users: {e}")
-            
-        conn.close()
-        return users
+        users = []
         
+        # Debug print to understand the table structure
+        cursor = conn.execute("PRAGMA table_info(users)")
+        columns = [column[1] for column in cursor.fetchall()]
+        print(f"DEBUG - Columns in users table: {columns}")
+        
+        # Simplest and most reliable approach: Just get all users
+        try:
+            cursor = conn.execute("SELECT * FROM users")
+            
+            # Debug print the raw data
+            rows = cursor.fetchall()
+            print(f"DEBUG - Number of rows retrieved: {len(rows)}")
+            
+            # Process each row
+            for row in rows:
+                try:
+                    # Create a dict that shows all info for debugging
+                    debug_dict = {col: row[idx] for idx, col in enumerate(columns)}
+                    print(f"DEBUG - Row data: {debug_dict}")
+                    
+                    # Create user object for the response
+                    user = {
+                        "uid": row[0],
+                        "username": row[1],
+                        "last_active": "N/A",
+                        "user_type": "Admin" if row[3] == 1 else "Student"
+                    }
+                    users.append(user)
+                except Exception as e:
+                    print(f"DEBUG - Error processing row: {e}")
+        except Exception as e:
+            print(f"DEBUG - Error executing query: {e}")
+            
+        print(f"DEBUG - Total users being returned: {len(users)}")
+        conn.close()
+        
+        return users
+
+
+
+
     def get_performance_metrics(self) -> Dict[str, Any]:
         """
         Get student performance metrics including completion rates and average scores

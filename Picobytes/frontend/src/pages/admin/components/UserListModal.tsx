@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import './UserListModal.css';
 
+// Update the User interface to match the actual data from backend
 interface User {
-  uid: number;
+  uid: string | number;  // uid can be string or number
   username: string;
   last_active?: string;
   user_type: string;
@@ -19,6 +20,7 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [rawData, setRawData] = useState<any>(null); // For debugging
 
   useEffect(() => {
     if (!isOpen) return;
@@ -35,7 +37,16 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
         }
         
         const data = await response.json();
-        setUsers(data);
+        console.log("Received user data:", data); // Debug log
+        setRawData(data); // Store raw data for debugging display
+        
+        // Check if data is an array
+        if (Array.isArray(data)) {
+          setUsers(data);
+        } else {
+          console.error("Expected array but got:", typeof data);
+          setError("Received unexpected data format");
+        }
       } catch (err) {
         console.error('Error fetching users:', err);
         setError('Failed to load user data. Please try again.');
@@ -94,6 +105,12 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
           ) : users.length === 0 ? (
             <div className="user-list-empty">
               <p>No active users found in this time period.</p>
+              
+              {/* Add debugging section */}
+              <div className="debug-info">
+                <h4>Debug Information:</h4>
+                <pre>{JSON.stringify(rawData, null, 2)}</pre>
+              </div>
             </div>
           ) : (
             <div className="user-list-table-container">
@@ -107,8 +124,8 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
                   </tr>
                 </thead>
                 <tbody>
-                  {users.map(user => (
-                    <tr key={user.uid}>
+                  {users.map((user, index) => (
+                    <tr key={index}>
                       <td>{user.uid}</td>
                       <td>{user.username}</td>
                       <td>{formatDate(user.last_active)}</td>

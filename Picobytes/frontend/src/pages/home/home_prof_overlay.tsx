@@ -2,7 +2,7 @@
 import './home_prof_overlay.css'
 import { useNavigate } from 'react-router-dom';
 
-const Homepage_Prof_Overlay = () => {
+const Home_Prof_Overlay = () => {
 
   const navigate = useNavigate();
   
@@ -17,9 +17,8 @@ const Homepage_Prof_Overlay = () => {
             <li><button>Settings</button></li>
             <li><button onClick={logout}>Logout</button></li>
         </ul>
-      
     </div>
   );
 };
 
-export default Homepage_Prof_Overlay;
+export default Home_Prof_Overlay;

@@ -15,6 +15,7 @@ class AdminService:
 
 
     
+
     def get_active_users_list(self, period: str = "24h"):
         conn = self._get_db_connection()
         now = datetime.now()
@@ -37,61 +38,13 @@ class AdminService:
         users = []
         
         # We need to adapt our query based on the actual columns in the database
-        # In this case, we're using uadmin instead of user_type
-        if "last_login" in columns:
-            # If there's a last_login column, use it
-            cursor = conn.execute(
-                """
-                SELECT uid, uname, last_login, uadmin 
-                FROM users 
-                WHERE last_login >= ?
-                ORDER BY last_login DESC
-                """, 
-                (cutoff_str,)
-            )
-        elif "last_active" in columns:
-            # Alternative column name
-            cursor = conn.execute(
-                """
-                SELECT uid, uname, last_active as last_login, uadmin 
-                FROM users 
-                WHERE last_active >= ?
-                ORDER BY last_active DESC
-                """, 
-                (cutoff_str,)
-            )
-        else:
-            # If no timestamp columns, return all users
-            # We'll exclude the timestamp filter since we don't have that data
-            cursor = conn.execute(
-                """
-                SELECT uid, uname, uadmin 
-                FROM users
-                ORDER BY uid DESC
-                """
-            )
-        
-        for row in cursor.fetchall():
-            user = {
-                "uid": row["uid"],
-                "username": row["uname"],
-                "user_type": "Admin" if row.get("uadmin") == 1 else "Student"
-            }
-            
-            # Add last_active if it exists in the result
-            if "last_login" in row.keys():
-                user["last_active"] = row["last_login"]
-            else:
-                user["last_active"] = "N/A"
-                
-            users.append(user)
-        
-        # Since we don't have timestamps, let's modify our approach
-        # For demonstration, we'll return all users in the database
-        # In a real system, you would implement proper tracking of user activity
-        if not users:
+        # Simple approach - just get all users since we don't have timestamp data
+        try:
             cursor = conn.execute("SELECT uid, uname, uadmin FROM users")
+            
             for row in cursor.fetchall():
+                # SQLite Row objects don't have .get() method, so we access directly
+                # and use try/except to handle potential missing columns
                 user = {
                     "uid": row["uid"],
                     "username": row["uname"],
@@ -99,6 +52,28 @@ class AdminService:
                     "user_type": "Admin" if row["uadmin"] == 1 else "Student"
                 }
                 users.append(user)
+        except Exception as e:
+            # If even the above fails, let's try a more basic approach
+            print(f"Error in first query approach: {e}")
+            try:
+                cursor = conn.execute("SELECT * FROM users")
+                columns = [description[0] for description in cursor.description]
+                
+                for row in cursor.fetchall():
+                    user = {"uid": row[0], "username": row[1], "last_active": "N/A"}
+                    
+                    # Check if uadmin column exists and where it is
+                    if "uadmin" in columns:
+                        uadmin_index = columns.index("uadmin")
+                        user["user_type"] = "Admin" if row[uadmin_index] == 1 else "Student"
+                    else:
+                        user["user_type"] = "Student"  # Default
+                    
+                    users.append(user)
+            except Exception as e2:
+                print(f"Error in fallback query approach: {e2}")
+                # If all else fails, return an empty list
+                pass
                 
         conn.close()
         

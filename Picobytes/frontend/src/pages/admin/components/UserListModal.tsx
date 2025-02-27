@@ -5,7 +5,7 @@ import './UserListModal.css';
 interface User {
   uid: number;
   username: string;
-  last_active: string;
+  last_active?: string;
   user_type: string;
 }
 
@@ -57,11 +57,15 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
   };
 
   // Format date if it exists
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'N/A';
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString || dateString === 'N/A') return 'N/A';
     
     try {
       const date = new Date(dateString);
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        return dateString;
+      }
       return date.toLocaleString();
     } catch (e) {
       return dateString || 'N/A';

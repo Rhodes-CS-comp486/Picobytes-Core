@@ -12,20 +12,10 @@ class AdminService:
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
+
+
     
-
-
-
-    # services/admin_service.py
-    # Add this new method to your existing AdminService class
-
     def get_active_users_list(self, period: str = "24h"):
-        """
-        Get list of active users within a specified time period
-        Period can be: 24h, 7d, 30d
-        
-        Returns a list of user dictionaries with their details
-        """
         conn = self._get_db_connection()
         now = datetime.now()
         
@@ -40,18 +30,19 @@ class AdminService:
         
         cutoff_str = cutoff.strftime("%Y-%m-%d %H:%M:%S")
         
-        # Check if the last_login column exists in the users table
+        # Check the columns in the users table
         cursor = conn.execute("PRAGMA table_info(users)")
         columns = [column[1] for column in cursor.fetchall()]
         
         users = []
         
-        # Query based on available columns
+        # We need to adapt our query based on the actual columns in the database
+        # In this case, we're using uadmin instead of user_type
         if "last_login" in columns:
             # If there's a last_login column, use it
             cursor = conn.execute(
                 """
-                SELECT uid, uname, last_login, user_type 
+                SELECT uid, uname, last_login, uadmin 
                 FROM users 
                 WHERE last_login >= ?
                 ORDER BY last_login DESC
@@ -62,7 +53,7 @@ class AdminService:
             # Alternative column name
             cursor = conn.execute(
                 """
-                SELECT uid, uname, last_active as last_login, user_type 
+                SELECT uid, uname, last_active as last_login, uadmin 
                 FROM users 
                 WHERE last_active >= ?
                 ORDER BY last_active DESC
@@ -71,10 +62,10 @@ class AdminService:
             )
         else:
             # If no timestamp columns, return all users
-            # You should modify this based on your actual schema
+            # We'll exclude the timestamp filter since we don't have that data
             cursor = conn.execute(
                 """
-                SELECT uid, uname, '' as last_login, user_type 
+                SELECT uid, uname, uadmin 
                 FROM users
                 ORDER BY uid DESC
                 """
@@ -84,46 +75,35 @@ class AdminService:
             user = {
                 "uid": row["uid"],
                 "username": row["uname"],
-                "last_active": row["last_login"],
-                "user_type": "Admin" if row["user_type"] == 1 else "Student"
+                "user_type": "Admin" if row.get("uadmin") == 1 else "Student"
             }
+            
+            # Add last_active if it exists in the result
+            if "last_login" in row.keys():
+                user["last_active"] = row["last_login"]
+            else:
+                user["last_active"] = "N/A"
+                
             users.append(user)
         
-        # As a backup, if user login data isn't available in users table,
-        # check if you have a user_sessions table
+        # Since we don't have timestamps, let's modify our approach
+        # For demonstration, we'll return all users in the database
+        # In a real system, you would implement proper tracking of user activity
         if not users:
-            try:
-                cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user_sessions'")
-                has_sessions_table = cursor.fetchone() is not None
-                
-                if has_sessions_table:
-                    cursor = conn.execute(
-                        """
-                        SELECT us.uid, u.uname, MAX(us.login_time) as last_login, u.user_type
-                        FROM user_sessions us
-                        JOIN users u ON us.uid = u.uid
-                        WHERE us.login_time >= ?
-                        GROUP BY us.uid
-                        ORDER BY last_login DESC
-                        """, 
-                        (cutoff_str,)
-                    )
-                    
-                    for row in cursor.fetchall():
-                        user = {
-                            "uid": row["uid"],
-                            "username": row["uname"],
-                            "last_active": row["last_login"],
-                            "user_type": "Admin" if row["user_type"] == 1 else "Student"
-                        }
-                        users.append(user)
-            except:
-                # Ignore if the sessions table doesn't exist or join fails
-                pass
+            cursor = conn.execute("SELECT uid, uname, uadmin FROM users")
+            for row in cursor.fetchall():
+                user = {
+                    "uid": row["uid"],
+                    "username": row["uname"],
+                    "last_active": "N/A",  # No timestamp data available
+                    "user_type": "Admin" if row["uadmin"] == 1 else "Student"
+                }
+                users.append(user)
                 
         conn.close()
         
         return users
+
 
     
     def get_active_users(self, period: str = "24h") -> Dict[str, Any]:

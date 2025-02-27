@@ -13,143 +13,47 @@ class AdminService:
         conn.row_factory = sqlite3.Row
         return conn
 
-
-    
-
-    def get_active_users_list(self, period: str = "24h"):
-        conn = self._get_db_connection()
-        now = datetime.now()
-        
-        if period == "24h":
-            cutoff = now - timedelta(hours=24)
-        elif period == "7d":
-            cutoff = now - timedelta(days=7)
-        elif period == "30d":
-            cutoff = now - timedelta(days=30)
-        else:
-            cutoff = now - timedelta(hours=24)  # Default
-        
-        cutoff_str = cutoff.strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Check the columns in the users table
-        cursor = conn.execute("PRAGMA table_info(users)")
-        columns = [column[1] for column in cursor.fetchall()]
-        
-        users = []
-        
-        # We need to adapt our query based on the actual columns in the database
-        # Simple approach - just get all users since we don't have timestamp data
-        try:
-            cursor = conn.execute("SELECT uid, uname, uadmin FROM users")
-            
-            for row in cursor.fetchall():
-                # SQLite Row objects don't have .get() method, so we access directly
-                # and use try/except to handle potential missing columns
-                user = {
-                    "uid": row["uid"],
-                    "username": row["uname"],
-                    "last_active": "N/A",  # No timestamp data available
-                    "user_type": "Admin" if row["uadmin"] == 1 else "Student"
-                }
-                users.append(user)
-        except Exception as e:
-            # If even the above fails, let's try a more basic approach
-            print(f"Error in first query approach: {e}")
-            try:
-                cursor = conn.execute("SELECT * FROM users")
-                columns = [description[0] for description in cursor.description]
-                
-                for row in cursor.fetchall():
-                    user = {"uid": row[0], "username": row[1], "last_active": "N/A"}
-                    
-                    # Check if uadmin column exists and where it is
-                    if "uadmin" in columns:
-                        uadmin_index = columns.index("uadmin")
-                        user["user_type"] = "Admin" if row[uadmin_index] == 1 else "Student"
-                    else:
-                        user["user_type"] = "Student"  # Default
-                    
-                    users.append(user)
-            except Exception as e2:
-                print(f"Error in fallback query approach: {e2}")
-                # If all else fails, return an empty list
-                pass
-                
-        conn.close()
-        
-        return users
-
-
-    
     def get_active_users(self, period: str = "24h") -> Dict[str, Any]:
-        """
-        Get count of active users within a specified time period
-        Period can be: 24h, 7d, 30d
-        """
+        # Since we don't have timestamp data for tracking active users,
+        # we'll just count all users in the database
         conn = self._get_db_connection()
-        now = datetime.now()
-        
-        if period == "24h":
-            cutoff = now - timedelta(hours=24)
-        elif period == "7d":
-            cutoff = now - timedelta(days=7)
-        elif period == "30d":
-            cutoff = now - timedelta(days=30)
-        else:
-            cutoff = now - timedelta(hours=24)  # Default
-        
-        cutoff_str = cutoff.strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Check if the last_login column exists in the users table
-        cursor = conn.execute("PRAGMA table_info(users)")
-        columns = [column[1] for column in cursor.fetchall()]
-        
-        # Get active users based on available columns
-        if "last_login" in columns:
-            # If there's a last_login column, use it
-            cursor = conn.execute(
-                "SELECT COUNT(*) as count FROM users WHERE last_login >= ?", 
-                (cutoff_str,)
-            )
-        elif "last_active" in columns:
-            # Alternative column name
-            cursor = conn.execute(
-                "SELECT COUNT(*) as count FROM users WHERE last_active >= ?", 
-                (cutoff_str,)
-            )
-        else:
-            # If no timestamp columns, count all users
-            # You should modify this based on your actual schema
-            cursor = conn.execute("SELECT COUNT(*) as count FROM users")
-            
+        cursor = conn.execute("SELECT COUNT(*) as count FROM users")
         result = cursor.fetchone()
-        active_count = result["count"] if result else 0
-        
-        # As a backup, if user login data isn't available,
-        # check if you have a user_sessions table
-        try:
-            cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user_sessions'")
-            has_sessions_table = cursor.fetchone() is not None
-            
-            if has_sessions_table:
-                cursor = conn.execute(
-                    "SELECT COUNT(DISTINCT uid) as count FROM user_sessions WHERE login_time >= ?", 
-                    (cutoff_str,)
-                )
-                result = cursor.fetchone()
-                if result and result["count"] > 0:
-                    active_count = result["count"]
-        except:
-            # Ignore if the sessions table doesn't exist
-            pass
-            
+        active_count = result['count'] if result else 0
         conn.close()
         
         return {
             "active_users": active_count,
             "period": period
-        }
-    
+    }
+
+    def get_active_users_list(self, period: str = "24h"):
+        """
+        Get list of all users with their details
+        """
+        users = []
+        conn = self._get_db_connection()
+        
+        try:
+            # Directly execute the most basic query possible
+            cursor = conn.execute("SELECT uid, uname, uadmin FROM users")
+            
+            # Convert rows to list of dictionaries
+            for row in cursor:
+                user = {
+                    "uid": row[0],             # First column: uid
+                    "username": row[1],        # Second column: uname
+                    "last_active": "N/A",      # We don't have timestamp data
+                    "user_type": "Admin" if row[2] == 1 else "Student"  # Third column: uadmin
+                }
+                users.append(user)
+                
+        except Exception as e:
+            print(f"Error getting users: {e}")
+            
+        conn.close()
+        return users
+        
     def get_performance_metrics(self) -> Dict[str, Any]:
         """
         Get student performance metrics including completion rates and average scores

@@ -48,9 +48,42 @@ def create_table():
                         );""")
 
         connection.commit()
-        connection.close()
 
         print("true_false table created successfully")
+
+
+
+##############################################
+##########  STORING USER RESPONSES  ##########
+##############################################
+
+
+
+        #User responses
+        cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS user_responses (
+                        uid STRING PRIMARY KEY,
+                        qid INTEGER NOT NULL,
+                        questiontype STRING NOT NULL
+                        );""")
+
+        connection.commit()
+
+        print("user_response table created successfully")
+
+
+        #User response to free_response
+        cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS user_free_response (
+                        uid STRING PRIMARY KEY,
+                        qid INTEGER NOT NULL,
+                        answer STRING NOT NULL
+                        );""")
+
+        connection.commit()
+        connection.close()
+
+        print("user free response table created successfully")
 
     except Exception as e:
         print(f"Error creating table: {e}")

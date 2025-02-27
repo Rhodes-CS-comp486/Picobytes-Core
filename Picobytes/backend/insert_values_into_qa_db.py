@@ -11,7 +11,7 @@ def insert_sample_questions():
         mc_questions = [
             (
                 "What is the capital of France?",
-                "mc",  # Changed from "multiple_choice"
+                "multiple_choice",  # Changed from "multiple_choice"
                 "easy",
                 "Geography",
                 1,
@@ -21,9 +21,10 @@ def insert_sample_questions():
                 "Madrid",
                 1
             ),
+
             (
                 "Which planet is known as the Red Planet?",
-                "mc",  # Changed from "multiple_choice"
+                "multiple_choice",  # Changed from "multiple_choice"
                 "easy",
                 "Science",
                 1,
@@ -35,7 +36,7 @@ def insert_sample_questions():
             ),
             (
                 "What is the largest organ in the human body?",
-                "mc",  # Changed from "multiple_choice"
+                "multiple_choice",  # Changed from "multiple_choice"
                 "medium",
                 "Biology",
                 1,
@@ -47,11 +48,21 @@ def insert_sample_questions():
             )
         ]
 
+        free_response = [
+            (
+                "What is the capital of France?",
+                "free_response",  # Changed from "multiple_choice"
+                "hard",
+                "Geography",
+                1,
+            )
+        ]
+
         # True/false questions
         tf_questions = [
             (
                 "The Earth is flat.",
-                "tf",  # Changed from "true_false"
+                "true_false",  # Changed from "true_false"
                 "easy",
                 "Science",
                 1,
@@ -59,7 +70,7 @@ def insert_sample_questions():
             ),
             (
                 "Water boils at 100 degrees Celsius at sea level.",
-                "tf",  # Changed from "true_false"
+                "true_false",  # Changed from "true_false"
                 "easy",
                 "Science",
                 1,
@@ -67,7 +78,7 @@ def insert_sample_questions():
             ),
             (
                 "Python is a compiled programming language.",
-                "tf",  # Changed from "true_false"
+                "true_false",  # Changed from "true_false"
                 "medium",
                 "Programming",
                 1,
@@ -107,7 +118,14 @@ def insert_sample_questions():
                 INSERT INTO true_false (qid, correct)
                 VALUES (?, ?)
             """, (qid, q[5]))
-        
+
+        for q in free_response:
+            # Insert into questions table
+            cursor.execute("""
+                       INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
+                       VALUES (?, ?, ?, ?, ?)
+                   """, (q[0], q[1], q[2], q[3], q[4]))
+
         # Commit the changes
         connection.commit()
         print("Successfully inserted sample questions!")

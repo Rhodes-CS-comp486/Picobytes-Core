@@ -4,9 +4,11 @@ from flask import Flask, render_template, jsonify, request
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
 from services.user_funcs import UserFuncs
+from services.topic_pull import Topic_Puller
 import os
 import hashlib
 from flask_cors import CORS
+import json
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -31,6 +33,7 @@ CORS(app, resources={
 tf_question_service = QuestionService()
 mc_question_service = MC_QuestionFetcher()
 user_service = UserFuncs()
+topic_service = Topic_Puller()
 
 @app.route('/')
 def home():
@@ -86,6 +89,65 @@ def question(qid):
         return jsonify({"error": "Question not found"}), 404
 
 
+@app.route('/api/topic_selection', methods=['GET'])
+def topic_selection(qtype, topic):
+    if qtype == "ALL":
+        topic_data = topic_service.get_all_questions_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            if topic[1] == 'true_false':
+                responses.append({
+                    'question_id': topic[0],
+                    'question_type': topic[1],
+                    'question_text': topic[2],
+                    'correct': topic[3],
+                    'qlevel': topic[4],
+                })
+            elif topic[1] == 'multiple_choice':
+                responses.append({
+                    'question_id': topic[0],
+                    'question_type': topic[1],
+                    'question_text': topic[2],
+                    'option1': topic[3],
+                    'option2': topic[4],
+                    'option3': topic[5],
+                    'option4': topic[6],
+                    'answer': topic[7],
+                    'qlevel': topic[8],
+                })
+            else:
+                return jsonify({"error": "Topic not found"}), 404
+    elif qtype == "MC":
+        topic_data = topic_service.get_mc_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            responses.append({
+                'question_id': topic[0],
+                'question_type': topic[1],
+                'question_text': topic[2],
+                'option1': topic[3],
+                'option2': topic[4],
+                'option3': topic[5],
+                'option4': topic[6],
+                'answer': topic[7],
+                'qlevel': topic[8],
+            })
+    elif qtype == "TF":
+        topic_data = topic_service.get_tf_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            responses.append({
+                'question_id': topic[0],
+                'question_type': topic[1],
+                'question_text': topic[2],
+                'correct': topic[3],
+                'qlevel': topic[4],
+            })
+    else:
+        return jsonify({"error": "Topic not found"}), 404
+
+    #print(json.dumps({'topics': responses}, indent=4))
+    return jsonify({'topics': responses}), 200
 
 
 
@@ -126,4 +188,6 @@ def login():
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        print(topic_selection("MC", "Science"))
     app.run(debug=True)

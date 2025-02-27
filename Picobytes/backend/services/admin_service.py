@@ -13,6 +13,119 @@ class AdminService:
         conn.row_factory = sqlite3.Row
         return conn
     
+
+
+
+    # services/admin_service.py
+    # Add this new method to your existing AdminService class
+
+    def get_active_users_list(self, period: str = "24h"):
+        """
+        Get list of active users within a specified time period
+        Period can be: 24h, 7d, 30d
+        
+        Returns a list of user dictionaries with their details
+        """
+        conn = self._get_db_connection()
+        now = datetime.now()
+        
+        if period == "24h":
+            cutoff = now - timedelta(hours=24)
+        elif period == "7d":
+            cutoff = now - timedelta(days=7)
+        elif period == "30d":
+            cutoff = now - timedelta(days=30)
+        else:
+            cutoff = now - timedelta(hours=24)  # Default
+        
+        cutoff_str = cutoff.strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Check if the last_login column exists in the users table
+        cursor = conn.execute("PRAGMA table_info(users)")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        users = []
+        
+        # Query based on available columns
+        if "last_login" in columns:
+            # If there's a last_login column, use it
+            cursor = conn.execute(
+                """
+                SELECT uid, uname, last_login, user_type 
+                FROM users 
+                WHERE last_login >= ?
+                ORDER BY last_login DESC
+                """, 
+                (cutoff_str,)
+            )
+        elif "last_active" in columns:
+            # Alternative column name
+            cursor = conn.execute(
+                """
+                SELECT uid, uname, last_active as last_login, user_type 
+                FROM users 
+                WHERE last_active >= ?
+                ORDER BY last_active DESC
+                """, 
+                (cutoff_str,)
+            )
+        else:
+            # If no timestamp columns, return all users
+            # You should modify this based on your actual schema
+            cursor = conn.execute(
+                """
+                SELECT uid, uname, '' as last_login, user_type 
+                FROM users
+                ORDER BY uid DESC
+                """
+            )
+        
+        for row in cursor.fetchall():
+            user = {
+                "uid": row["uid"],
+                "username": row["uname"],
+                "last_active": row["last_login"],
+                "user_type": "Admin" if row["user_type"] == 1 else "Student"
+            }
+            users.append(user)
+        
+        # As a backup, if user login data isn't available in users table,
+        # check if you have a user_sessions table
+        if not users:
+            try:
+                cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='user_sessions'")
+                has_sessions_table = cursor.fetchone() is not None
+                
+                if has_sessions_table:
+                    cursor = conn.execute(
+                        """
+                        SELECT us.uid, u.uname, MAX(us.login_time) as last_login, u.user_type
+                        FROM user_sessions us
+                        JOIN users u ON us.uid = u.uid
+                        WHERE us.login_time >= ?
+                        GROUP BY us.uid
+                        ORDER BY last_login DESC
+                        """, 
+                        (cutoff_str,)
+                    )
+                    
+                    for row in cursor.fetchall():
+                        user = {
+                            "uid": row["uid"],
+                            "username": row["uname"],
+                            "last_active": row["last_login"],
+                            "user_type": "Admin" if row["user_type"] == 1 else "Student"
+                        }
+                        users.append(user)
+            except:
+                # Ignore if the sessions table doesn't exist or join fails
+                pass
+                
+        conn.close()
+        
+        return users
+
+    
     def get_active_users(self, period: str = "24h") -> Dict[str, Any]:
         """
         Get count of active users within a specified time period

@@ -77,8 +77,13 @@ def question(qid):
     if question_data:
         response = {
             'question_id': question_data['qid'],
-            'question_type': question_data['qtype'],
             'question_text': question_data['qtext'],
+            'option_1': question_data['option_1'],
+            'option_2': question_data['option_2'],
+            'option_3': question_data['option_3'],
+            'option_4': question_data['option_4'],
+            'answer': question_data['answer'],
+            'question_type': question_data['qtype'],
             'question_level': question_data['qlevel'],
             'question_topic': question_data['qtopic']
         }

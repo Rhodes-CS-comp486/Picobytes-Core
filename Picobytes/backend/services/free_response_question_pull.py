@@ -2,7 +2,7 @@ import sqlite3
 import random
 import os
 
-class MC_QuestionFetcher:
+class FR_QuestionFetcher:
 
     def __init__(self, db_filename="qa.db"):
         """Initialize the connection to the SQLite database located one directory above."""
@@ -13,21 +13,19 @@ class MC_QuestionFetcher:
         return sqlite3.connect(self.db_path)
 
 
-    def get_all_mc_questions(self):
+    def get_all_fr_questions(self):
         """Fetch all questions from the multiple_choice table."""
         try:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT q.qid, q.qtext, mc.option1, mc.option2, mc.option3, mc.option4, 
-                    mc.answer, q.qlevel 
+                SELECT q.qid, q.qtext, q.topic, q.qlevel 
                 FROM questions q 
-                JOIN multiple_choice mc ON q.qid = mc.qid 
                 WHERE q.qtype = 'multiple_choice' AND q.qactive = 1
             """)
             all_questions = cursor.fetchall()
             conn.close()
-            print(f"Fetched MC questions: {all_questions}")
+            print(f"Fetched FR questions: {all_questions}")
             return all_questions
         except Exception as e:
             print(f"Error fetching MC questions: {e}")
@@ -37,7 +35,7 @@ class MC_QuestionFetcher:
         """Fetch a specific question by its ID."""
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel from multiple_choice natural join questions where qactive = 1 and multiple_choice.qid = ?", (question_id,))
+        cursor.execute("select qid, qtext, qtopic, qlevel from questions where qactive = 1 and qid = ?", (question_id,))
         question = cursor.fetchone()
         conn.close()
         return question
@@ -46,7 +44,7 @@ class MC_QuestionFetcher:
         """Fetch a random question from the multiple_choice table."""
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel from multiple_choice natural join questions where qactive = 1")
+        cursor.execute("select qid, qtext, qtopic, qlevel from questions where qactive = 1 and qtyoe = 'free_response'")
         all_ids = [row[0] for row in cursor.fetchall()]
         if not all_ids:
             return None

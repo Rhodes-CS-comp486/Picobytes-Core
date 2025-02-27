@@ -1,6 +1,8 @@
 # Treat this as app.py
 import os
 from flask import Flask, render_template, jsonify, request
+
+from Picobytes.backend.services.free_response_question_pull import FR_QuestionFetcher
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
 from services.user_funcs import UserFuncs
@@ -8,6 +10,7 @@ import os
 import hashlib
 from flask_cors import CORS
 from services.admin_service import AdminService
+from services import free_response_question_pull
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -33,6 +36,7 @@ tf_question_service = QuestionService()
 mc_question_service = MC_QuestionFetcher()
 user_service = UserFuncs()
 admin_service = AdminService()
+fr_question_service = FR_QuestionFetcher()
 
 @app.route('/')
 def home():
@@ -74,11 +78,6 @@ def question(qid):
             'question_id': question_data['qid'],
             'question_type': question_data['qtype'],
             'question_text': question_data['qtext'],
-            'option1': question_data['option1'],
-            'option2': question_data['option2'],
-            'option3': question_data['option3'],
-            'option4': question_data['option4'],
-            'answer': question_data['answer'],
             'question_level': question_data['qlevel'],
             'question_topic': question_data['qtopic']
         }
@@ -88,6 +87,24 @@ def question(qid):
         return jsonify({"error": "Question not found"}), 404
 
 
+### Free Response Questions ###
+
+@app.route('/api/fr_question/<int:qid>', methods=['GET'])
+def question(qid):
+    """API endpoint to fetch a question by ID."""
+    question_data = fr_question_service.get_question_by_id(qid)
+    if question_data:
+        response = {
+            'question_id': question_data['qid'],
+            'question_type': question_data['qtype'],
+            'question_text': question_data['qtext'],
+            'question_level': question_data['qlevel'],
+            'question_topic': question_data['qtopic']
+        }
+
+        return jsonify(response)
+    else:
+        return jsonify({"error": "Question not found"}), 404
 
 
 

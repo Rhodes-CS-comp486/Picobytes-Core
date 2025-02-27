@@ -4,7 +4,7 @@
 .htc {
 
 
-    background-color: #292c2e;
+    /* background-color: #292c2e; */
     
     background-position: center;
     background-size: cover;
@@ -21,7 +21,7 @@
     justify-content: left;
     margin-left: 50px;
     padding-top: 50px;
-    color: white;
+    /* color: white; */
     font-size: 70px;
   }
 
@@ -30,20 +30,16 @@
     justify-content: left;
     margin-left: 55px;
     margin-top: 10px;
-    color: white;
+    /* color: white; */
     font-size: 30px;
   }
 
   
   /* Button styling */
-
-  
   .htc-button {
     position: relative;
     align-self: center;
-    
     padding: 20px;
-
     font-size: 20px;
     cursor: pointer;
     background-color: cadetblue;
@@ -51,8 +47,13 @@
     border: none;
     border-radius: 5px;
     margin-top: 70px;
-
     width: 300px;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
   }
 
   /* Progress Bar styling */
@@ -64,7 +65,6 @@
   height: 25px;
   margin-left: 55px;
   margin-bottom: 0px;
-  
 }
 
 .progress {

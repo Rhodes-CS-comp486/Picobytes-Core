@@ -5,12 +5,13 @@ def insert_sample_questions():
         # Connect to the database
         connection = sqlite3.connect("qa.db")
         cursor = connection.cursor()
-        
-        # Multiple choice questions
+
+
+       # Multiple choice questions
         mc_questions = [
             (
                 "What is the capital of France?",
-                "multiple_choice",
+                "multiple_choice",  # Changed from "multiple_choice"
                 "easy",
                 "Geography",
                 1,
@@ -18,11 +19,12 @@ def insert_sample_questions():
                 "London",
                 "Berlin",
                 "Madrid",
-                1  # 1 indicates first option (Paris) is correct
+                1
             ),
+
             (
                 "Which planet is known as the Red Planet?",
-                "multiple_choice",
+                "multiple_choice",  # Changed from "multiple_choice"
                 "easy",
                 "Science",
                 1,
@@ -30,11 +32,11 @@ def insert_sample_questions():
                 "Venus",
                 "Jupiter",
                 "Saturn",
-                1  # 1 indicates first option (Mars) is correct
+                1
             ),
             (
                 "What is the largest organ in the human body?",
-                "multiple_choice",
+                "multiple_choice",  # Changed from "multiple_choice"
                 "medium",
                 "Biology",
                 1,
@@ -42,15 +44,25 @@ def insert_sample_questions():
                 "Heart",
                 "Liver",
                 "Brain",
-                1  # 1 indicates first option (Skin) is correct
+                1
             )
         ]
-        
+
+        free_response = [
+            (
+                "What is the capital of France?",
+                "free_response",  # Changed from "multiple_choice"
+                "hard",
+                "Geography",
+                1,
+            )
+        ]
+
         # True/false questions
         tf_questions = [
             (
                 "The Earth is flat.",
-                "true_false",
+                "true_false",  # Changed from "true_false"
                 "easy",
                 "Science",
                 1,
@@ -58,7 +70,7 @@ def insert_sample_questions():
             ),
             (
                 "Water boils at 100 degrees Celsius at sea level.",
-                "true_false",
+                "true_false",  # Changed from "true_false"
                 "easy",
                 "Science",
                 1,
@@ -66,13 +78,14 @@ def insert_sample_questions():
             ),
             (
                 "Python is a compiled programming language.",
-                "true_false",
+                "true_false",  # Changed from "true_false"
                 "medium",
                 "Programming",
                 1,
                 False
             )
         ]
+
         
         # Insert multiple choice questions
         for q in mc_questions:
@@ -105,7 +118,14 @@ def insert_sample_questions():
                 INSERT INTO true_false (qid, correct)
                 VALUES (?, ?)
             """, (qid, q[5]))
-        
+
+        for q in free_response:
+            # Insert into questions table
+            cursor.execute("""
+                       INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
+                       VALUES (?, ?, ?, ?, ?)
+                   """, (q[0], q[1], q[2], q[3], q[4]))
+
         # Commit the changes
         connection.commit()
         print("Successfully inserted sample questions!")

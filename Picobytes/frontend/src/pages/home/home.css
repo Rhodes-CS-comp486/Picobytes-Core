@@ -1,10 +1,5 @@
 /* Homepage.css */
 
-* {
-  margin: 0;
-  padding: 0;
-}
-
 /* Homepage container should take full width */
 .homepage {
   width:100%;
@@ -39,8 +34,11 @@
   min-width: 50px;
   min-height: 50px;
   object-fit: scale-down;
-  background-color: white;
+  background-color: white;  
 }
  
-
+button {
+  /* color: black; */
+  /* background-color: cadetblue; */
+}
 

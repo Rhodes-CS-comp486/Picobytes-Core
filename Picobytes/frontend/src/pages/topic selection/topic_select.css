@@ -1,0 +1,35 @@
+/* Topic Select CSS */
+
+#header,
+#footer {
+    background-color: #f1f1f1;
+    min-height: 40px;
+}
+
+
+
+#main-wrap > div { 
+    min-height: 450px; 
+}
+
+
+/* layout */
+#main-wrap {
+    /* overflow to handle inner floating block */
+    overflow: hidden;
+}
+
+#left {
+    background-color: #d2d2d2;
+    float: left;
+    width: 100%;
+}
+
+#right {
+    background-color: #959595;
+    float: right;
+    width: 50%;
+}  
+
+	
+	

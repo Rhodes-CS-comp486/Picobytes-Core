@@ -6,11 +6,13 @@ from services.free_response_question_pull import FR_QuestionFetcher
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
 from services.user_funcs import UserFuncs
+from services.topic_pull import Topic_Puller
 import os
 import hashlib
 from flask_cors import CORS
 from services.admin_service import AdminService
 from services.question_saver import QuestionSave
+import json
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -38,6 +40,7 @@ user_service = UserFuncs()
 admin_service = AdminService()
 fr_question_service = FR_QuestionFetcher()
 question_save_service = QuestionSave()
+topic_service = Topic_Puller()
 
 @app.route('/')
 def home():
@@ -133,6 +136,65 @@ def submit_question():
 
     return jsonify({'uid': uid})
 
+@app.route('/api/topic_selection', methods=['GET'])
+def topic_selection(qtype, topic):
+    if qtype == "ALL":
+        topic_data = topic_service.get_all_questions_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            if topic[1] == 'true_false':
+                responses.append({
+                    'question_id': topic[0],
+                    'question_type': topic[1],
+                    'question_text': topic[2],
+                    'correct': topic[3],
+                    'qlevel': topic[4],
+                })
+            elif topic[1] == 'multiple_choice':
+                responses.append({
+                    'question_id': topic[0],
+                    'question_type': topic[1],
+                    'question_text': topic[2],
+                    'option1': topic[3],
+                    'option2': topic[4],
+                    'option3': topic[5],
+                    'option4': topic[6],
+                    'answer': topic[7],
+                    'qlevel': topic[8],
+                })
+            else:
+                return jsonify({"error": "Topic not found"}), 404
+    elif qtype == "MC":
+        topic_data = topic_service.get_mc_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            responses.append({
+                'question_id': topic[0],
+                'question_type': topic[1],
+                'question_text': topic[2],
+                'option1': topic[3],
+                'option2': topic[4],
+                'option3': topic[5],
+                'option4': topic[6],
+                'answer': topic[7],
+                'qlevel': topic[8],
+            })
+    elif qtype == "TF":
+        topic_data = topic_service.get_tf_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            responses.append({
+                'question_id': topic[0],
+                'question_type': topic[1],
+                'question_text': topic[2],
+                'correct': topic[3],
+                'qlevel': topic[4],
+            })
+    else:
+        return jsonify({"error": "Topic not found"}), 404
+
+    #print(json.dumps({'topics': responses}, indent=4))
+    return jsonify({'topics': responses}), 200
 
 
 ##########################################
@@ -208,4 +270,6 @@ def get_usage_stats():
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        print(topic_selection("MC", "Science"))
     app.run(debug=True)

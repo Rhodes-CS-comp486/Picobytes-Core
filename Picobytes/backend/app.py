@@ -10,6 +10,7 @@ import os
 import hashlib
 from flask_cors import CORS
 from services.admin_service import AdminService
+from services.question_saver import QuestionSave
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -36,6 +37,7 @@ mc_question_service = MC_QuestionFetcher()
 user_service = UserFuncs()
 admin_service = AdminService()
 fr_question_service = FR_QuestionFetcher()
+question_save_service = QuestionSave()
 
 @app.route('/')
 def home():
@@ -104,6 +106,27 @@ def fr_question(qid):
         return jsonify(response)
     else:
         return jsonify({"error": "Question not found"}), 404
+
+
+
+
+@app.route('/api/submit_question', methods=['POST'])
+def submit_question():
+    data = request.get_json()
+    uid = data.get('uid')
+    qid = data.get('qid')
+    response = data.get('response')
+
+    if not uid:
+        return jsonify({"error": "Missing user id"}), 400
+    if not qid:
+        return jsonify({"error": "Missing question id"}), 400
+    if not response:
+        return jsonify({"error": "Missing response"}), 400
+
+    question_save_service.save_question(uid, qid, response)
+
+    return jsonify({'uid': uid})
 
 
 

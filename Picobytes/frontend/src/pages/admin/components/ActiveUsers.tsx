@@ -1,5 +1,6 @@
 // src/pages/admin/components/ActiveUsers.tsx
 import React, { useEffect, useState } from 'react';
+import UserListModal from './UserListModal';
 
 interface ActiveUsersData {
   active_users: number;
@@ -16,6 +17,7 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<string>(propData?.period || '24h');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   // Fetch active users data from the backend
   const fetchActiveUsers = async (selectedPeriod: string) => {
@@ -54,6 +56,11 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
     onPeriodChange(newPeriod);
   };
 
+  // Open modal when clicking on the active users count
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
   if (loading && !data) {
     return (
       <div>
@@ -83,11 +90,18 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
     <div>
       <h2 className="card-title">Active Users</h2>
       
-      <div className="metric-card">
+      <div 
+        className="metric-card clickable" 
+        onClick={handleOpenModal}
+        title="Click to view user list"
+      >
         {error ? (
           <div className="error-message">{error}</div>
         ) : (
-          <div className="metric-value">{displayData.active_users}</div>
+          <div className="metric-value">
+            {displayData.active_users}
+            <div className="click-hint">Click to view list</div>
+          </div>
         )}
       </div>
       
@@ -117,6 +131,13 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
           <small>Refreshing data...</small>
         </div>
       )}
+
+      {/* Modal for displaying user list */}
+      <UserListModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        period={period}
+      />
     </div>
   );
 };

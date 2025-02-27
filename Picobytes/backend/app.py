@@ -1,6 +1,8 @@
 # Treat this as app.py
 import os
 from flask import Flask, render_template, jsonify, request
+
+from services.free_response_question_pull import FR_QuestionFetcher
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
 from services.user_funcs import UserFuncs
@@ -8,6 +10,8 @@ from services.topic_pull import Topic_Puller
 import os
 import hashlib
 from flask_cors import CORS
+from services.admin_service import AdminService
+from services.question_saver import QuestionSave
 import json
 
 # get absolute path of current file's directory
@@ -33,6 +37,9 @@ CORS(app, resources={
 tf_question_service = QuestionService()
 mc_question_service = MC_QuestionFetcher()
 user_service = UserFuncs()
+admin_service = AdminService()
+fr_question_service = FR_QuestionFetcher()
+question_save_service = QuestionSave()
 topic_service = Topic_Puller()
 
 @app.route('/')
@@ -75,11 +82,6 @@ def question(qid):
             'question_id': question_data['qid'],
             'question_type': question_data['qtype'],
             'question_text': question_data['qtext'],
-            'option1': question_data['option1'],
-            'option2': question_data['option2'],
-            'option3': question_data['option3'],
-            'option4': question_data['option4'],
-            'answer': question_data['answer'],
             'question_level': question_data['qlevel'],
             'question_topic': question_data['qtopic']
         }
@@ -88,6 +90,46 @@ def question(qid):
     else:
         return jsonify({"error": "Question not found"}), 404
 
+
+### Free Response Questions ###
+
+@app.route('/api/fr_question/<int:qid>', methods=['GET'])
+def fr_question(qid):
+    """API endpoint to fetch a question by ID."""
+    question_data = fr_question_service.get_question_by_id(qid)
+    if question_data:
+        response = {
+            'question_id': question_data['qid'],
+            'question_type': question_data['qtype'],
+            'question_text': question_data['qtext'],
+            'question_level': question_data['qlevel'],
+            'question_topic': question_data['qtopic']
+        }
+
+        return jsonify(response)
+    else:
+        return jsonify({"error": "Question not found"}), 404
+
+
+
+
+@app.route('/api/submit_question', methods=['POST'])
+def submit_question():
+    data = request.get_json()
+    uid = data.get('uid')
+    qid = data.get('qid')
+    response = data.get('response')
+
+    if not uid:
+        return jsonify({"error": "Missing user id"}), 400
+    if not qid:
+        return jsonify({"error": "Missing question id"}), 400
+    if not response:
+        return jsonify({"error": "Missing response"}), 400
+
+    question_save_service.save_question(uid, qid, response)
+
+    return jsonify({'uid': uid})
 
 @app.route('/api/topic_selection', methods=['GET'])
 def topic_selection(qtype, topic):
@@ -150,7 +192,6 @@ def topic_selection(qtype, topic):
     return jsonify({'topics': responses}), 200
 
 
-
 ##########################################
 ##########  USER AUTHENTICATION ##########
 ##########################################
@@ -185,6 +226,42 @@ def login():
         return jsonify({'error': 'Invalid username or password'}), 401
     return jsonify({'uid': uid})
 
+##########################################
+##########      ADMIN SHIT      ##########
+##########################################
+
+@app.route('/api/admin/check', methods=['GET'])
+def check_admin():
+    # This is a simple verification that would need to be replaced with
+    # proper authentication in a production environment
+    uid = request.args.get('uid')
+    is_admin = user_service.is_admin(uid)
+    return jsonify({'is_admin': is_admin})
+
+@app.route('/api/admin/dashboard/active-users', methods=['GET'])
+def get_active_users():
+    # In a production environment, you should add admin authentication here
+    period = request.args.get('period', '24h')
+    data = admin_service.get_active_users(period)
+    return jsonify(data)
+
+@app.route('/api/admin/dashboard/performance', methods=['GET'])
+def get_performance_metrics():
+    # In a production environment, you should add admin authentication here
+    data = admin_service.get_performance_metrics()
+    return jsonify(data)
+
+@app.route('/api/admin/dashboard/question-stats', methods=['GET'])
+def get_question_stats():
+    # In a production environment, you should add admin authentication here
+    data = admin_service.get_question_stats()
+    return jsonify(data)
+
+@app.route('/api/admin/dashboard/usage-stats', methods=['GET'])
+def get_usage_stats():
+    # In a production environment, you should add admin authentication here
+    data = admin_service.get_usage_stats()
+    return jsonify(data)
 
 
 if __name__ == '__main__':

@@ -94,7 +94,14 @@ def question(qid):
         return jsonify(response)
     else:
         return jsonify({"error": "Question not found"}), 404
+    
 
+@app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
+def get_active_users_list():
+    # In a production environment, you should add admin authentication here
+    period = request.args.get('period', '24h')
+    users = admin_service.get_active_users_list(period)
+    return jsonify(users)
 
 ### Free Response Questions ###
 

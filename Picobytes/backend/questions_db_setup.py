@@ -63,8 +63,7 @@ def create_table():
         cursor.execute("""
                     CREATE TABLE IF NOT EXISTS user_responses (
                         uid STRING PRIMARY KEY,
-                        qid INTEGER NOT NULL,
-                        questiontype STRING NOT NULL
+                        qid INTEGER NOT NULL
                         );""")
 
         connection.commit()

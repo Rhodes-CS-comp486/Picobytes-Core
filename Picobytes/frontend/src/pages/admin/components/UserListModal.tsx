@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import './UserListModal.css';
 
-// Update the User interface to match the actual data from backend
+// Update the User interface to include admin status
 interface User {
-  uid: string | number;  // uid can be string or number
+  uid: string | number;
   username: string;
   last_active?: string;
   user_type: string;
+  is_admin: boolean;  // Add this to track the admin status directly
 }
 
 interface UserListModalProps {
@@ -20,7 +21,7 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [rawData, setRawData] = useState<any>(null); // For debugging
+  const [updatingUser, setUpdatingUser] = useState<string | number | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -38,7 +39,6 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
         
         const data = await response.json();
         console.log("Received user data:", data); // Debug log
-        setRawData(data); // Store raw data for debugging display
         
         // Check if data is an array
         if (Array.isArray(data)) {
@@ -57,6 +57,49 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
 
     fetchUsers();
   }, [isOpen, period]);
+
+  // Handle toggling a user's admin status
+  const handleToggleAdmin = async (user: User) => {
+    try {
+      setUpdatingUser(user.uid);
+      
+      const response = await fetch('http://localhost:5000/api/admin/update-user-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: user.uid,
+          is_admin: !user.is_admin,  // Toggle the current status
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update user status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update the local user list with the new status
+        setUsers(users.map(u => 
+          u.uid === user.uid 
+            ? { ...u, is_admin: !u.is_admin, user_type: !u.is_admin ? 'Admin' : 'Student' }
+            : u
+        ));
+        
+        // Show success toast or notification
+        // You could add a toast notification library here if desired
+      } else {
+        throw new Error(data.error || 'Failed to update user status');
+      }
+    } catch (err) {
+      console.error('Error updating user status:', err);
+      setError('Failed to update user status. Please try again.');
+    } finally {
+      setUpdatingUser(null);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -92,25 +135,18 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
         </div>
         
         <div className="user-list-modal-content">
+          {error && (
+            <div className="error-message">{error}</div>
+          )}
+          
           {loading ? (
             <div className="user-list-loading">
               <div className="loading-spinner"></div>
               <p>Loading users...</p>
             </div>
-          ) : error ? (
-            <div className="user-list-error">
-              <p>{error}</p>
-              <button onClick={() => window.location.reload()}>Retry</button>
-            </div>
           ) : users.length === 0 ? (
             <div className="user-list-empty">
               <p>No active users found in this time period.</p>
-              
-              {/* Add debugging section */}
-              <div className="debug-info">
-                <h4>Debug Information:</h4>
-                <pre>{JSON.stringify(rawData, null, 2)}</pre>
-              </div>
             </div>
           ) : (
             <div className="user-list-table-container">
@@ -121,6 +157,7 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
                     <th>Username</th>
                     <th>Last Active</th>
                     <th>Type</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,7 +166,26 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
                       <td>{user.uid}</td>
                       <td>{user.username}</td>
                       <td>{formatDate(user.last_active)}</td>
-                      <td>{user.user_type}</td>
+                      <td>
+                        <span className={`user-type ${user.is_admin ? 'admin' : 'student'}`}>
+                          {user.user_type}
+                        </span>
+                      </td>
+                      <td>
+                        <button 
+                          className={`admin-toggle ${user.is_admin ? 'admin' : 'user'}`}
+                          onClick={() => handleToggleAdmin(user)}
+                          disabled={updatingUser === user.uid}
+                        >
+                          {updatingUser === user.uid ? (
+                            <span className="button-spinner"></span>
+                          ) : user.is_admin ? (
+                            'Remove Admin'
+                          ) : (
+                            'Make Admin'
+                          )}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

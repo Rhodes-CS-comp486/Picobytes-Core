@@ -13,9 +13,30 @@ class AdminService:
         conn.row_factory = sqlite3.Row
         return conn
 
+    def update_user_admin_status(self, uid, is_admin):
+        conn = self._get_db_connection()
+        try:
+            # Convert boolean to integer for SQLite
+            admin_value = 1 if is_admin else 0
+            
+            # Update the user's admin status
+            cursor = conn.execute(
+                "UPDATE users SET uadmin = ? WHERE uid = ?",
+                (admin_value, uid)
+            )
+            conn.commit()
+            
+            # Check if any rows were affected
+            success = cursor.rowcount > 0
+            
+            return success
+        except Exception as e:
+            print(f"Error updating user admin status: {e}")
+            return False
+        finally:
+            conn.close()
 
-    # Add debug prints to both methods to understand what's happening
-
+    # Added debug prints to both methods to understand what's happening
     def get_active_users(self, period: str = "24h") -> Dict[str, Any]:
         """
         Get count of active users within a specified time period
@@ -40,54 +61,35 @@ class AdminService:
             "period": period
         }
 
+    # Update the get_active_users_list method to include is_admin flag
     def get_active_users_list(self, period: str = "24h"):
         """
-        Get list of active users within a specified time period
-        Returns a list of user dictionaries with their details
+        Get list of all users with their details
         """
+        users = []
         conn = self._get_db_connection()
         
-        users = []
-        
-        # Debug print to understand the table structure
-        cursor = conn.execute("PRAGMA table_info(users)")
-        columns = [column[1] for column in cursor.fetchall()]
-        print(f"DEBUG - Columns in users table: {columns}")
-        
-        # Simplest and most reliable approach: Just get all users
         try:
-            cursor = conn.execute("SELECT * FROM users")
+            # Directly execute the most basic query possible
+            cursor = conn.execute("SELECT uid, uname, uadmin FROM users")
             
-            # Debug print the raw data
-            rows = cursor.fetchall()
-            print(f"DEBUG - Number of rows retrieved: {len(rows)}")
-            
-            # Process each row
-            for row in rows:
-                try:
-                    # Create a dict that shows all info for debugging
-                    debug_dict = {col: row[idx] for idx, col in enumerate(columns)}
-                    print(f"DEBUG - Row data: {debug_dict}")
-                    
-                    # Create user object for the response
-                    user = {
-                        "uid": row[0],
-                        "username": row[1],
-                        "last_active": "N/A",
-                        "user_type": "Admin" if row[3] == 1 else "Student"
-                    }
-                    users.append(user)
-                except Exception as e:
-                    print(f"DEBUG - Error processing row: {e}")
+            # Convert rows to list of dictionaries
+            for row in cursor:
+                is_admin = row[2] == 1  # uadmin column
+                user = {
+                    "uid": row[0],             # First column: uid
+                    "username": row[1],        # Second column: uname
+                    "last_active": "N/A",      # We don't have timestamp data
+                    "user_type": "Admin" if is_admin else "Student",  # Based on uadmin
+                    "is_admin": is_admin       # Add direct boolean flag
+                }
+                users.append(user)
+                
         except Exception as e:
-            print(f"DEBUG - Error executing query: {e}")
+            print(f"Error getting users: {e}")
             
-        print(f"DEBUG - Total users being returned: {len(users)}")
         conn.close()
-        
         return users
-
-
 
 
     def get_performance_metrics(self) -> Dict[str, Any]:

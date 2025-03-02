@@ -81,10 +81,10 @@ def question(qid):
         response = {
             'question_id': question_data['qid'],
             'question_text': question_data['qtext'],
-            'option_1': question_data['option_1'],
-            'option_2': question_data['option_2'],
-            'option_3': question_data['option_3'],
-            'option_4': question_data['option_4'],
+            'option_1': question_data['option1'],
+            'option_2': question_data['option2'],
+            'option_3': question_data['option3'],
+            'option_4': question_data['option4'],
             'answer': question_data['answer'],
             'question_type': question_data['qtype'],
             'question_level': question_data['qlevel'],
@@ -94,7 +94,32 @@ def question(qid):
         return jsonify(response)
     else:
         return jsonify({"error": "Question not found"}), 404
+    
 
+@app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
+def get_active_users_list():
+    # In a production environment, you should add admin authentication here
+    period = request.args.get('period', '24h')
+    users = admin_service.get_active_users_list(period)
+    return jsonify(users)
+
+
+@app.route('/api/admin/update-user-status', methods=['POST'])
+def update_user_status():
+    # In a production environment, you should add admin authentication here
+    data = request.get_json()
+    uid = data.get('uid')
+    is_admin = data.get('is_admin')
+    
+    if uid is None or is_admin is None:
+        return jsonify({'success': False, 'error': 'Missing required parameters'}), 400
+    
+    success = admin_service.update_user_admin_status(uid, is_admin)
+    
+    if success:
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'error': 'Failed to update user status'}), 500
 
 ### Free Response Questions ###
 
@@ -267,6 +292,40 @@ def get_usage_stats():
     # In a production environment, you should add admin authentication here
     data = admin_service.get_usage_stats()
     return jsonify(data)
+
+
+@app.route('/api/submit_answer', methods=['POST'])
+def submit_answer():
+    try:
+        data = request.get_json()
+        question_id = data.get('question_id')
+        selected_answer = data.get('selected_answer')
+        
+        if not question_id:
+            return jsonify({"error": "Missing question_id"}), 400
+        if selected_answer is None:
+            return jsonify({"error": "Missing selected_answer"}), 400
+            
+        # Get the question to verify the correct answer
+        question_data = mc_question_service.get_question_by_id(int(question_id))
+        if not question_data:
+            return jsonify({"error": "Question not found"}), 404
+            
+        correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
+        is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
+        
+        # Here you would typically save the user's answer to your database
+        # For now, we'll just return whether it was correct or not
+        
+        return jsonify({
+            'success': True,
+            'is_correct': is_correct,
+            'correct_answer_index': correct_answer_index
+        })
+        
+    except Exception as e:
+        print(f"Error in submit_answer: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

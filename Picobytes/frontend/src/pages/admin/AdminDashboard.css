@@ -205,6 +205,33 @@
     background: #3498db;
     color: white;
   }
+
+  .metric-card.clickable {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  
+  .metric-card.clickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .metric-card.clickable:active {
+    transform: translateY(-1px);
+  }
+  
+  .click-hint {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  
+  .metric-card.clickable:hover .click-hint {
+    opacity: 1;
+  }
   
   /* Responsive Design */
   @media (max-width: 768px) {

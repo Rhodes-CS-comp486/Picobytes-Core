@@ -94,7 +94,32 @@ def question(qid):
         return jsonify(response)
     else:
         return jsonify({"error": "Question not found"}), 404
+    
 
+@app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
+def get_active_users_list():
+    # In a production environment, you should add admin authentication here
+    period = request.args.get('period', '24h')
+    users = admin_service.get_active_users_list(period)
+    return jsonify(users)
+
+
+@app.route('/api/admin/update-user-status', methods=['POST'])
+def update_user_status():
+    # In a production environment, you should add admin authentication here
+    data = request.get_json()
+    uid = data.get('uid')
+    is_admin = data.get('is_admin')
+    
+    if uid is None or is_admin is None:
+        return jsonify({'success': False, 'error': 'Missing required parameters'}), 400
+    
+    success = admin_service.update_user_admin_status(uid, is_admin)
+    
+    if success:
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'error': 'Failed to update user status'}), 500
 
 ### Free Response Questions ###
 

@@ -1,7 +1,4 @@
-// The individual question and possibly feedback
-
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import Home_Header from "./home/home_header";
 
@@ -35,10 +32,7 @@ const Question = () => {
           data.option_4,
         ]);
         setCorrect(data.answer);
-        // setLoading(false);
       })
-      // setTopic(data.question_topic);
-      // setDifficulty(data.question_level);
       .catch((error) => {
         console.error("error fetching multiple choice questions: ", error);
         setError(error);
@@ -56,6 +50,7 @@ const Question = () => {
     ]);
     setQuestion("⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜?");
     setError("");
+    setAnswer([false, false, false, false]); // Reset answers
   };
 
   const updateAnswer = (n: number) => {
@@ -82,6 +77,33 @@ const Question = () => {
       .every((i) => i);
   };
 
+  const submitAnswer = () => {
+    const isCorrect = checkCorrect();
+    fetch("http://127.0.0.1:5000/api/submit_answer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        question_id: id,
+        selected_answer: answer,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          setError(data.error);
+        } else {
+          console.log(isCorrect ? "Correct!" : "Wrong. The correct answer was: " + options[correct - 1]);
+          navToQuestion(parseInt(id!) + 1);
+        }
+      })
+      .catch((error) => {
+        console.error("Error submitting answer: ", error);
+        setError(error);
+      });
+  };
+
   if (error != "") {
     return (
       <>
@@ -101,23 +123,13 @@ const Question = () => {
         <ul>
           {options.map((o, i) => (
             <li key={i}>
-              <input type="checkbox" onClick={() => updateAnswer(i)} /> {o}
+              <input type="checkbox" onClick={() => updateAnswer(i)} checked={answer[i]} /> {o}
             </li>
           ))}
         </ul>
         <br></br>
         <button onClick={() => navToQuestion(parseInt(id!) - 1)}>&lt;</button>
-        <button
-          onClick={() => {
-            checkCorrect()
-              ? console.log("Correct!")
-              : console.log(
-                  "Wrong. The correct answer was: " + options[correct - 1]
-                );
-          }}
-        >
-          Submit
-        </button>
+        <button onClick={submitAnswer}>Submit</button>
         <button onClick={() => navToQuestion(parseInt(id!) + 1)}>&gt;</button>
       </div>
     );

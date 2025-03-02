@@ -23,8 +23,11 @@ const Topic_Select_Topic = () => {
         .then((response) => response.json())
         .then((data) => {
             const questions = [...data.questions.tf, ...data.questions.mc];
+            console.log("Questions: ", questions)
+
             const distinctTopics = [...new Set(questions.map((q) => q.qtopic))];
             console.log("Distinct Topics:", distinctTopics);  // Check topics
+
             setTopics(distinctTopics);
             setAllQuestions(questions); // Store all questions
             setTotalQuestions(data.total_questions);

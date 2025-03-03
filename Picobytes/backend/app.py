@@ -1,7 +1,5 @@
-# Treat this as app.py
 import os
 from flask import Flask, render_template, jsonify, request
-
 from services.free_response_question_pull import FR_QuestionFetcher
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
@@ -12,6 +10,7 @@ import hashlib
 from flask_cors import CORS
 from services.admin_service import AdminService
 from services.question_saver import QuestionSave
+from services.question_adder import QuestionAdder  # Import the new service
 import json
 
 # get absolute path of current file's directory
@@ -41,6 +40,7 @@ admin_service = AdminService()
 fr_question_service = FR_QuestionFetcher()
 question_save_service = QuestionSave()
 topic_service = Topic_Puller()
+question_adder_service = QuestionAdder()  # Initialize the new service
 
 @app.route('/')
 def home():
@@ -76,7 +76,9 @@ def api_get_questions():
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):
     """API endpoint to fetch a question by ID."""
+    # First try to get the question from MC questions
     question_data = mc_question_service.get_question_by_id(qid)
+    
     if question_data:
         response = {
             'question_id': question_data['qid'],
@@ -86,14 +88,39 @@ def question(qid):
             'option_3': question_data['option3'],
             'option_4': question_data['option4'],
             'answer': question_data['answer'],
-            'question_type': question_data['qtype'],
+            'question_type': 'mc',  # Explicitly set question type
             'question_level': question_data['qlevel'],
             'question_topic': question_data['qtopic']
         }
-
         return jsonify(response)
-    else:
-        return jsonify({"error": "Question not found"}), 404
+    
+    # If not found in MC questions, try to get from TF questions
+    tf_questions = tf_question_service.pull_questions()
+    tf_question = next((q for q in tf_questions if q[0] == qid), None)
+    
+    if tf_question:
+        # For TF questions, the format is [qid, qtext, qlevel, correct]
+        # We need to determine the topic based on the question ID or provide a default
+        
+        # Mapping dictionary for TF question topics based on your database
+        tf_topics = {
+            4: "Science",
+            5: "Science",
+            6: "Programming"
+        }
+        
+        response = {
+            'question_id': tf_question[0],
+            'question_text': tf_question[1],
+            'answer': tf_question[3],  # 1 for True, 0 for False
+            'question_type': 'tf',  # Explicitly set question type
+            'question_level': tf_question[2],
+            'question_topic': tf_topics.get(qid, "General Knowledge")  # Get topic from mapping or use default
+        }
+        return jsonify(response)
+    
+    # If question not found in either service
+    return jsonify({"error": "Question not found"}), 404
     
 
 @app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
@@ -259,6 +286,24 @@ def login():
 ##########################################
 ##########      ADMIN SHIT      ##########
 ##########################################
+
+@app.route('/api/admin/add_question', methods=['POST'])
+def add_question():
+    """API endpoint to add a new question to the database."""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        result, status_code = question_adder_service.add_question(data)
+        
+        return jsonify(result), status_code
+        
+    except Exception as e:
+        print(f"Error in add_question endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
 
 @app.route('/api/admin/check', methods=['GET'])
 def check_admin():

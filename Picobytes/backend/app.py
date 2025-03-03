@@ -1,7 +1,5 @@
-# Treat this as app.py
 import os
 from flask import Flask, render_template, jsonify, request
-
 from services.free_response_question_pull import FR_QuestionFetcher
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
@@ -12,6 +10,7 @@ import hashlib
 from flask_cors import CORS
 from services.admin_service import AdminService
 from services.question_saver import QuestionSave
+from services.question_adder import QuestionAdder  # Import the new service
 import json
 
 # get absolute path of current file's directory
@@ -41,6 +40,7 @@ admin_service = AdminService()
 fr_question_service = FR_QuestionFetcher()
 question_save_service = QuestionSave()
 topic_service = Topic_Puller()
+question_adder_service = QuestionAdder()  # Initialize the new service
 
 @app.route('/')
 def home():
@@ -76,7 +76,9 @@ def api_get_questions():
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):
     """API endpoint to fetch a question by ID."""
+    # First try to get the question from MC questions
     question_data = mc_question_service.get_question_by_id(qid)
+    
     if question_data:
         response = {
             'question_id': question_data['qid'],
@@ -86,14 +88,39 @@ def question(qid):
             'option_3': question_data['option3'],
             'option_4': question_data['option4'],
             'answer': question_data['answer'],
-            'question_type': question_data['qtype'],
+            'question_type': 'mc',  # Explicitly set question type
             'question_level': question_data['qlevel'],
             'question_topic': question_data['qtopic']
         }
-
         return jsonify(response)
-    else:
-        return jsonify({"error": "Question not found"}), 404
+    
+    # If not found in MC questions, try to get from TF questions
+    tf_questions = tf_question_service.pull_questions()
+    tf_question = next((q for q in tf_questions if q[0] == qid), None)
+    
+    if tf_question:
+        # For TF questions, the format is [qid, qtext, qlevel, correct]
+        # We need to determine the topic based on the question ID or provide a default
+        
+        # Mapping dictionary for TF question topics based on your database
+        tf_topics = {
+            4: "Science",
+            5: "Science",
+            6: "Programming"
+        }
+        
+        response = {
+            'question_id': tf_question[0],
+            'question_text': tf_question[1],
+            'answer': tf_question[3],  # 1 for True, 0 for False
+            'question_type': 'tf',  # Explicitly set question type
+            'question_level': tf_question[2],
+            'question_topic': tf_topics.get(qid, "General Knowledge")  # Get topic from mapping or use default
+        }
+        return jsonify(response)
+    
+    # If question not found in either service
+    return jsonify({"error": "Question not found"}), 404
     
 
 @app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
@@ -260,8 +287,6 @@ def login():
 ##########      ADMIN SHIT      ##########
 ##########################################
 
-
-
 @app.route('/api/admin/add_question', methods=['POST'])
 def add_question():
     """API endpoint to add a new question to the database."""
@@ -270,98 +295,14 @@ def add_question():
         
         if not data:
             return jsonify({"error": "No data provided"}), 400
-            
-        # Extract common question data
-        qtext = data.get('qtext')
-        qtype = data.get('qtype')
-        qlevel = data.get('qlevel')
-        qtopic = data.get('qtopic')
-        qactive = data.get('qactive', True)
         
-        # Validate required fields
-        if not qtext or not qtype or not qlevel or not qtopic:
-            return jsonify({"error": "Missing required question fields"}), 400
-            
-        # Validate question type
-        if qtype not in ['mc', 'tf']:
-            return jsonify({"error": "Invalid question type. Must be 'mc' or 'tf'"}), 400
-            
-        # Connect to the database
-        connection = sqlite3.connect("qa.db")
-        cursor = connection.cursor()
+        result, status_code = question_adder_service.add_question(data)
         
-        # Insert into questions table
-        cursor.execute("""
-            INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
-            VALUES (?, ?, ?, ?, ?)
-        """, (qtext, 'multiple_choice' if qtype == 'mc' else 'true_false', qlevel, qtopic, qactive))
-        
-        # Get the new question ID
-        qid = cursor.lastrowid
-        
-        # Insert type-specific data
-        if qtype == 'mc':
-            # Extract multiple choice data
-            option1 = data.get('option1')
-            option2 = data.get('option2')
-            option3 = data.get('option3')
-            option4 = data.get('option4')
-            answer = data.get('answer')
-            
-            # Validate required fields
-            if not option1 or not option2 or not option3 or not option4 or not answer:
-                # Roll back the transaction
-                connection.rollback()
-                return jsonify({"error": "Missing required multiple choice fields"}), 400
-                
-            # Insert into multiple_choice table
-            cursor.execute("""
-                INSERT INTO multiple_choice (qid, option1, option2, option3, option4, answer)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (qid, option1, option2, option3, option4, answer))
-            
-        elif qtype == 'tf':
-            # Extract true/false data
-            correct = data.get('correct')
-            
-            # Validate required fields
-            if correct is None:
-                # Roll back the transaction
-                connection.rollback()
-                return jsonify({"error": "Missing required true/false field"}), 400
-                
-            # Insert into true_false table
-            cursor.execute("""
-                INSERT INTO true_false (qid, correct)
-                VALUES (?, ?)
-            """, (qid, 1 if correct else 0))
-        
-        # Commit the transaction
-        connection.commit()
-        
-        # Return success response with the new question ID
-        return jsonify({
-            "success": True,
-            "message": "Question added successfully",
-            "qid": qid
-        })
+        return jsonify(result), status_code
         
     except Exception as e:
-        # Log the error for debugging
-        print(f"Error adding question: {e}")
-        
-        # Roll back the transaction if connection exists
-        if 'connection' in locals():
-            connection.rollback()
-        
-        # Return error response
-        return jsonify({"error": f"Failed to add question: {str(e)}"}), 500
-        
-    finally:
-        # Close the connection if it exists
-        if 'connection' in locals():
-            connection.close()
-
+        print(f"Error in add_question endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
 @app.route('/api/admin/check', methods=['GET'])

@@ -40,6 +40,8 @@
     border-radius: 4px;
     font-size: 14px;
     transition: border-color 0.2s;
+    color: #333; /* Dark text color */
+    background-color: white;
   }
   
   .form-group input:focus,
@@ -47,6 +49,13 @@
   .form-group textarea:focus {
     border-color: #3498db;
     outline: none;
+  }
+  
+  /* Make placeholder text visible */
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: #999;
+    opacity: 1;
   }
   
   .options-container,
@@ -80,6 +89,7 @@
     align-items: center;
     gap: 6px;
     cursor: pointer;
+    color: #333; /* Dark text color */
   }
   
   .form-actions {

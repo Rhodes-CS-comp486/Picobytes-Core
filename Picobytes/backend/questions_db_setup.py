@@ -80,9 +80,38 @@ def create_table():
                         );""")
 
         connection.commit()
+
+        print("user free_response table created successfully")
+
+
+
+        # User response to multiple_choice
+        cursor.execute("""
+                            CREATE TABLE IF NOT EXISTS user_multiple_choice (
+                                uid STRING PRIMARY KEY,
+                                qid INTEGER NOT NULL,
+                                response STRING NOT NULL,
+                                correct INTEGER CHECK (correct BETWEEN 1 AND 4)
+                                );""")
+
+        connection.commit()
+
+        print("user multiple_choice table created successfully")
+
+
+        # User response to multiple_choice
+        cursor.execute("""
+                                    CREATE TABLE IF NOT EXISTS user_true_false (
+                                        uid STRING PRIMARY KEY,
+                                        qid INTEGER NOT NULL,
+                                        response STRING NOT NULL,
+                                        correct BOOLEAN NOT NULL
+                                        );""")
+
+        connection.commit()
         connection.close()
 
-        print("user free response table created successfully")
+        print("user true false table created successfully")
 
     except Exception as e:
         print(f"Error creating table: {e}")

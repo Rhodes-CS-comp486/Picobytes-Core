@@ -16,6 +16,60 @@ class QuestionSave:
         return sqlite3.connect(self.db_path)
 
 
+    def save_mc_response(self, uid, qid, response):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO user_responses (uid, qid)
+                VALUES (?, ?)
+            """, (uid, qid))
+
+            cursor.execute("""
+                select answer from multiple_choice where qid = ?
+                """, (qid))
+            correct_answer = cursor.fetchone()
+
+            cursor.execute("""
+                INSERT INTO user_multiple_choice (uid, qid, response, correct_answer)
+                VALUES (?, ?, ?, ?)
+             """, (uid, qid, response, correct_answer,))
+
+            conn.commit()
+            conn.close()
+            return 1
+        except Exception as e:
+            print(f"Error saving response: {e}")
+            return 0
+
+
+
+    def save_tf_response(self, uid, qid, response):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO user_responses (uid, qid)
+                VALUES (?, ?)
+            """, (uid, qid))
+
+            cursor.execute("""
+                select answer from true_false where qid = ?
+                """, (qid))
+            correct_answer = cursor.fetchone()
+
+            cursor.execute("""
+                INSERT INTO user_multiple_choice (uid, qid, response, correct_answer)
+                VALUES (?, ?, ?, ?)
+             """, (uid, qid, response, correct_answer,))
+
+            conn.commit()
+            conn.close()
+            return 1
+        except Exception as e:
+            print(f"Error saving response: {e}")
+            return 0
+
 
 
     def save_fr_response(self, uid, qid, response):
@@ -56,6 +110,10 @@ class QuestionSave:
                 raise Exception("No valid question type for given qid")
             if q_type == 'free_response':
                 return self.save_fr_response(uid, qid, response)
+            elif q_type == 'multiple_choice':
+                return self.save_mc_response(uid, qid, response)
+            elif q_type == 'true_false':
+                return self.save_tf_response(uid, qid, response)
         except Exception as e:
             print(f"Error saving response: {e}")
             return 0

@@ -260,6 +260,110 @@ def login():
 ##########      ADMIN SHIT      ##########
 ##########################################
 
+
+
+@app.route('/api/admin/add_question', methods=['POST'])
+def add_question():
+    """API endpoint to add a new question to the database."""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+            
+        # Extract common question data
+        qtext = data.get('qtext')
+        qtype = data.get('qtype')
+        qlevel = data.get('qlevel')
+        qtopic = data.get('qtopic')
+        qactive = data.get('qactive', True)
+        
+        # Validate required fields
+        if not qtext or not qtype or not qlevel or not qtopic:
+            return jsonify({"error": "Missing required question fields"}), 400
+            
+        # Validate question type
+        if qtype not in ['mc', 'tf']:
+            return jsonify({"error": "Invalid question type. Must be 'mc' or 'tf'"}), 400
+            
+        # Connect to the database
+        connection = sqlite3.connect("qa.db")
+        cursor = connection.cursor()
+        
+        # Insert into questions table
+        cursor.execute("""
+            INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
+            VALUES (?, ?, ?, ?, ?)
+        """, (qtext, 'multiple_choice' if qtype == 'mc' else 'true_false', qlevel, qtopic, qactive))
+        
+        # Get the new question ID
+        qid = cursor.lastrowid
+        
+        # Insert type-specific data
+        if qtype == 'mc':
+            # Extract multiple choice data
+            option1 = data.get('option1')
+            option2 = data.get('option2')
+            option3 = data.get('option3')
+            option4 = data.get('option4')
+            answer = data.get('answer')
+            
+            # Validate required fields
+            if not option1 or not option2 or not option3 or not option4 or not answer:
+                # Roll back the transaction
+                connection.rollback()
+                return jsonify({"error": "Missing required multiple choice fields"}), 400
+                
+            # Insert into multiple_choice table
+            cursor.execute("""
+                INSERT INTO multiple_choice (qid, option1, option2, option3, option4, answer)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (qid, option1, option2, option3, option4, answer))
+            
+        elif qtype == 'tf':
+            # Extract true/false data
+            correct = data.get('correct')
+            
+            # Validate required fields
+            if correct is None:
+                # Roll back the transaction
+                connection.rollback()
+                return jsonify({"error": "Missing required true/false field"}), 400
+                
+            # Insert into true_false table
+            cursor.execute("""
+                INSERT INTO true_false (qid, correct)
+                VALUES (?, ?)
+            """, (qid, 1 if correct else 0))
+        
+        # Commit the transaction
+        connection.commit()
+        
+        # Return success response with the new question ID
+        return jsonify({
+            "success": True,
+            "message": "Question added successfully",
+            "qid": qid
+        })
+        
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error adding question: {e}")
+        
+        # Roll back the transaction if connection exists
+        if 'connection' in locals():
+            connection.rollback()
+        
+        # Return error response
+        return jsonify({"error": f"Failed to add question: {str(e)}"}), 500
+        
+    finally:
+        # Close the connection if it exists
+        if 'connection' in locals():
+            connection.close()
+
+
+
 @app.route('/api/admin/check', methods=['GET'])
 def check_admin():
     # This is a simple verification that would need to be replaced with

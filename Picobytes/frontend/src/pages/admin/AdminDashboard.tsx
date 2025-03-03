@@ -5,10 +5,18 @@ import ActiveUsers from './components/ActiveUsers';
 import PerformanceMetrics from './components/PerformanceMetrics';
 import QuestionStats from './components/QuestionStats';
 import UsageStats from './components/UsageStats';
+import AddQuestion from './components/AddQuestion';
 import './AdminDashboard.css';
 
-// Add CSS for loading and error indicators
+// Add CSS for loading and error indicators and admin navigation
 const additionalCSS = `
+.admin-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
 .loading-spinner {
   border: 3px solid #f3f3f3;
   border-top: 3px solid #3498db;
@@ -102,6 +110,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'questions'>('dashboard');
   
   // We'll let the ActiveUsers component handle its own data fetching
   // Keep these for other components
@@ -136,6 +145,12 @@ const AdminDashboard = () => {
     setActiveUsersPeriod(period);
   };
 
+  const handleQuestionAdded = () => {
+    // Refresh question stats or other relevant data
+    console.log('Question added, refreshing data...');
+    // In a real implementation, you would fetch the latest question stats here
+  };
+
   if (loading) {
     return <div className="admin-loading">Loading dashboard data...</div>;
   }
@@ -144,28 +159,53 @@ const AdminDashboard = () => {
     <div className="admin-dashboard">
       <header className="admin-header">
         <h1>Admin Dashboard</h1>
-        <button onClick={() => navigate('/homepage')} className="back-button">
-          Back to Home
-        </button>
+        <div className="admin-nav">
+          <button 
+            className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            Dashboard
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'questions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('questions')}
+          >
+            Manage Questions
+          </button>
+          <button onClick={() => navigate('/homepage')} className="back-button">
+            Back to Home
+          </button>
+        </div>
       </header>
       
-      <div className="dashboard-grid">
-        <div className="dashboard-card">
-          <ActiveUsers onPeriodChange={handlePeriodChange} />
+      {activeTab === 'dashboard' ? (
+        <div className="dashboard-grid">
+          <div className="dashboard-card">
+            <ActiveUsers onPeriodChange={handlePeriodChange} />
+          </div>
+          
+          <div className="dashboard-card">
+            <PerformanceMetrics data={performanceMetrics} />
+          </div>
+          
+          <div className="dashboard-card wide">
+            <QuestionStats data={questionStats} />
+          </div>
+          
+          <div className="dashboard-card wide">
+            <UsageStats data={usageStats} />
+          </div>
         </div>
-        
-        <div className="dashboard-card">
-          <PerformanceMetrics data={performanceMetrics} />
+      ) : (
+        <div className="questions-management">
+          <AddQuestion onQuestionAdded={handleQuestionAdded} />
+          
+          {/* You could add additional question management features here */}
+          <div className="dashboard-card wide" style={{ marginTop: '20px' }}>
+            <QuestionStats data={questionStats} />
+          </div>
         </div>
-        
-        <div className="dashboard-card wide">
-          <QuestionStats data={questionStats} />
-        </div>
-        
-        <div className="dashboard-card wide">
-          <UsageStats data={usageStats} />
-        </div>
-      </div>
+      )}
     </div>
   );
 };

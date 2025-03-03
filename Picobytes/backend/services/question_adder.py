@@ -27,11 +27,11 @@ class QuestionAdder:
             connection = sqlite3.connect(self.db_path)
             cursor = connection.cursor()
             
-            # Insert into questions table
+            # Insert into questions table - use the short form qtype values directly
             cursor.execute("""
                 INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
                 VALUES (?, ?, ?, ?, ?)
-            """, (qtext, 'multiple_choice' if qtype == 'mc' else 'true_false', qlevel, qtopic, qactive))
+            """, (qtext, qtype, qlevel, qtopic, qactive))
             
             # Get the new question ID
             qid = cursor.lastrowid

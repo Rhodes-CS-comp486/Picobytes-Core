@@ -2,6 +2,7 @@ import sqlite3
 import random
 import os
 
+
 class MC_QuestionFetcher:
 
     def __init__(self, db_filename="qa.db"):
@@ -39,8 +40,14 @@ class MC_QuestionFetcher:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel, qtopic from multiple_choice natural join questions where qactive = 1 and multiple_choice.qid = ?", (question_id,))
+        #cursor.execute("select qid, qtext, qtype, qlevel from questions where qid = ?", (question_id,))
         question = cursor.fetchone()
         conn.close()
+        '''conn = self._connect()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("select * from questions where qid = ?", (question_id,))
+        question = cursor.fetchone()'''
         return question
 
     def get_random_question(self):
@@ -62,3 +69,5 @@ class MC_QuestionFetcher:
         questions = cursor.fetchall()
         conn.close()
         return questions'''
+
+

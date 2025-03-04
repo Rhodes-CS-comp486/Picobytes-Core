@@ -53,11 +53,36 @@ def create_table():
 
 
 
+
+
+
+        # creating code blocks choice Table
+        cursor.execute("""
+                           CREATE TABLE IF NOT EXISTS code_blocks (
+                               qid INTEGER PRIMARY KEY,  -- Matches qid from questions
+                               block1 STRING NOT NULL,
+                               block2 STRING NOT NULL,
+                               block3 STRING NOT NULL,
+                               block4 STRING NOT NULL,
+                               block5 STRING NOT NULL,
+                               block6 STRING NOT NULL,
+                               block7 STRING NOT NULL,
+                               block8 STRING NOT NULL,
+                               block9 STRING NOT NULL,
+                               block10 STRING NOT NULL,
+                               answer STRING NOT NULL,
+                               FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
+                               );""")
+
+        connection.commit()
+
+        print("true_false table created successfully")
+
+
+
 ##############################################
 ##########  STORING USER RESPONSES  ##########
 ##############################################
-
-
 
         #User responses
         cursor.execute("""

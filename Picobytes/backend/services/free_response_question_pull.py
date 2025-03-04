@@ -35,7 +35,7 @@ class FR_QuestionFetcher:
         """Fetch a specific question by its ID."""
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.execute("select qid, qtext, qtopic, qlevel from questions where qactive = 1 and qid = ?", (question_id,))
+        cursor.execute("select qid, qtext, qtype, qtopic, qlevel from questions where qactive = 1 and qid = ?", (question_id,))
         question = cursor.fetchone()
         conn.close()
         return question

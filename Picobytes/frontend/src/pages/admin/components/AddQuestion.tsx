@@ -6,7 +6,7 @@ interface AddQuestionProps {
 }
 
 const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
-  const [questionType, setQuestionType] = useState<string>('mc');
+  const [questionType, setQuestionType] = useState<string>('multiple_choice');
   const [questionText, setQuestionText] = useState<string>('');
   const [questionLevel, setQuestionLevel] = useState<string>('easy');
   const [questionTopic, setQuestionTopic] = useState<string>('');
@@ -54,7 +54,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
       return false;
     }
 
-    if (questionType === 'mc') {
+    if (questionType === 'multiple_choice') {
       if (!option1.trim() || !option2.trim() || !option3.trim() || !option4.trim()) {
         setFeedback({
           message: 'All four options are required for multiple choice questions',
@@ -84,7 +84,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
         qlevel: questionLevel,
         qtopic: questionTopic,
         qactive: true,
-        ...(questionType === 'mc' 
+        ...(questionType === 'multiple_choice' 
           ? { 
               option1, 
               option2, 
@@ -133,15 +133,13 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
 
   return (
     <div className="add-question-container">
-      <h2 className="card-title">Add New Question</h2>
-      
-      {feedback && (
-        <div className={`feedback-message ${feedback.type}`}>
-          {feedback.message}
-        </div>
-      )}
-      
       <form onSubmit={handleSubmit} className="question-form">
+        {feedback && (
+          <div className={`feedback-message ${feedback.type}`}>
+            {feedback.message}
+          </div>
+        )}
+        
         <div className="form-group">
           <label htmlFor="questionType">Question Type</label>
           <select 
@@ -150,8 +148,8 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
             onChange={(e) => setQuestionType(e.target.value)}
             disabled={isSubmitting}
           >
-            <option value="mc">Multiple Choice</option>
-            <option value="tf">True/False</option>
+            <option value="multiple_choice">Multiple Choice</option>
+            <option value="true_false">True/False</option>
           </select>
         </div>
         
@@ -197,7 +195,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
           </div>
         </div>
         
-        {questionType === 'mc' ? (
+        {questionType === 'multiple_choice' ? (
           <div className="options-container">
             <h3>Multiple Choice Options</h3>
             

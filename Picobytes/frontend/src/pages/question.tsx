@@ -159,6 +159,7 @@ const Question = () => {
   if (error !== "") {
     return (
       <>
+        <Home_Header />
         <h1>Error: {error}</h1>
         <p>Question ID: {id}</p>
         <button onClick={() => navToQuestion(parseInt(id!) - 1)}>&lt;</button>

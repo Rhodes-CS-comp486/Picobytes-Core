@@ -7,7 +7,7 @@ const Home_Prof_Overlay = () => {
   const navigate = useNavigate();
   
   const logout = () => {
-    navigate('/login'); // Navigate to the login page
+    navigate('/'); // Navigate to the login page
   };
   
   

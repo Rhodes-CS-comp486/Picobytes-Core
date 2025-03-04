@@ -71,7 +71,7 @@ button:focus-visible {
   color: black;
   background-color: white;
   button {
-    background-color: #f9f9f9;
+    background-color: cadetblue;
   }
  
 }
@@ -80,6 +80,6 @@ button:focus-visible {
   color: white;
   background-color: #242424;
   button {
-    background-color: rgb(10, 10, 10);
+    background-color: cadetblue;
   }
 }

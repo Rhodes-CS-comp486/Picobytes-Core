@@ -11,9 +11,6 @@ const Home_Top_Content = () => {
     const question = () => {
         navigate('/question/:id')
     }
-    const topic_select = () => {
-        navigate('/topic_select')
-    }
     const allQuestions = () => {
         navigate('/questions')
     

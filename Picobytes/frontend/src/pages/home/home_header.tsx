@@ -17,13 +17,16 @@ const Home_Header = () => {
   return (
     <div className="homepage">
       {/* Buttons */}
-      <div id="header-buttons">
-        <button></button>
-
-      </div>
 
       {/* Profile Icon & header */}
       <div className="homepage-header">
+        <div id="header-hbox">
+          <button>Lessons</button>
+          <button>Practice</button>
+          <button>Leaderboard</button>
+
+        </div>
+        
         <div className="profile-icon-container" onClick={toggleOverlay}>
           <img
             src={reactLogo} //"https://via.placeholder.com/50"

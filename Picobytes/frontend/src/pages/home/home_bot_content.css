@@ -15,16 +15,17 @@
 .hbc-grid {
     
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto;
     padding: 40px;
-    column-gap: 30px;
-    row-gap: 50px;
+    
+    row-gap: 20px;
 
     
 }
 .hbc-grid button {
-    width: 100%;
-
+    width: 100px;
+    height: 100px;
+    border-radius: 100%;
     padding: 20px;
     background-color: cadetblue;
     color: white;

@@ -16,6 +16,12 @@ const Home_Header = () => {
 
   return (
     <div className="homepage">
+      {/* Buttons */}
+      <div id="header-buttons">
+        <button></button>
+
+      </div>
+
       {/* Profile Icon & header */}
       <div className="homepage-header">
         <div className="profile-icon-container" onClick={toggleOverlay}>

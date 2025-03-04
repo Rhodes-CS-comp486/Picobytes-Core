@@ -35,9 +35,10 @@ const Home_Bot_Content = () => {
                     const questionId = index + 1; // ID starts from 1
                     return (
                         <div key={questionId}>
-                            <button onClick={() => goToQuestion(questionId)}>
-                                Question {questionId}
+                            <button id="hbc-button" onClick={() => goToQuestion(questionId)}>
+                                {questionId}
                             </button>
+                            <p>Arrow</p>
                         </div>
                     );
                 })}

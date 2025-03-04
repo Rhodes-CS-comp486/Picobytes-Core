@@ -39,7 +39,7 @@ const Home_Top_Content = () => {
         <div className='htc'>
             <div>
                 <h1>Welcome back, Agent 41!</h1>
-                <button onClick={topic_select}>To topic select</button>
+
             </div>
 
             {/* PROGRESS BAR */}

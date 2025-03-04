@@ -20,8 +20,8 @@ class QuestionAdder:
                 return {"error": "Missing required question fields"}, 400
             
             # Validate question type
-            if qtype not in ['mc', 'tf']:
-                return {"error": "Invalid question type. Must be 'mc' or 'tf'"}, 400
+            if qtype not in ['multiple_choice', 'true_false']:
+                return {"error": "Invalid question type. Must be 'multiple_choice' or 'true_false'"}, 400
             
             # Connect to the database
             connection = sqlite3.connect(self.db_path)
@@ -37,7 +37,7 @@ class QuestionAdder:
             qid = cursor.lastrowid
             
             # Insert type-specific data
-            if qtype == 'mc':
+            if qtype == 'multiple_choice':
                 # Extract multiple choice data
                 option1 = question_data.get('option1')
                 option2 = question_data.get('option2')
@@ -57,7 +57,7 @@ class QuestionAdder:
                     VALUES (?, ?, ?, ?, ?, ?)
                 """, (qid, option1, option2, option3, option4, answer))
                 
-            elif qtype == 'tf':
+            elif qtype == 'true_false':
                 # Extract true/false data
                 correct = question_data.get('correct')
                 

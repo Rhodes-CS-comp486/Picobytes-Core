@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import Home_Header from "./home/home_header";
 
 const Question = () => {
-  const [answer, setAnswer] = useState<boolean[] | boolean>([false, false, false, false]);
+  const [answer, setAnswer] = useState<boolean[] | boolean | null>([false, false, false, false]);
   const [question, setQuestion] = useState("⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜?");
   const [questionType, setQuestionType] = useState<string>("mc");
   const [correct, setCorrect] = useState<number | boolean>(0);
@@ -60,7 +60,7 @@ const Question = () => {
           setAnswer([false, false, false, false]);
         } else if (data.question_type === "tf") {
           setCorrect(data.answer === 1);
-          setAnswer(false); // Initialize as false for true/false questions
+          setAnswer(null); // Initialize as null so no option is selected by default
         }
       })
       .catch((error) => {

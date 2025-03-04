@@ -58,6 +58,29 @@ def insert_sample_questions():
             )
         ]
 
+
+        code_blocks = [
+            (
+                "Please complete this code",
+                'code_blocks',
+                'easy',
+                'Programming',
+                1,
+                'this',
+                'is',
+                'a',
+                'test',
+                'code',
+                'blocks',
+                'of',
+                'does it work?',
+                '-1000',
+                '-1000',
+                '1,2,3,4,8,5,6,7,8',
+
+            )
+        ]
+
         # True/false questions
         tf_questions = [
             (
@@ -125,6 +148,22 @@ def insert_sample_questions():
                        INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
                        VALUES (?, ?, ?, ?, ?)
                    """, (q[0], q[1], q[2], q[3], q[4]))
+
+        # Insert true/false questions
+        for q in code_blocks:
+            # Insert into questions table
+            cursor.execute("""
+                      INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
+                      VALUES (?, ?, ?, ?, ?)
+                  """, (q[0], q[1], q[2], q[3], q[4]))
+
+            qid = cursor.lastrowid
+
+            # Insert into true_false table
+            cursor.execute("""
+                      INSERT INTO code_blocks (qid, block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, answer)
+                      VALUES (?, ?, ?, ?,?,?,?,?,?,?,?,?)
+                  """, (qid, q[5], q[6], q[7], q[8], q[9], q[10], q[11], q[12], q[13], q[14], q[15]))
 
         # Commit the changes
         connection.commit()

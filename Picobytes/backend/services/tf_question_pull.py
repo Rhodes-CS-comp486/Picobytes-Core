@@ -2,22 +2,18 @@ import sqlite3
 import os
 
 class QuestionService:
-    def __init__(self, db_path=None):
-        """Initialize the connection to the SQLite database.
-        Args:
-            db_path: Full path to database. If None, uses default location.
-        """
-        if db_path is None:
-            # Use default path relative to service file
-            self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "qa.db"))
-        else:
-            # Use provided path
-            self.db_path = db_path
+    def __init__(self, db_filename="qa.db"):
+        """Initialize the connection to the SQLite database located one directory above."""
+        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+
+    def _connect(self):
+        """Establish and return a database connection."""
+        return sqlite3.connect(self.db_path)
 
     def pull_questions(self):
         try:
             print(f"Using database path: {self.db_path}")
-            conn = sqlite3.connect(self.db_path)
+            conn = self._connect()
             c = conn.cursor()
             c.execute('''
                 SELECT q.qid, q.qtext, q.qlevel, tf.correct 
@@ -33,6 +29,17 @@ class QuestionService:
         except Exception as e:
             print(f"Error fetching questions: {e}")
             return []
+
+
+    def get_question_by_id(self, question_id):
+        """Fetch a specific question by its ID."""
+        conn = self._connect()
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("select qid, qtext, correct, qtype, qlevel, qtopic from true_false natural join questions where qactive = 1 and true_false.qid = ?", (question_id,))
+        question = cursor.fetchone()
+        conn.close()
+        return question
 
 if __name__ == '__main__':
     service = QuestionService()

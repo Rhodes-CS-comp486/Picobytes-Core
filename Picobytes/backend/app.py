@@ -1,7 +1,5 @@
-# Treat this as app.py
 import os
 from flask import Flask, render_template, jsonify, request
-
 from services.free_response_question_pull import FR_QuestionFetcher
 from services.tf_question_pull import QuestionService
 from services.mc_question_pull import MC_QuestionFetcher# type: ignore
@@ -12,6 +10,9 @@ import hashlib
 from flask_cors import CORS
 from services.admin_service import AdminService
 from services.question_saver import QuestionSave
+from services.question_adder import QuestionAdder  # Import the new service
+from services.get_question import GetQuestions
+from services.code_blocks_question_pull import CB_QuestionFetcher
 import json
 
 # get absolute path of current file's directory
@@ -41,6 +42,9 @@ admin_service = AdminService()
 fr_question_service = FR_QuestionFetcher()
 question_save_service = QuestionSave()
 topic_service = Topic_Puller()
+question_adder_service = QuestionAdder()  # Initialize the new service
+question_fetcher_service = GetQuestions()
+cb_question_service = CB_QuestionFetcher()
 
 @app.route('/')
 def home():
@@ -60,15 +64,15 @@ def api_get_questions():
             'tf': tf_questions,
             'mc': mc_questions
         }
-        
+
         response = {
             'questions': questions,
             'total_questions': len(tf_questions) + len(mc_questions)
         }
-        
+
         print(f"Sending response: {response}")  # Debug log
         return jsonify(response)
-    
+
     except Exception as e:
         print(f"Error in api_get_questions: {e}")
         return jsonify({'error': str(e)}), 500
@@ -76,24 +80,11 @@ def api_get_questions():
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):
     """API endpoint to fetch a question by ID."""
-    question_data = mc_question_service.get_question_by_id(qid)
-    if question_data:
-        response = {
-            'question_id': question_data['qid'],
-            'question_text': question_data['qtext'],
-            'option_1': question_data['option1'],
-            'option_2': question_data['option2'],
-            'option_3': question_data['option3'],
-            'option_4': question_data['option4'],
-            'answer': question_data['answer'],
-            'question_type': question_data['qtype'],
-            'question_level': question_data['qlevel'],
-            'question_topic': question_data['qtopic']
-        }
+    response = question_fetcher_service.get_question(qid)
+    print(response)
+    return response
 
-        return jsonify(response)
-    else:
-        return jsonify({"error": "Question not found"}), 404
+    #return jsonify({"error": "Unknown server error"}), 404
     
 
 @app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
@@ -120,26 +111,6 @@ def update_user_status():
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'Failed to update user status'}), 500
-
-### Free Response Questions ###
-
-@app.route('/api/fr_question/<int:qid>', methods=['GET'])
-def fr_question(qid):
-    """API endpoint to fetch a question by ID."""
-    question_data = fr_question_service.get_question_by_id(qid)
-    if question_data:
-        response = {
-            'question_id': question_data['qid'],
-            'question_type': question_data['qtype'],
-            'question_text': question_data['qtext'],
-            'question_level': question_data['qlevel'],
-            'question_topic': question_data['qtopic']
-        }
-
-        return jsonify(response)
-    else:
-        return jsonify({"error": "Question not found"}), 404
-
 
 
 
@@ -259,6 +230,24 @@ def login():
 ##########################################
 ##########      ADMIN SHIT      ##########
 ##########################################
+
+@app.route('/api/admin/add_question', methods=['POST'])
+def add_question():
+    """API endpoint to add a new question to the database."""
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+        
+        result, status_code = question_adder_service.add_question(data)
+        
+        return jsonify(result), status_code
+        
+    except Exception as e:
+        print(f"Error in add_question endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
 
 @app.route('/api/admin/check', methods=['GET'])
 def check_admin():

@@ -9,7 +9,7 @@ def reset_tables():
             cursor.execute("PRAGMA foreign_keys = OFF;")
 
             # Dropping tables
-            tables = ["questions", "true_false", "multiple_choice", "user_response", "user_free_response"]
+            tables = ["questions", "true_false", "multiple_choice", "user_response", "user_free_response", 'user_multiple_choice', 'user_true_false']
             for table in tables:
                 cursor.execute(f"DROP TABLE IF EXISTS {table};")
                 print(f"{table} table dropped")

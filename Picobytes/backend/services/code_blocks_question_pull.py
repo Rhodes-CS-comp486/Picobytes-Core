@@ -2,8 +2,7 @@ import sqlite3
 import random
 import os
 
-
-class MC_QuestionFetcher:
+class CB_QuestionFetcher:
 
     def __init__(self, db_filename="qa.db"):
         """Initialize the connection to the SQLite database located one directory above."""
@@ -14,21 +13,20 @@ class MC_QuestionFetcher:
         return sqlite3.connect(self.db_path)
 
 
-    def get_all_mc_questions(self):
+    def get_all_cd_questions(self):
         """Fetch all questions from the multiple_choice table."""
         try:
             conn = self._connect()
+            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT q.qid, q.qtext, mc.option1, mc.option2, mc.option3, mc.option4, 
-                    mc.answer, q.qlevel 
-                FROM questions q 
-                JOIN multiple_choice mc ON q.qid = mc.qid 
-                WHERE q.qtype = 'multiple_choice' AND q.qactive = 1
+                SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer
+                FROM questions q NATURAL JOIN code_blocks c
+                WHERE q.qtype = 'code_blocks' AND q.qactive = 1
             """)
             all_questions = cursor.fetchall()
             conn.close()
-            print(f"Fetched MC questions: {all_questions}")
+            print(f"Fetched CB questions: {all_questions}")
             return all_questions
         except Exception as e:
             print(f"Error fetching MC questions: {e}")
@@ -39,27 +37,21 @@ class MC_QuestionFetcher:
         conn = self._connect()
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel, qtopic from multiple_choice natural join questions where qactive = 1 and multiple_choice.qid = ?", (question_id,))
-        #cursor.execute("select qid, qtext, qtype, qlevel from questions where qid = ?", (question_id,))
+        cursor.execute("SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer FROM questions q NATURAL JOIN code_blocks c where qactive = 1 and qid = ?", (question_id,))
         question = cursor.fetchone()
         conn.close()
-        '''conn = self._connect()
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute("select * from questions where qid = ?", (question_id,))
-        question = cursor.fetchone()'''
         return question
 
-    def get_random_question(self):
+    '''def get_random_question(self):
         """Fetch a random question from the multiple_choice table."""
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel from multiple_choice natural join questions where qactive = 1")
+        cursor.execute("select qid, qtext, qtopic, qlevel from questions where qactive = 1 and qtyoe = 'free_response'")
         all_ids = [row[0] for row in cursor.fetchall()]
         if not all_ids:
             return None
         random_id = random.choice(all_ids)
-        return self.get_question_by_id(random_id)
+        return self.get_question_by_id(random_id)'''
 
     '''def get_questions_by_category(self, category):
         """Fetch questions filtered by category, if the table has a 'category' column."""
@@ -69,5 +61,3 @@ class MC_QuestionFetcher:
         questions = cursor.fetchall()
         conn.close()
         return questions'''
-
-

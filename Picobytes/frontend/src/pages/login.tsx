@@ -32,7 +32,9 @@ const Login = () => {
       setUserId(data.uid);
       setError(null);
 
-      if (data.uid > 0) {
+
+      console.log(data.uid)
+      if (data.uid.length >= 10) {
         navigate("/homepage");
       }
     } catch (err: any) {
@@ -40,12 +42,6 @@ const Login = () => {
     }
   };
 
-  const login = (username: string, password: string) => {
-    //will be changed to store to data base
-    alert(username);
-    alert(password);
-    fetch("localhost:5173/api/login").then();
-  };
 
   return (
     <>
@@ -77,7 +73,7 @@ const Login = () => {
           </button>
         </div>
         <div>
-          <button id="btnCreateAcc">CREATE ACCOUNT</button>
+          <button onClick={(e) => navigate("/accountcreate")} id="btnCreateAcc">CREATE ACCOUNT</button>
         </div>
       </div>
     </div>

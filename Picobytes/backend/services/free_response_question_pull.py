@@ -17,6 +17,7 @@ class FR_QuestionFetcher:
         """Fetch all questions from the multiple_choice table."""
         try:
             conn = self._connect()
+            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT q.qid, q.qtext, q.topic, q.qlevel 
@@ -34,6 +35,7 @@ class FR_QuestionFetcher:
     def get_question_by_id(self, question_id):
         """Fetch a specific question by its ID."""
         conn = self._connect()
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("select qid, qtext, qtype, qtopic, qlevel from questions where qactive = 1 and qid = ?", (question_id,))
         question = cursor.fetchone()

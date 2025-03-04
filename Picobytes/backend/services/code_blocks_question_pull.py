@@ -17,6 +17,7 @@ class CB_QuestionFetcher:
         """Fetch all questions from the multiple_choice table."""
         try:
             conn = self._connect()
+            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer
@@ -34,6 +35,7 @@ class CB_QuestionFetcher:
     def get_question_by_id(self, question_id):
         """Fetch a specific question by its ID."""
         conn = self._connect()
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer FROM questions q NATURAL JOIN code_blocks c where qactive = 1 and qid = ?", (question_id,))
         question = cursor.fetchone()

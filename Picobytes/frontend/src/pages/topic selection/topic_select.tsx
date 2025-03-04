@@ -12,9 +12,8 @@ const Topic_Select = () => {
                 <h1>Lesson Title</h1>
                 <h2>Description of lessons.</h2>
 
-                <button>CLICK ME TO START LESSON</button>
+                <button>CLICK ME TO START Topic 1</button>
 
-                <p>PROGRESS BAR BELOW HERE</p>
             </div>
 
             {/* Main Body */}

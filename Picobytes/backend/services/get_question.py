@@ -3,7 +3,7 @@ from flask import jsonify
 import os
 import sqlite3
 
-from Picobytes.backend.app import cb_question_service
+from Picobytes.backend.services.code_blocks_question_pull import CB_QuestionFetcher
 from Picobytes.backend.services.free_response_question_pull import FR_QuestionFetcher
 from Picobytes.backend.services.mc_question_pull import MC_QuestionFetcher
 from Picobytes.backend.services.tf_question_pull import QuestionService

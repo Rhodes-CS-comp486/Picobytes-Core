@@ -12,6 +12,7 @@ from services.admin_service import AdminService
 from services.question_saver import QuestionSave
 from services.question_adder import QuestionAdder  # Import the new service
 from services.get_question import GetQuestions
+from services.code_blocks_question_pull import CB_QuestionFetcher
 import json
 
 # get absolute path of current file's directory
@@ -43,6 +44,7 @@ question_save_service = QuestionSave()
 topic_service = Topic_Puller()
 question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
+cb_question_service = CB_QuestionFetcher()
 
 @app.route('/')
 def home():
@@ -109,26 +111,6 @@ def update_user_status():
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'Failed to update user status'}), 500
-
-### Free Response Questions ###
-
-@app.route('/api/fr_question/<int:qid>', methods=['GET'])
-def fr_question(qid):
-    """API endpoint to fetch a question by ID."""
-    question_data = fr_question_service.get_question_by_id(qid)
-    if question_data:
-        response = {
-            'question_id': question_data['qid'],
-            'question_type': question_data['qtype'],
-            'question_text': question_data['qtext'],
-            'question_level': question_data['qlevel'],
-            'question_topic': question_data['qtopic']
-        }
-
-        return jsonify(response)
-    else:
-        return jsonify({"error": "Question not found"}), 404
-
 
 
 

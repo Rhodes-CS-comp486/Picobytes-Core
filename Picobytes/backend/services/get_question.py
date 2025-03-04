@@ -3,13 +3,16 @@ from flask import jsonify
 import os
 import sqlite3
 
+from Picobytes.backend.app import cb_question_service
 from Picobytes.backend.services.free_response_question_pull import FR_QuestionFetcher
 from Picobytes.backend.services.mc_question_pull import MC_QuestionFetcher
 from Picobytes.backend.services.tf_question_pull import QuestionService
+from Picobytes.backend.services.code_blocks_question_pull import CB_QuestionFetcher
 
 mc_question_service = MC_QuestionFetcher()
 tf_question_service = QuestionService()
 fr_question_service = FR_QuestionFetcher()
+cb_question_service = CB_QuestionFetcher()
 
 
 
@@ -87,6 +90,30 @@ class GetQuestions:
                     'question_level': question_data['qlevel'],
                 }
                 return jsonify(response)
+
+            elif q_type == 'code_blocks':
+                question_data = cb_question_service.get_question_by_id(qid)
+                response = {
+                    'question_id': question_data['qid'],
+                    'question_text': question_data['qtext'],
+                    'question_type': question_data['qtype'],
+                    'question_topic': question_data['qtopic'],
+                    'question_level': question_data['qlevel'],
+                    'block1': question_data['block1'],
+                    'block2': question_data['block2'],
+                    'block3': question_data['block3'],
+                    'block4': question_data['block4'],
+                    'block5': question_data['block5'],
+                    'block6': question_data['block6'],
+                    'block7': question_data['block7'],
+                    'block8': question_data['block8'],
+                    'block9': question_data['block9'],
+                    'block10': question_data['block10'],
+                    'answer': question_data['answer'],
+                }
+                return jsonify(response)
+
+
             else:
                 return jsonify("Server Error. Please try again later.")
 

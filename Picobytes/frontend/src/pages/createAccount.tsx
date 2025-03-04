@@ -36,8 +36,12 @@ const AccountCreate = () => {
 
             setUserId(data.uid);
             setError(null);
-            alert("Account created successfully! Redirecting to login...");
-            navigate("/");  
+            if(data.uid.length >= 10){
+                alert("Account created successfully! Redirecting to homepage...");
+                navigate("/homepage");  
+            }
+            
+
         } catch (err: any) {
             setError(err.message);
         }

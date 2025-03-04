@@ -1,8 +1,6 @@
 /* Topic Select CSS */
 
-#header,
-#footer {
-    background-color: #f1f1f1;
+#header {
     min-height: 40px;
 }
 

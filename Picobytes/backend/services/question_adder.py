@@ -27,7 +27,7 @@ class QuestionAdder:
             connection = sqlite3.connect(self.db_path)
             cursor = connection.cursor()
             
-            # Insert into questions table - use the short form qtype values directly
+            # Insert into questions table - use the full form qtype values directly
             cursor.execute("""
                 INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
                 VALUES (?, ?, ?, ?, ?)

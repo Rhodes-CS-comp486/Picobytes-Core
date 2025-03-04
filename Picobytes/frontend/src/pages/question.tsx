@@ -3,9 +3,9 @@ import { useNavigate, useParams } from "react-router";
 import Home_Header from "./home/home_header";
 
 const Question = () => {
-  const [answer, setAnswer] = useState<boolean[] | boolean>([false, false, false, false]);
+  const [answer, setAnswer] = useState<boolean[] | boolean | null>([false, false, false, false]);
   const [question, setQuestion] = useState("⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜?");
-  const [questionType, setQuestionType] = useState<string>("mc");
+  const [questionType, setQuestionType] = useState<string>("multiple_choice");
   const [correct, setCorrect] = useState<number | boolean>(0);
   const [options, setOptions] = useState([
     "⬜⬜⬜⬜⬜⬜⬜⬜",
@@ -49,7 +49,7 @@ const Question = () => {
         setDifficulty(data.question_level);
         setTopic(data.question_topic);
         
-        if (data.question_type === "mc") {
+        if (data.question_type === "multiple_choice") {
           setOptions([
             data.option_1,
             data.option_2,
@@ -58,9 +58,9 @@ const Question = () => {
           ]);
           setCorrect(data.answer);
           setAnswer([false, false, false, false]);
-        } else if (data.question_type === "tf") {
+        } else if (data.question_type === "true_false") {
           setCorrect(data.answer === 1);
-          setAnswer(false); // Initialize as false for true/false questions
+          setAnswer(null); // Initialize as null so no option is selected by default
         }
       })
       .catch((error) => {
@@ -88,8 +88,8 @@ const Question = () => {
   const submitAnswer = () => {
     // Check if an answer is selected
     if (
-      (questionType === "mc" && !(answer as boolean[]).includes(true)) ||
-      (questionType === "tf" && answer === null)
+      (questionType === "multiple_choice" && !(answer as boolean[]).includes(true)) ||
+      (questionType === "true_false" && answer === null)
     ) {
       setFeedback("Please select an answer before submitting.");
       return;
@@ -98,7 +98,7 @@ const Question = () => {
     setIsSubmitting(true);
     setFeedback("");
 
-    if (questionType === "mc") {
+    if (questionType === "multiple_choice") {
       fetch("http://127.0.0.1:5000/api/submit_answer", {
         method: "POST",
         headers: {
@@ -139,7 +139,7 @@ const Question = () => {
           setError(`Error submitting answer: ${error.message}`);
           setIsSubmitting(false);
         });
-    } else if (questionType === "tf") {
+    } else if (questionType === "true_false") {
       // For true/false questions, we can check the answer client-side
       const isCorrect = answer === correct;
       
@@ -183,7 +183,7 @@ const Question = () => {
         )}
         <br></br>
         
-        {questionType === "tf" ? (
+        {questionType === "true_false" ? (
           // True/False options
           <ul>
             <li>

@@ -23,25 +23,28 @@ const Draggable_Question = () => {
 
     return (
         <div className='container'>
-            <div id="question_table" onDragOver={handleDragOver} onDrop={handleDrop}>
-                <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
-                Question 1
-                </div>
-                <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
-                Question 2
-                </div>
-                <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
-                Question 3
-                </div>
-                <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
-                Question 4
-                </div>
-                <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
-                Question 5
-                </div>
-            </div>
-            <div id="answer_input"  onDragOver={handleDragOver} onDrop={handleDrop}>
-            </div>
+          <div >
+            THIS IS QUESTION _____ THIS IS QUESTION ______ THIS IS QUESTION _____ THIS IS QUESTION ______ THIS IS QUESTION _____ 
+          </div>
+          <div id="answer_input"  onDragOver={handleDragOver} onDrop={handleDrop}>
+          </div>
+          <div id="question_table" onDragOver={handleDragOver} onDrop={handleDrop}>
+              <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
+              Question 1
+              </div>
+              <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
+              Question 2
+              </div>
+              <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
+              Question 3
+              </div>
+              <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
+              Question 4
+              </div>
+              <div className="question_drag" draggable onDragStart={(e) => handleDragStart(e, e.currentTarget)}>
+              Question 5
+              </div>
+          </div>
         </div>
 
        

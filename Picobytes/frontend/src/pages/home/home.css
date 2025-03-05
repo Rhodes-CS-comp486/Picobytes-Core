@@ -1,18 +1,11 @@
 /* Duolingo-inspired Homepage Styles */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
 /* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-body {
-  font-family: 'Nunito', sans-serif;
-  background-color: #111827;
-  color: #ffffff;
 }
 
 /* Main layout */
@@ -24,13 +17,30 @@ body {
   margin: 0 auto;
 }
 
+.dark-mode .duolingo-layout {
+  background-color: #111827;
+  color: #ffffff;
+}
+
+.light-mode .duolingo-layout {
+  background-color: #f1f5f9;
+  color: #1f2937;
+}
+
 /* Sidebar styles */
 .sidebar {
-  background-color: #1f2937;
   padding: 20px 10px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.dark-mode .sidebar {
+  background-color: #1f2937;
+}
+
+.light-mode .sidebar {
+  background-color: #ffffff;
 }
 
 .logo-container {
@@ -39,9 +49,18 @@ body {
   text-align: center;
 }
 
-.logo {
-  max-width: 150px;
-  height: auto;
+.logo-text {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+}
+
+.dark-mode .logo-text {
+  color: #ffffff;
+}
+
+.light-mode .logo-text {
+  color: #58cc02;
 }
 
 .sidebar-nav {
@@ -58,12 +77,26 @@ body {
   border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+}
+
+.dark-mode .nav-item {
   color: #d1d5db;
 }
 
+.light-mode .nav-item {
+  color: #4b5563;
+}
+
 .nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+.dark-mode .nav-item:hover {
   color: #ffffff;
+}
+
+.light-mode .nav-item:hover {
+  color: #111827;
 }
 
 .nav-item.active {
@@ -72,14 +105,14 @@ body {
   font-weight: 700;
 }
 
-.nav-item .material-icons {
+.nav-item .material-icon {
   margin-right: 12px;
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .sidebar-footer {
   margin-top: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(128, 128, 128, 0.2);
   padding-top: 16px;
 }
 
@@ -88,7 +121,14 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
+}
+
+.dark-mode .main-content {
   background-color: #111827;
+}
+
+.light-mode .main-content {
+  background-color: #f1f5f9;
 }
 
 .unit-header {
@@ -144,7 +184,7 @@ body {
   font-weight: 600;
 }
 
-.guidebook-button .material-icons {
+.guidebook-button .material-icon {
   margin-right: 8px;
 }
 
@@ -153,10 +193,18 @@ body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 30px 0;
+  padding: 20px 0;
   position: relative;
+}
+
+.welcome-banner {
+  margin-bottom: 30px;
+  padding: 0 20px;
+}
+
+.welcome-banner h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
 }
 
 .path-container {
@@ -167,6 +215,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 50px;
+  margin: 0 auto;
+  padding: 30px 0;
 }
 
 .path-connector {
@@ -176,7 +226,14 @@ body {
   right: 0;
   bottom: 0;
   z-index: 0;
+}
+
+.dark-mode .path-connector {
   background: linear-gradient(to bottom, transparent 49%, #575e75 50%, transparent 51%);
+}
+
+.light-mode .path-connector {
+  background: linear-gradient(to bottom, transparent 49%, #d1d5db 50%, transparent 51%);
 }
 
 .lesson-node {
@@ -207,15 +264,23 @@ body {
 .node-icon {
   width: 60px;
   height: 60px;
-  background-color: #2b3445;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 8px;
   font-size: 24px;
-  color: #adb5bd;
   border: 3px solid #575e75;
+}
+
+.dark-mode .node-icon {
+  background-color: #2b3445;
+  color: #adb5bd;
+}
+
+.light-mode .node-icon {
+  background-color: #e2e8f0;
+  color: #4b5563;
 }
 
 .lesson-node.completed .node-icon {
@@ -247,13 +312,21 @@ body {
 .node-label {
   font-size: 14px;
   font-weight: 700;
-  color: white;
   text-align: center;
+}
+
+.dark-mode .node-label {
+  color: white;
+}
+
+.light-mode .node-label {
+  color: #1f2937;
 }
 
 .mascot-container {
   position: relative;
   margin: 30px 0;
+  text-align: center;
 }
 
 .mascot {
@@ -303,7 +376,8 @@ body {
 }
 
 .start-section {
-  margin-top: 30px;
+  margin: 30px 0;
+  text-align: center;
 }
 
 .start-button {
@@ -329,21 +403,84 @@ body {
   box-shadow: 0 2px 0 #58a700;
 }
 
+/* All questions section */
+.all-questions-section {
+  margin-top: 50px;
+  padding: 0 20px;
+}
+
+.all-questions-section h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.questions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.question-button {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+}
+
+.dark-mode .question-button {
+  background-color: #2d3748;
+  color: #e2e8f0;
+}
+
+.light-mode .question-button {
+  background-color: #e2e8f0;
+  color: #1f2937;
+}
+
+.question-button.completed {
+  background-color: #58cc02;
+  color: white;
+}
+
+.question-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 /* Right sidebar */
 .right-sidebar {
-  background-color: #1f2937;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.dark-mode .right-sidebar {
+  background-color: #1f2937;
+}
+
+.light-mode .right-sidebar {
+  background-color: #ffffff;
 }
 
 .sidebar-card {
-  background-color: #2d3748;
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .sidebar-card {
+  background-color: #2d3748;
+}
+
+.light-mode .sidebar-card {
+  background-color: #f1f5f9;
 }
 
 .card-header {
@@ -403,7 +540,7 @@ body {
   gap: 8px;
 }
 
-.stat-item .material-icons {
+.stat-item .material-icon {
   font-size: 28px;
   color: #ffde59;
 }
@@ -427,10 +564,17 @@ body {
 
 .progress-bar {
   height: 12px;
-  background-color: #4b5563;
   border-radius: 6px;
   overflow: hidden;
   margin-bottom: 8px;
+}
+
+.dark-mode .progress-bar {
+  background-color: #4b5563;
+}
+
+.light-mode .progress-bar {
+  background-color: #e2e8f0;
 }
 
 .progress-filled {
@@ -441,35 +585,14 @@ body {
 
 .progress-text {
   font-size: 14px;
+}
+
+.dark-mode .progress-text {
   color: #d1d5db;
 }
 
-/* Goal item */
-.goal-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.goal-icon {
-  width: 40px;
-  height: 40px;
-  background-color: #1cb0f6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.goal-info {
-  flex-grow: 1;
-}
-
-.goal-title {
-  font-weight: 600;
-  margin-bottom: 8px;
+.light-mode .progress-text {
+  color: #4b5563;
 }
 
 /* Topic progress */
@@ -492,7 +615,7 @@ body {
   font-weight: 700;
 }
 
-/* Responsive adjustments */
+/* Mobile adjustments */
 @media (max-width: 1200px) {
   .duolingo-layout {
     grid-template-columns: 180px 1fr 300px;
@@ -502,21 +625,35 @@ body {
 @media (max-width: 991px) {
   .duolingo-layout {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr auto;
   }
   
-  .sidebar {
-    display: none;
-  }
-  
-  .right-sidebar {
+  .sidebar, .right-sidebar {
     display: none;
   }
 }
 
-/* Dark theme compatibility */
-@media (prefers-color-scheme: dark) {
-  .duolingo-layout {
-    background-color: #111827;
-  }
+/* Dark/Light theme compatibility */
+.progress-label {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.homepage-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 20px;
+  box-sizing: border-box;
+  background: transparent;
+}
+
+/* Original Home Content Styles - Kept for compatibility */
+.homepage-content-container {
+  margin-top: 70px;
 }

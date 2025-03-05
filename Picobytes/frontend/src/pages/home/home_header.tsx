@@ -1,37 +1,98 @@
-// Home Header
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./home_header.css";
-import Home_Prof_Overlay from "./home_prof_overlay";
-
 import reactLogo from "../../assets/react.svg";
-import "./home_prof_overlay.css";
 
-const Home_Header = () => {
-  const [showOverlay, setShowOverlay] = useState(false);
+const Home_Header = ({ toggleOverlay }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const toggleOverlay = () => {
-    setShowOverlay(!showOverlay);
+  const toggleMobileMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
+  const navigateTo = (path) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("uid");
+    localStorage.removeItem("username");
+    navigate("/");
+  };
 
   return (
-    <div className="homepage">
-      {/* Profile Icon & header */}
+    <>
+      {/* Profile icon in header */}
       <div className="homepage-header">
         <div className="profile-icon-container" onClick={toggleOverlay}>
           <img
-            src={reactLogo} //"https://via.placeholder.com/50"
+            src={reactLogo}
             alt="Profile"
             className="profile-icon"
           />
         </div>
-
-        {/* Profile Overlay in the corner */}
-        {/* <Home_Prof_Overlay></Home_Prof_Overlay> */}
-        {showOverlay && <Home_Prof_Overlay />}
-        {/* {<p>test</p>} */}
       </div>
-    </div>
+
+      {/* Mobile menu for small screens */}
+      <div className="mobile-menu-container">
+        <button 
+          className="menu-toggle" 
+          onClick={toggleMobileMenu}
+          aria-label="Toggle menu"
+        >
+          <span className="menu-icon">{isMenuOpen ? '✕' : '☰'}</span>
+        </button>
+
+        <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
+          <div className="menu-header">
+            <div className="menu-title">Picobytes</div>
+            <div className="user-info">
+              {localStorage.getItem("username") || "Student"}
+            </div>
+          </div>
+
+          <nav className="menu-nav">
+            <div className="menu-item" onClick={() => navigateTo('/homepage')}>
+              <span className="material-icon">🏠</span>
+              <span>Home</span>
+            </div>
+            <div className="menu-item" onClick={() => navigateTo('/questions')}>
+              <span className="material-icon">📝</span>
+              <span>Questions</span>
+            </div>
+            <div className="menu-item" onClick={() => navigateTo('/topic_select')}>
+              <span className="material-icon">📚</span>
+              <span>Topics</span>
+            </div>
+            <div className="menu-item" onClick={() => navigateTo('/settings')}>
+              <span className="material-icon">⚙️</span>
+              <span>Settings</span>
+            </div>
+            
+            {/* Admin section if user is admin */}
+            {localStorage.getItem("isAdmin") === "true" && (
+              <div className="menu-item" onClick={() => navigateTo('/admin/dashboard')}>
+                <span className="material-icon">👑</span>
+                <span>Admin</span>
+              </div>
+            )}
+          </nav>
+
+          <div className="menu-footer">
+            <div className="menu-item" onClick={handleLogout}>
+              <span className="material-icon">🚪</span>
+              <span>Logout</span>
+            </div>
+          </div>
+        </div>
+
+        {isMenuOpen && (
+          <div className="menu-overlay" onClick={toggleMobileMenu}></div>
+        )}
+      </div>
+    </>
   );
 };
 

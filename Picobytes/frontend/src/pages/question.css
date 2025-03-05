@@ -1,0 +1,432 @@
+/* Duolingo-inspired Question Page Styling */
+
+.duolingo-question-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #111827;
+    font-family: 'Nunito', sans-serif;
+  }
+  
+  .question-content {
+    max-width: 800px;
+    width: 100%;
+    margin: 80px auto 40px;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* Progress bar */
+  .question-progress {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .progress-bar {
+    height: 12px;
+    background-color: #2d3748;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .progress-filled {
+    height: 100%;
+    background-color: #58cc02;
+    border-radius: 6px;
+    transition: width 0.3s ease;
+  }
+  
+  /* Question information */
+  .question-info {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    width: 100%;
+  }
+  
+  .topic-badge, .difficulty-badge {
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+  }
+  
+  .topic-badge {
+    background-color: #1cb0f6;
+  }
+  
+  .difficulty-badge {
+    background-color: #4b5563;
+  }
+  
+  /* Question card */
+  .question-card {
+    background-color: #1f2937;
+    border-radius: 16px;
+    padding: 30px;
+    width: 100%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    transition: transform 0.3s ease;
+  }
+  
+  .question-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  
+  /* Options styling */
+  .options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  
+  .mc-options, .tf-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  .option-button {
+    padding: 16px;
+    border-radius: 12px;
+    background-color: #2d3748;
+    border: 2px solid transparent;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: all 0.2s ease;
+  }
+  
+  .option-button:hover:not(:disabled) {
+    background-color: #374151;
+  }
+  
+  .option-button:disabled {
+    cursor: default;
+  }
+  
+  .option-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .option-letter, .option-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 18px;
+  }
+  
+  .option-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    flex-grow: 1;
+  }
+  
+  /* Option states */
+  .option-button.selected {
+    border-color: #58cc02;
+    background-color: rgba(88, 204, 2, 0.1);
+  }
+  
+  .option-button.selected .option-letter,
+  .option-button.selected .option-icon {
+    background-color: #58cc02;
+  }
+  
+  .option-button.correct {
+    border-color: #58cc02;
+    background-color: rgba(88, 204, 2, 0.2);
+  }
+  
+  .option-button.correct .option-letter,
+  .option-button.correct .option-icon {
+    background-color: #58cc02;
+  }
+  
+  .option-button.incorrect {
+    border-color: #e53e3e;
+    background-color: rgba(229, 62, 62, 0.1);
+  }
+  
+  .option-button.incorrect .option-letter,
+  .option-button.incorrect .option-icon {
+    background-color: #e53e3e;
+  }
+  
+  /* Feedback area */
+  .feedback-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    width: 100%;
+    max-width: 500px;
+  }
+  
+  .correct-feedback {
+    background-color: rgba(88, 204, 2, 0.2);
+    border: 2px solid #58cc02;
+  }
+  
+  .incorrect-feedback {
+    background-color: rgba(229, 62, 62, 0.1);
+    border: 2px solid #e53e3e;
+  }
+  
+  .feedback-icon {
+    font-size: 28px;
+  }
+  
+  .feedback-message {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+  }
+  
+  /* Action buttons */
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    width: 100%;
+  }
+  
+  .check-button, .continue-button {
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    min-width: 200px;
+  }
+  
+  .check-button {
+    background-color: #58cc02;
+    color: white;
+    box-shadow: 0 4px 0 #58a700;
+  }
+  
+  .check-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #58a700;
+  }
+  
+  .check-button:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #58a700;
+  }
+  
+  .check-button:disabled {
+    background-color: #4b5563;
+    box-shadow: 0 4px 0 #374151;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .continue-button {
+    background-color: #1cb0f6;
+    color: white;
+    box-shadow: 0 4px 0 #0e8fc7;
+  }
+  
+  .continue-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #0e8fc7;
+  }
+  
+  .continue-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #0e8fc7;
+  }
+  
+  /* Bottom navigation */
+  .bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .skip-button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background-color: transparent;
+    border: 1px solid #4b5563;
+    color: #a0aec0;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .skip-button:hover:not(:disabled) {
+    background-color: #2d3748;
+    color: white;
+  }
+  
+  .skip-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .question-counter {
+    font-size: 14px;
+    color: #a0aec0;
+  }
+  
+  /* Error page */
+  .error-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+  }
+  
+  .error-container {
+    background-color: #1f2937;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  .error-container h1 {
+    font-size: 24px;
+    margin-bottom: 16px;
+    color: white;
+  }
+  
+  .error-container p {
+    color: #d1d5db;
+    margin-bottom: 24px;
+  }
+  
+  .question-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .nav-button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+  
+  .nav-button:hover {
+    transform: translateY(-2px);
+  }
+  
+  .home-button {
+    background-color: #58cc02;
+    color: white;
+  }
+  
+  /* Celebration animation */
+  .celebration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+  }
+  
+  .confetti {
+    position: absolute;
+    font-size: 30px;
+    opacity: 0;
+    animation: fall 3s ease-out forwards;
+  }
+  
+  .confetti-1 { left: 20%; top: -20px; animation-delay: 0.2s; }
+  .confetti-2 { left: 40%; top: -20px; animation-delay: 0.4s; }
+  .confetti-3 { left: 60%; top: -20px; animation-delay: 0.6s; }
+  .confetti-4 { left: 80%; top: -20px; animation-delay: 0.8s; }
+  .confetti-5 { left: 30%; top: -20px; animation-delay: 1.0s; }
+  .confetti-6 { left: 70%; top: -20px; animation-delay: 1.2s; }
+  
+  @keyframes fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+  
+  /* Responsive design */
+  @media (max-width: 600px) {
+    .question-text {
+      font-size: 20px;
+    }
+    
+    .option-content {
+      gap: 10px;
+    }
+    
+    .option-letter, .option-icon {
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+    }
+    
+    .option-text {
+      font-size: 16px;
+    }
+    
+    .feedback-container {
+      padding: 12px 16px;
+    }
+    
+    .feedback-icon {
+      font-size: 24px;
+    }
+    
+    .feedback-message {
+      font-size: 16px;
+    }
+    
+    .check-button, .continue-button {
+      padding: 14px 28px;
+      font-size: 16px;
+    }
+  }

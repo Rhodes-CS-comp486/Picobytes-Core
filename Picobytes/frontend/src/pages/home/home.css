@@ -513,7 +513,7 @@
 }
 
 .question-button.completed {
-  background-color: #58cc02;
+  
   color: white;
 }
 
@@ -529,6 +529,7 @@
   flex-direction: column;
   gap: 20px;
   border-left: 1px solid rgba(128, 128, 128, 0.2);
+  
 }
 
 .dark-mode .right-sidebar {
@@ -541,12 +542,12 @@
 
 /* User profile card with enhanced styling */
 .user-profile-card {
-  background-color: #2d3748;
+  background-color: var(--card-color);
   border-radius: 16px;
   padding: 20px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
 }
 
 .user-profile-header {
@@ -577,13 +578,11 @@
 .user-name {
   font-size: 18px;
   font-weight: 700;
-  color: white;
 }
 
 .user-level {
   display: inline-block;
   background-color: #1cb0f6;
-  color: white;
   padding: 4px 12px;
   border-radius: 100px;
   font-size: 14px;
@@ -612,7 +611,7 @@
 .stat-value {
   font-size: 20px;
   font-weight: 800;
-  color: white;
+  
 }
 
 .stat-label {
@@ -638,7 +637,6 @@
 .section-title {
   font-size: 18px;
   font-weight: 700;
-  color: white;
 }
 
 .view-all-link {
@@ -670,10 +668,10 @@
 
 /* Topic progress with enhanced styling */
 .topic-progress-section {
-  background-color: #2d3748;
+  background-color: var(--card-color);
   border-radius: 16px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
 }
 
 .topic-item {
@@ -688,7 +686,7 @@
 
 .topic-name {
   font-weight: 600;
-  color: white;
+  
   display: flex;
   align-items: center;
   gap: 6px;
@@ -714,10 +712,10 @@
 
 /* Daily goals section */
 .daily-goals-section {
-  background-color: #2d3748;
+  background-color: var(--card-color);
   border-radius: 16px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
 }
 
 .goal-item {

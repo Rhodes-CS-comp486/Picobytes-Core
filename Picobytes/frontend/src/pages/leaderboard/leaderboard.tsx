@@ -1,10 +1,11 @@
 /// Leaderboard TSX
 import './leaderboard.css'
 
-import Home_Header from '../home/home_header';
+// get username
+const username = localStorage.getItem("username") || "Agent 41"
 
 const Leaderboard = () => {
-    const players = ['Player 1', 'Player 2', 'Player 3', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9'];
+    const players = [username, 'Bob', 'Kugele', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9'];
 
     const getRankEmote = (index: number) => {
         switch (index) {
@@ -21,17 +22,24 @@ const Leaderboard = () => {
 
     return (
         <div id="leaderboard">
-            <Home_Header/>
             
             <div id="leaderboard-grid">
-                <div id="leaderboard-header">
-                    <h1>🏆 Leaderboard 🏆</h1>
-                </div>
+                <div id='leaderboard-header'>🏆 Leaderboard 🏆</div>
 
                 {players.map((player, index) => (
-                    <p className='grid-item' key={index}>
-                        {getRankEmote(index)} {player}
-                    </p>
+                    <div className='grid-item' key={index}>
+                        <div id="grid-hbox">
+                            <div className='stat-icon'>
+                                {getRankEmote(index)} 
+                            </div>
+
+                            <div id="grid-icon">
+                                {player.charAt(0).toUpperCase()}
+                            </div>
+
+                            {player}
+                        </div>
+                    </div>
                 ))}
 
             </div>

@@ -75,8 +75,9 @@ button:focus-visible {
     background-color: cadetblue;
   }
   --grid-bg: #FFF;
-  --grid-button-text-color: #242424;
-  --border: #999999;
+  --grid-text-color: #242424;
+  --border-color: #999999;
+  --card-color: #ffffff;
 
  
 }
@@ -90,6 +91,8 @@ button:focus-visible {
   }
 
   --grid-bg: #242424;
-  --grid-button-text-color: #242424;
-  --border: #939393;
+  --grid-button-text-color: #FFF;
+  --border-color: rgba(255, 255, 255, 0.1);
+
+  --card-color: #2d3748;
 }

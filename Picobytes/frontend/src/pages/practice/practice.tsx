@@ -67,19 +67,19 @@ const Practice_Page = () => {
             </div>
             
             <nav className="sidebar-nav">
-            <div className="nav-item active" onClick={()=> navigate('/homepage')}>
+            <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={()=> navigate('/homepage')}>
                 <span className="material-icon">🏠</span>
                 <span>Home</span>
             </div>
-            <div className="nav-item" onClick={() => goToAllQuestions()}>
+            <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => goToAllQuestions()}>
                 <span className="material-icon">📝</span>
                 <span>Questions</span>
             </div>
-            <div className="nav-item" onClick={() => goToTopicSelection()}>
+            <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => goToTopicSelection()}>
                 <span className="material-icon">📚</span>
                 <span>Topics</span>
             </div>
-            <div className="nav-item" onClick={() => navigate('/settings')}>
+            <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>
                 <span className="material-icon">⚙️</span>
                 <span>Settings</span>
             </div>

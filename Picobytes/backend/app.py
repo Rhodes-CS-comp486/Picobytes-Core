@@ -77,17 +77,20 @@ def api_get_questions():
         print(f"Error in api_get_questions: {e}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/question/<int:qid>', methods=['GET'])
-def question(qid):
+@app.route('/api/question/<string:uid>/<int:qid>', methods=['GET'])
+def question(uid, qid):
     """API endpoint to fetch a question by ID."""
+    print('made it')
+    print(uid)
+    print(qid)
     response = question_fetcher_service.get_question(qid)
-    print(response)
-    return response
+    if response:
+        return response
 
-    #return jsonify({"error": "Unknown server error"}), 404
+    return jsonify({"error": "Unknown server error"}), 404
     
 
-@app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
+@app.route('/api/admin/dashboard/active-users-list/<string:uid>', methods=['GET'])
 def get_active_users_list():
     # In a production environment, you should add admin authentication here
     period = request.args.get('period', '24h')
@@ -132,7 +135,7 @@ def submit_question():
 
     return jsonify({'uid': uid})
 
-@app.route('/api/topic_selection', methods=['GET'])
+@app.route('/api/topic_selection/<string:uid>', methods=['GET'])
 def topic_selection(qtype, topic):
     if qtype == "ALL":
         topic_data = topic_service.get_all_questions_by_topic(topic)
@@ -236,6 +239,7 @@ def add_question():
     """API endpoint to add a new question to the database."""
     try:
         data = request.get_json()
+        uid = data.get('uid')
         
         if not data:
             return jsonify({"error": "No data provided"}), 400
@@ -249,7 +253,7 @@ def add_question():
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
-@app.route('/api/admin/check', methods=['GET'])
+@app.route('/api/admin/check/<string:uid>', methods=['GET'])
 def check_admin():
     # This is a simple verification that would need to be replaced with
     # proper authentication in a production environment
@@ -257,26 +261,26 @@ def check_admin():
     is_admin = user_service.is_admin(uid)
     return jsonify({'is_admin': is_admin})
 
-@app.route('/api/admin/dashboard/active-users', methods=['GET'])
+@app.route('/api/admin/dashboard/active-users/<string:uid>', methods=['GET'])
 def get_active_users():
     # In a production environment, you should add admin authentication here
     period = request.args.get('period', '24h')
     data = admin_service.get_active_users(period)
     return jsonify(data)
 
-@app.route('/api/admin/dashboard/performance', methods=['GET'])
+@app.route('/api/admin/dashboard/performance/<string:uid>', methods=['GET'])
 def get_performance_metrics():
     # In a production environment, you should add admin authentication here
     data = admin_service.get_performance_metrics()
     return jsonify(data)
 
-@app.route('/api/admin/dashboard/question-stats', methods=['GET'])
+@app.route('/api/admin/dashboard/question-stats/<string:uid>', methods=['GET'])
 def get_question_stats():
     # In a production environment, you should add admin authentication here
     data = admin_service.get_question_stats()
     return jsonify(data)
 
-@app.route('/api/admin/dashboard/usage-stats', methods=['GET'])
+@app.route('/api/admin/dashboard/usage-stats/<string:uid>', methods=['GET'])
 def get_usage_stats():
     # In a production environment, you should add admin authentication here
     data = admin_service.get_usage_stats()
@@ -289,6 +293,7 @@ def submit_answer():
         data = request.get_json()
         question_id = data.get('question_id')
         selected_answer = data.get('selected_answer')
+        uid = data.get('uid')
         
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400

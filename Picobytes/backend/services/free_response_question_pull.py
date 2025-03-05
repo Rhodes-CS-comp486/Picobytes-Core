@@ -53,7 +53,7 @@ class FR_QuestionFetcher:
         random_id = random.choice(all_ids)
         return self.get_question_by_id(random_id)
 
-    '''def get_questions_by_category(self, category):
+    '''def get_questions_by_topic(self, qtype, qcategory):
         """Fetch questions filtered by category, if the table has a 'category' column."""
         conn = self._connect()
         cursor = conn.cursor()

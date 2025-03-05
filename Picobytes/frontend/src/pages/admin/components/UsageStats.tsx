@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 interface UsageStatsProps {
@@ -29,7 +28,7 @@ const UsageStats: React.FC<UsageStatsProps> = ({ data }) => {
     <div>
       <h2 className="card-title">Usage Statistics</h2>
       
-      <div className="tab-buttons">
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
         <button 
           className={`tab-button ${activeTab === 'daily' ? 'active' : ''}`} 
           onClick={() => setActiveTab('daily')}
@@ -52,7 +51,7 @@ const UsageStats: React.FC<UsageStatsProps> = ({ data }) => {
                 className="chart-bar" 
                 style={{ 
                   height: `${(item.count / maxValue) * 100}%`,
-                  backgroundColor: '#2ecc71'
+                  backgroundColor: '#1cb0f6'
                 }}
               >
                 <div className="chart-tooltip">{item.count} users</div>
@@ -65,6 +64,43 @@ const UsageStats: React.FC<UsageStatsProps> = ({ data }) => {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+      
+      {/* Add summary metrics at the bottom */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between',
+        marginTop: '20px',
+        backgroundColor: '#2d3748',
+        padding: '16px',
+        borderRadius: '12px'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '14px', color: '#a0aec0', marginBottom: '4px' }}>
+            {activeTab === 'daily' ? 'Avg. Daily Users' : 'Avg. Weekly Users'}
+          </div>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1cb0f6' }}>
+            {Math.round(displayData.reduce((sum, item) => sum + item.count, 0) / displayData.length)}
+          </div>
+        </div>
+        
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '14px', color: '#a0aec0', marginBottom: '4px' }}>
+            {activeTab === 'daily' ? 'Peak Day' : 'Peak Week'}
+          </div>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1cb0f6' }}>
+            {maxValue} users
+          </div>
+        </div>
+        
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '14px', color: '#a0aec0', marginBottom: '4px' }}>
+            Total Users
+          </div>
+          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1cb0f6' }}>
+            {displayData.reduce((sum, item) => sum + item.count, 0)}
+          </div>
         </div>
       </div>
     </div>

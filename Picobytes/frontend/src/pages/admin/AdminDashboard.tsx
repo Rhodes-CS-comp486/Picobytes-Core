@@ -6,52 +6,8 @@ import PerformanceMetrics from './components/PerformanceMetrics';
 import QuestionStats from './components/QuestionStats';
 import UsageStats from './components/UsageStats';
 import AddQuestion from './components/AddQuestion';
+import Home_Header from '../home/home_header';
 import './AdminDashboard.css';
-
-// Add CSS for loading and error indicators and admin navigation
-const additionalCSS = `
-.admin-nav {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-
-.loading-spinner {
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.error-message {
-  color: #e74c3c;
-  text-align: center;
-  font-size: 14px;
-}
-
-.refresh-indicator {
-  text-align: center;
-  margin-top: 8px;
-  color: #7f8c8d;
-  font-size: 12px;
-}
-
-.metric-card.loading, .metric-card.error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 80px;
-}
-`;
 
 // Mock data as fallback
 const mockData = {
@@ -111,28 +67,15 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'questions'>('dashboard');
+  const [showOverlay, setShowOverlay] = useState(false);
   
-  // We'll let the ActiveUsers component handle its own data fetching
-  // Keep these for other components
+  // Keeping state for components
   const [performanceMetrics, setPerformanceMetrics] = useState(mockData.performanceMetrics);
   const [questionStats, setQuestionStats] = useState(mockData.questionStats);
   const [usageStats, setUsageStats] = useState(mockData.usageStats);
   const [activeUsersPeriod, setActiveUsersPeriod] = useState('24h');
 
-  // Function to add the additional CSS to the document
-  useEffect(() => {
-    // Add the CSS to the document
-    const styleElement = document.createElement('style');
-    styleElement.innerHTML = additionalCSS;
-    document.head.appendChild(styleElement);
-    
-    // Clean up when component unmounts
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
-
-  // Simulate loading delay (remove this in production when fetching real data)
+  // Simulate loading delay
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -151,12 +94,35 @@ const AdminDashboard = () => {
     // In a real implementation, you would fetch the latest question stats here
   };
 
+  const toggleOverlay = () => {
+    setShowOverlay(!showOverlay);
+  };
+
   if (loading) {
-    return <div className="admin-loading">Loading dashboard data...</div>;
+    return (
+      <div className="admin-dashboard">
+        <Home_Header toggleOverlay={toggleOverlay} />
+        <div className="admin-loading">
+          <div className="loading-spinner"></div>
+          <div style={{ marginTop: '20px' }}>Loading dashboard data...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="admin-dashboard">
+      {/* Include the Home_Header component for consistent navigation */}
+      <Home_Header toggleOverlay={toggleOverlay} />
+      {showOverlay && <div onClick={toggleOverlay} style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0, 
+        zIndex: 10 
+      }}></div>}
+
       <header className="admin-header">
         <h1>Admin Dashboard</h1>
         <div className="admin-nav">
@@ -201,7 +167,7 @@ const AdminDashboard = () => {
           <AddQuestion onQuestionAdded={handleQuestionAdded} />
           
           {/* You could add additional question management features here */}
-          <div className="dashboard-card wide" style={{ marginTop: '20px' }}>
+          <div className="dashboard-card wide" style={{ marginTop: '30px' }}>
             <QuestionStats data={questionStats} />
           </div>
         </div>

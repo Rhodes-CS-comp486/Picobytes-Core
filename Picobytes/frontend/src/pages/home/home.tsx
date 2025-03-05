@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Home_Header from './home_header';
 import Home_Prof_Overlay from './home_prof_overlay';
 import './home.css';
+import Leaderboard from "../leaderboard/leaderboard";
 
 const Homepage = () => {
   const navigate = useNavigate();
@@ -257,6 +258,7 @@ const Homepage = () => {
 
       {/* Right Sidebar */}
       <div className="right-sidebar">
+
         {/* User Profile Card */}
         <div className="user-profile-card">
           <div className="user-profile-header">
@@ -289,7 +291,11 @@ const Homepage = () => {
             </div>
           </div>
         </div>
+        {/* Leaderboard Card*/}
+        <Leaderboard/>
         
+        
+
         {/* Overall Progress Section */}
         <div className="progress-section">
           <div className="section-header">

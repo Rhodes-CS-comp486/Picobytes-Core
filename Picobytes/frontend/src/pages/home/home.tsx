@@ -47,7 +47,7 @@ const Homepage = () => {
   };
 
   const goToTopicSelection = () => {
-    navigate('/topic_select');
+    navigate('/practice');
   };
   
   const goToAllQuestions = () => {

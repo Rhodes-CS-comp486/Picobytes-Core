@@ -111,7 +111,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard" style={{ width: '100vw', minHeight: '100vh', boxSizing: 'border-box' }}>
       {/* Include the Home_Header component for consistent navigation */}
       <Home_Header toggleOverlay={toggleOverlay} />
       {showOverlay && <div onClick={toggleOverlay} style={{ 

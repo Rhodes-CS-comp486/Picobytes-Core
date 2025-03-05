@@ -66,3 +66,20 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.light-mode {
+  color: black;
+  background-color: white;
+  button {
+    background-color: cadetblue;
+  }
+ 
+}
+
+.dark-mode {
+  color: white;
+  background-color: #242424;
+  button {
+    background-color: cadetblue;
+  }
+}

@@ -3,16 +3,16 @@ from flask import jsonify
 import os
 import sqlite3
 
-from Picobytes.backend.services.free_response_question_pull import FR_QuestionFetcher
-from Picobytes.backend.services.mc_question_pull import MC_QuestionFetcher
-from Picobytes.backend.services.tf_question_pull import QuestionService
-from Picobytes.backend.services.code_blocks_question_pull import CB_QuestionFetcher
+# Change absolute imports to relative imports
+from services.code_blocks_question_pull import CB_QuestionFetcher
+from services.free_response_question_pull import FR_QuestionFetcher
+from services.mc_question_pull import MC_QuestionFetcher
+from services.tf_question_pull import QuestionService
 
 mc_question_service = MC_QuestionFetcher()
 tf_question_service = QuestionService()
 fr_question_service = FR_QuestionFetcher()
 cb_question_service = CB_QuestionFetcher()
-
 
 
 class GetQuestions:
@@ -21,17 +21,11 @@ class GetQuestions:
         """Initialize the connection to the SQLite database located one directory above."""
         self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
 
-
-
     def _connect(self):
         """Establish and return a database connection."""
         return sqlite3.connect(self.db_path)
 
-
-
-
     def get_question(self, qid):
-
         try:
             conn = self._connect()
             cursor = conn.cursor()
@@ -42,14 +36,15 @@ class GetQuestions:
                 (qid,)
             )
             type = cursor.fetchone()
+            conn.close()
+            
+            if type is None:
+                return jsonify("Question not found")
+                
             q_type = type[0]
             print(q_type)
-            conn.close()
 
-            if q_type is None:
-                return jsonify("Question not found")
-
-            elif q_type == 'multiple_choice':
+            if q_type == 'multiple_choice':
                 print(qid)
                 question_data = mc_question_service.get_question_by_id(qid)
                 print(question_data)
@@ -112,12 +107,9 @@ class GetQuestions:
                 }
                 return jsonify(response)
 
-
             else:
                 return jsonify("Server Error. Please try again later.")
 
         except Exception as e:
-            print(f"Error fetching MC questions: {e}")
-            return []
-
-
+            print(f"Error fetching questions: {e}")
+            return jsonify({"error": str(e)}), 500

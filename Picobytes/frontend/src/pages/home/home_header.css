@@ -28,6 +28,7 @@
   object-fit: cover;
   border: 2px solid #58cc02;
   transition: transform 0.2s ease;
+  background-color: white;
 }
 
 .profile-icon:hover {
@@ -149,6 +150,18 @@
 
 .light-mode .menu-item:hover {
   color: #111827;
+}
+
+.menu-item.active {
+  background-color: rgba(88, 204, 2, 0.2);
+}
+
+.dark-mode .menu-item.active {
+  color: #58cc02;
+}
+
+.light-mode .menu-item.active {
+  color: #58cc02;
 }
 
 .menu-item .material-icon {

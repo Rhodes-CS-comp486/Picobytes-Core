@@ -22,6 +22,8 @@ const Home_Header = ({ toggleOverlay }) => {
     navigate("/");
   };
 
+  const username = localStorage.getItem("username") || "Agent 41";
+
   return (
     <>
       {/* Profile icon in header */}
@@ -48,13 +50,11 @@ const Home_Header = ({ toggleOverlay }) => {
         <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
           <div className="menu-header">
             <div className="menu-title">Picobytes</div>
-            <div className="user-info">
-              {localStorage.getItem("username") || "Student"}
-            </div>
+            <div className="user-info">{username}</div>
           </div>
 
           <nav className="menu-nav">
-            <div className="menu-item" onClick={() => navigateTo('/homepage')}>
+            <div className="menu-item active" onClick={() => navigateTo('/homepage')}>
               <span className="material-icon">🏠</span>
               <span>Home</span>
             </div>

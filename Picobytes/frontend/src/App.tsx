@@ -16,15 +16,17 @@ import Settings from "./pages/settings";
 
 function App() {
   const [dark, setDark] = useState(true);
+  const [fontSize, setFontSize] = useState(14);
 
   const toggleDark = () => {
     setDark(!dark);
-    console.log(dark)
-  }
+    console.log(dark);
+  };
 
   return (
     // <SomeContext.Provider value={{ dark, setDark }}>
-      <html className={dark ? "dark-mode" : "light-mode"}>
+    <html className={dark ? "dark-mode" : "light-mode"}>
+      <div style={{ fontSize: fontSize }}>
         <Router>
           <Routes>
             <Route path="/" element={<Login />} />
@@ -35,11 +37,20 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/free_response/:id" element={<FreeResonse />} />
             <Route path="/accountcreate" element={<AccountCreate />} />
-            <Route path="/settings" element={<Settings toggleDark={toggleDark}></Settings>} />
+            <Route
+              path="/settings"
+              element={
+                <Settings
+                  toggleDark={toggleDark}
+                  fontSize={fontSize}
+                  setFontSize={setFontSize}
+                ></Settings>
+              }
+            />
           </Routes>
         </Router>
-
-      </html>
+      </div>
+    </html>
     // </SomeContext.Provider>
   );
 }

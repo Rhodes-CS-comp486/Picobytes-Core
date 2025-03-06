@@ -14,6 +14,7 @@ import "./App.css";
 import FreeResonse from "./pages/free_response";
 import Settings from "./pages/settings";
 import Leaderboard from "./pages/leaderboard/leaderboard";
+import Draggable_Question from "./pages/draggable_question";
 
 function App() {
   const [dark, setDark] = useState(true);
@@ -65,6 +66,7 @@ function App() {
               }
             />
             <Route path="/leaderboard" element={<Leaderboard/>}/>
+            <Route path="/draggable_question" element={<Draggable_Question />} />
           </Routes>
         </Router>
       </div>

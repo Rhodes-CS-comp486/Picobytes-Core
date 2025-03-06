@@ -79,6 +79,11 @@
   transition: background-color 0.2s ease;
 }
 
+.nav-item.active {
+  background-color: var(--active-background-color); /* Use a different variable for the Topics background */
+  color: var(--active-text-color); /* Adjust the text color */
+}
+
 .dark-mode .nav-item {
   color: #d1d5db;
 }
@@ -88,7 +93,7 @@
 }
 
 .nav-item:hover {
-  background-color: rgba(128, 128, 128, 0.1);
+  background-color: var(--card-color);
 }
 
 .dark-mode .nav-item:hover {

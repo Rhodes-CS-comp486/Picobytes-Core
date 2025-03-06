@@ -37,7 +37,7 @@ class FR_QuestionFetcher:
         conn = self._connect()
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        cursor.execute("select qid, qtext, qtype, qtopic, qlevel from questions where qactive = 1 and qid = ?", (question_id,))
+        cursor.execute("select qid, qtext, qtype, qtopic, qlevel, prof_answer from questions natural join free_response where qactive = 1 and qid = ?", (question_id,))
         question = cursor.fetchone()
         conn.close()
         return question

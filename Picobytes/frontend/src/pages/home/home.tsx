@@ -16,11 +16,13 @@ const Homepage = ({ toggleDark }: Prop) => {
     totalQuestions: 0,
     completedQuestions: 0,
   });
+  // Updated topics to match the real C programming topics
   const [topicProgress, setTopicProgress] = useState({
-    Science: 60,
-    Programming: 40,
-    Geography: 20,
-    Biology: 10,
+    "C Basics": 60,
+    "C Functions": 45,
+    "C Memory Management": 30,
+    "Linux": 20,
+    "Programming": 10,
   });
 
   // Get username from localStorage with fallback
@@ -51,9 +53,7 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   const goToTopicSelection = () => {
-
     navigate('/practice');
-
   };
 
   const goToAllQuestions = () => {
@@ -114,6 +114,16 @@ const Homepage = ({ toggleDark }: Prop) => {
     Object.values(topicProgress).reduce((sum, val) => sum + val, 0) /
       Object.keys(topicProgress).length
   );
+
+  // Get first letter for topic display
+  const getTopicIcon = (topic) => {
+    if (topic === "C Basics") return "B";
+    if (topic === "C Functions") return "F";
+    if (topic === "C Memory Management") return "M";
+    if (topic === "Linux") return "L";
+    if (topic === "Programming") return "P";
+    return topic.charAt(0).toUpperCase();
+  };
 
   return (
     <div className="duolingo-layout">
@@ -221,6 +231,7 @@ const Homepage = ({ toggleDark }: Prop) => {
             <div className="topic-nodes">
               {topicsList.map((topic, index) => {
                 const status = getTopicStatus(index);
+                const topicIcon = getTopicIcon(topic);
                 return (
                   <div
                     className="topic-node"
@@ -234,7 +245,7 @@ const Homepage = ({ toggleDark }: Prop) => {
                         ? "✓"
                         : status === "locked"
                         ? "🔒"
-                        : topic.charAt(0).toUpperCase()}
+                        : topicIcon}
                     </div>
                     <div className="node-label">{topic}</div>
                   </div>
@@ -247,8 +258,8 @@ const Homepage = ({ toggleDark }: Prop) => {
           <div className="mascot-container">
             <div className="mascot-speech">
               {overallProgress > 0
-                ? "Great progress! Ready to continue?"
-                : "Ready to start learning?"}
+                ? "Great progress! Ready to continue learning C programming?"
+                : "Ready to start learning C programming?"}
             </div>
             <div className="mascot-character">🤖</div>
           </div>
@@ -369,7 +380,7 @@ const Homepage = ({ toggleDark }: Prop) => {
             <div className="topic-item" key={topic}>
               <div className="topic-header">
                 <div className="topic-name">
-                  <div className="topic-icon">{topic.charAt(0)}</div>
+                  <div className="topic-icon">{getTopicIcon(topic)}</div>
                   {topic}
                 </div>
                 <div className="topic-percentage">{progress}%</div>

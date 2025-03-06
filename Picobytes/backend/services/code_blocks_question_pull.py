@@ -37,7 +37,7 @@ class CB_QuestionFetcher:
         conn = self._connect()
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        cursor.execute("SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer FROM questions q NATURAL JOIN code_blocks c where qactive = 1 and qid = ?", (question_id,))
+        cursor.execute("SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer FROM questions q NATURAL JOIN code_blocks c where questions.qactive = 1 and code_blocks.qid = ?", (question_id,))
         question = cursor.fetchone()
         conn.close()
         return question

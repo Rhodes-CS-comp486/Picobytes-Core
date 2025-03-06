@@ -78,8 +78,17 @@ def create_table():
 
         print("code_blocks table created successfully")
 
+        # creating code blocks choice Table
+        cursor.execute("""
+                            CREATE TABLE IF NOT EXISTS free_response (
+                                qid INTEGER PRIMARY KEY,  -- Matches qid from questions
+                                prof_answer STRING NOT NULL,
+                                FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
+                                );""")
 
+        connection.commit()
 
+        print("free_response table created successfully")
 
 
 

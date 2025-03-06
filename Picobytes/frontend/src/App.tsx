@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import Homepage from "./pages/home/home";
 import Login from "./pages/login";
 import Question from "./pages/question";
-import Topic_Select from "./pages/topic selection/topic_select";
 import AccountCreate from "./pages/createAccount";
 import Questions from "./pages/Questions"; //import new Questions component
 import AdminDashboard from "./pages/admin/AdminDashboard"; //import new AdminDashboard component
@@ -13,7 +12,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import FreeResonse from "./pages/free_response";
 import Settings from "./pages/settings";
-import Leaderboard from "./pages/leaderboard/leaderboard";
+import Practice_Page from "./pages/practice/practice";
+import Topic_Select from "./pages/topic selection/topic_select";
 
 function App() {
   const [dark, setDark] = useState(true);
@@ -64,7 +64,11 @@ function App() {
                 ></Settings>
               }
             />
-            <Route path="/leaderboard" element={<Leaderboard/>}/>
+            <Route path="/practice" element={<Practice_Page toggleDark={toggleDark}/>}/>
+            <Route
+              path="/questions/:topicName/:questionType"
+              element={<Topic_Select />} // Mount Topic_Select component for this route
+            />
           </Routes>
         </Router>
       </div>

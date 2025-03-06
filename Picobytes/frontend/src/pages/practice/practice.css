@@ -1,0 +1,58 @@
+.practice-layout {
+    display: grid;
+    grid-template-columns: 220px auto;
+    min-height: 100vh;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.search-bar {
+    background-color: var(--card-color);
+    padding: 10px;
+    
+}
+
+.topics-list {
+    padding-top: 20px;
+    width: 100%;
+}
+
+
+
+.topic-item {
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.topic-name {
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.question-types {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end; /* Ensures question types are aligned to the right */
+}
+
+.question-type-button {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 20px;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    font-size: 16px;
+}
+
+
+.no-results {
+    padding: 10px;
+    color: #999;
+}

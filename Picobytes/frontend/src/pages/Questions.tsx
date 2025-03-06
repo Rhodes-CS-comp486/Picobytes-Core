@@ -9,6 +9,7 @@ interface QuestionData {
   total_questions: number;
 }
 
+
 const Questions = () => {
   console.log("Questions component rendering"); // Debug log
 

@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Home_Header from './home_header';
-import Home_Prof_Overlay from './home_prof_overlay';
-import './home.css';
+import Home_Header from "./home_header";
+import Home_Prof_Overlay from "./home_prof_overlay";
+import "./home.css";
 import Leaderboard from "../leaderboard/leaderboard";
 
 const Homepage = () => {
+  interface Prop {
+    toggleDark: () => void;
+  }
+  
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
   const [questionStats, setQuestionStats] = useState({

@@ -10,52 +10,189 @@ def insert_sample_questions():
        # Multiple choice questions
         mc_questions = [
             (
-                "What is the capital of France?",
-                "multiple_choice",  # Changed from "multiple_choice"
+                "Which C operator can be used to access a variable's address?",
+                "multiple_choice",
                 "easy",
-                "Geography",
+                "C Basics",
                 1,
-                "Paris",
-                "London",
-                "Berlin",
-                "Madrid",
-                1
-            ),
-
-            (
-                "Which planet is known as the Red Planet?",
-                "multiple_choice",  # Changed from "multiple_choice"
-                "easy",
-                "Science",
-                1,
-                "Mars",
-                "Venus",
-                "Jupiter",
-                "Saturn",
-                1
+                "*",
+                "address_of()",
+                "@",
+                "&",
+                3
             ),
             (
-                "What is the largest organ in the human body?",
-                "multiple_choice",  # Changed from "multiple_choice"
+                "What is the correct way to dynamically allocate memory for an integer in C?",
+                "multiple_choice",
                 "medium",
-                "Biology",
+                "C Memory Management",
                 1,
-                "Skin",
-                "Heart",
-                "Liver",
-                "Brain",
+                "int ptr = malloc(sizeof(int));",
+                "int *ptr = malloc(sizeof(int));",
+                "int ptr = malloc(sizeof(int *));",
+                "int *ptr = malloc();",
+                2
+            ),
+            (
+                "What will happen if you try to dereference a NULL pointer in C?",
+                "multiple_choice",
+                "medium",
+                "C Basics",
+                1,
+                "The program will print NULL.",
+                "The program will execute normally.",
+                "The program will cause a segmentation fault.",
+                "The pointer will be automatically assigned to a valid address.",
+                3
+            ),
+            (
+                "Which function is used to release dynamically allocated memory in C?",
+                "multiple_choice",
+                "easy",
+                "C Memory Management",
+                1,
+                "delete()",
+                "release()",
+                "free()",
+                "remove()",
+                3
+            ),
+            (
+                "What is the purpose of sizeof() in C?",
+                "multiple_choice",
+                "easy",
+                "C Functions",
+                1,
+                "It returns the memory address of a variable.",
+                "It determines the size of a data type or variable in bytes.",
+                "It allocates memory for a variable.",
+                "It determines the number of elements in an array.",
+                2
+            ),
+            (
+                "Which command is used to list files and directories in Linux?",
+                "multiple_choice",
+                "easy",
+                "Linux",
+                1,
+                "ls",
+                "list",
+                "show",
+                "display",
                 1
+            ),
+            (
+                "What does the pwd command do in Linux?",
+                "multiple_choice",
+                "easy",
+                "Linux",
+                1,
+                "Prints the working directory",
+                "Changes the working directory",
+                "Lists all files in the directory",
+                "Displays system password information",
+                1
+            ),
+            (
+                "Which command is used to change file permissions in Linux?",
+                "multiple_choice",
+                "medium",
+                "Linux",
+                1,
+                "chmod",
+                "chperm",
+                "setperm",
+                "chown",
+                1
+            ),
+            (
+                "Which Linux command is used to display the contents of a file?",
+                "multiple_choice",
+                "easy",
+                "Linux",
+                1,
+                "ls",
+                "cat",
+                "rm",
+                "mv",
+                2
+            ),
+            (
+                "What is the purpose of the man command in Linux?",
+                "multiple_choice",
+                "easy",
+                "Linux",
+                1,
+                "It manages user accounts",
+                "It updates system software",
+                "It opens the system manual pages for commands",
+                "It monitors system performance",
+                3
+            ),
+            (
+                "Which symbol is used to redirect the output of a command to a file, overwriting existing content?",
+                "multiple_choice",
+                "hard",
+                "Linux",
+                1,
+                ">",
+                ">>",
+                "|",
+                "&",
+                1
+            ),
+            (
+                "How do you access a member of a struct using a pointer?",
+                "multiple_choice",
+                "medium",
+                "C Basics",
+                1,
+                "structPtr.member",
+                "structPtr->member",
+                "*structPtr.member",
+                "structPtr:*member",
+                2
+            ),
+            (
+                "What is the purpose of typedef when used with structs?",
+                "multiple_choice",
+                "medium",
+                "C Basics",
+                1,
+                "It allows defining a struct without a name.",
+                "It creates a new data type name for the struct.",
+                "It dynamically allocates memory for the struct.",
+                "It prevents modifications to the struct.",
+                2
             )
         ]
 
         free_response = [
             (
-                "What is the capital of France?",
+                "Why do you have to prefix the program name with “./” when you want to execute it from a Linux/Unix shell?",
                 "free_response",  # Changed from "multiple_choice"
-                "hard",
-                "Geography",
+                "easy",
+                "Linux",
                 1,
+                "On Unix-style operating systems, programs are executed by specifying an absolute or relative path to their location or if the directory they reside is liked in the PATH environment variable."
+            ),
+            (
+                "Which section of program memory stores the values of initialized global variables?",
+                "free_response",  # Changed from "multiple_choice"
+                "easy",
+                "C Memory Basics",
+                1,
+                "It is stored in data."
+            ),
+            (
+                "What value is typically stored in the first element of argv (i.e., argv[0])?",
+                "free_response",  # Changed from "multiple_choice"
+                "medium",
+                "C Basics",
+                1,
+                "The program’s name or a relative/absolute executable path to that binary executable"
             )
+
         ]
 
 
@@ -84,28 +221,100 @@ def insert_sample_questions():
         # True/false questions
         tf_questions = [
             (
-                "The Earth is flat.",
+                "Does the size of a pointer depend on the type of the variable it points to?",
                 "true_false",  # Changed from "true_false"
                 "easy",
-                "Science",
+                "C Basics",
                 1,
                 False
             ),
             (
-                "Water boils at 100 degrees Celsius at sea level.",
+                "Is the size of an int always 4 bytes in C?",
                 "true_false",  # Changed from "true_false"
                 "easy",
-                "Science",
+                "C Basics",
+                1,
+                False
+            ),
+            (
+            "Does the fgets() function in C stops reading input when it encounters a newline character?",
+            "true_false",  # Changed from "true_false"
+            "medium",
+            "C Functions",
+            1,
+            True
+            ),
+            (
+                "Do all C programs require a main() function?",
+                "true_false",  # Changed from "true_false"
+                "easy",
+                "C Basics",
                 1,
                 True
             ),
             (
-                "Python is a compiled programming language.",
+                "Can an array name be used as a pointer to its first element in C?",
                 "true_false",  # Changed from "true_false"
                 "medium",
-                "Programming",
+                "C Basics",
+                1,
+                True
+            ),
+            (
+                "Do functions use \"pass-by-refererence\" call semantics when calling whith arguments in C?",
+                "true_false",  # Changed from "true_false"
+                "medium",
+                "C Basics",
                 1,
                 False
+            ),
+            (
+                "Is a function prototype required every function before it is used in C?",
+                "true_false",  # Changed from "true_false"
+                "medium",
+                "C Basics",
+                1,
+                False
+            ),
+            (
+                "Is the dereference operator (*) used to access the value stored at a memory address in C?",
+                "true_false",  # Changed from "true_false"
+                "medium",
+                "C Basics",
+                1,
+                True
+            ),
+            (
+                "Will the OS automatically free memory allocated with malloc()?",
+                "true_false",  # Changed from "true_false"
+                "easy",
+                "C Memory Management",
+                1,
+                False
+            ),
+            (
+                "Does C support garbage collection like Java and Python?",
+                "true_false",  # Changed from "true_false"
+                "easy",
+                "C Memory Management",
+                1,
+                False
+            ),
+            (
+                "Can dereferencing a NULL pointer cause a segmentation fault?",
+                "true_false",  # Changed from "true_false"
+                "hard",
+                "C Basics",
+                1,
+                True
+            ),
+            (
+                "Can freeing a pointer twice (double free) cause a segmentation fault?",
+                "true_false",  # Changed from "true_false"
+                "hard",
+                "C Basics",
+                1,
+                True
             )
         ]
 
@@ -145,9 +354,17 @@ def insert_sample_questions():
         for q in free_response:
             # Insert into questions table
             cursor.execute("""
-                       INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
-                       VALUES (?, ?, ?, ?, ?)
-                   """, (q[0], q[1], q[2], q[3], q[4]))
+                INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
+                VALUES (?, ?, ?, ?, ?)
+            """, (q[0], q[1], q[2], q[3], q[4]))
+
+            qid = cursor.lastrowid
+
+            # Insert into free_response table
+            cursor.execute("""
+                INSERT INTO free_response (qid, prof_answer)
+                VALUES (?, ?)
+            """, (qid, q[5]))
 
         # Insert true/false questions
         for q in code_blocks:

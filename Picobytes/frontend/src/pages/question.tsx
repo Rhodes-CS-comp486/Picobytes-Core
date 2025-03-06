@@ -4,7 +4,12 @@ import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 
 const Question = () => {
-  const [answer, setAnswer] = useState<boolean[] | boolean | null>([false, false, false, false]);
+  const [answer, setAnswer] = useState<boolean[] | boolean | string | null>([
+    false,
+    false,
+    false,
+    false,
+  ]);
   const [question, setQuestion] = useState("Loading question...");
   const [questionType, setQuestionType] = useState<string>("multiple_choice");
   const [correct, setCorrect] = useState<number | boolean>(0);
@@ -21,19 +26,19 @@ const Question = () => {
   const [topic, setTopic] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState(0);
-  
+
   let params = useParams();
   let id = params.id;
   const navigate = useNavigate();
 
   // Fetch total number of questions
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/questions')
-      .then(response => response.json())
-      .then(data => {
+    fetch("http://127.0.0.1:5000/api/questions")
+      .then((response) => response.json())
+      .then((data) => {
         setTotalQuestions(data.total_questions);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching questions:", error);
       });
   }, []);
@@ -45,26 +50,26 @@ const Question = () => {
 
   const fetchQuestion = (questionId: string | undefined) => {
     if (!questionId) return;
-    
+
     // Reset states when fetching a new question
     setFeedback("");
     setError("");
     setIsSubmitting(false);
     setShowCelebration(false);
-    
+
     fetch(`http://127.0.0.1:5000/api/question/${questionId}`, {
       method: "GET",
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.error != null) throw data.error;
-        
+
         console.log("Question data:", data); // Debug log
         setQuestion(data.question_text);
         setQuestionType(data.question_type);
         setDifficulty(data.question_level);
         setTopic(data.question_topic);
-        
+
         if (data.question_type === "multiple_choice") {
           setOptions([
             data.option_1,
@@ -91,7 +96,7 @@ const Question = () => {
 
   const goToHomepage = () => {
     navigate("/homepage");
-  }
+  };
 
   const updateMCAnswer = (n: number) => {
     // Create a new array with all false values
@@ -108,7 +113,8 @@ const Question = () => {
   const submitAnswer = () => {
     // Check if an answer is selected
     if (
-      (questionType === "multiple_choice" && !(answer as boolean[]).includes(true)) ||
+      (questionType === "multiple_choice" &&
+        !(answer as boolean[]).includes(true)) ||
       (questionType === "true_false" && answer === null)
     ) {
       setFeedback("Please select an answer");
@@ -142,14 +148,18 @@ const Question = () => {
           } else {
             // Display feedback
             const isCorrect = data.is_correct;
-            
+
             if (isCorrect) {
               setFeedback("Correct!");
               setShowCelebration(true);
             } else {
-              setFeedback(`Incorrect. The correct answer was: ${options[data.correct_answer_index]}`);
+              setFeedback(
+                `Incorrect. The correct answer was: ${
+                  options[data.correct_answer_index]
+                }`
+              );
             }
-            
+
             // Enable proceeding to next question
             setIsSubmitting(true);
           }
@@ -162,14 +172,16 @@ const Question = () => {
     } else if (questionType === "true_false") {
       // For true/false questions, we can check the answer client-side
       const isCorrect = answer === correct;
-      
+
       if (isCorrect) {
         setFeedback("Correct!");
         setShowCelebration(true);
       } else {
-        setFeedback(`Incorrect. The correct answer was: ${correct ? "True" : "False"}`);
+        setFeedback(
+          `Incorrect. The correct answer was: ${correct ? "True" : "False"}`
+        );
       }
-      
+
       // Enable proceeding to next question
       setIsSubmitting(true);
     }
@@ -189,20 +201,17 @@ const Question = () => {
             <p>{error}</p>
             <p>Question ID: {id}</p>
             <div className="question-nav">
-              <button 
-                className="nav-button" 
+              <button
+                className="nav-button"
                 onClick={() => navToQuestion(parseInt(id!) - 1)}
               >
                 Previous Question
               </button>
-              <button 
-                className="nav-button home-button" 
-                onClick={goToHomepage}
-              >
+              <button className="nav-button home-button" onClick={goToHomepage}>
                 Go to Homepage
               </button>
-              <button 
-                className="nav-button" 
+              <button
+                className="nav-button"
                 onClick={() => navToQuestion(parseInt(id!) + 1)}
               >
                 Next Question
@@ -216,34 +225,42 @@ const Question = () => {
     return (
       <div className="duolingo-question-page">
         <Home_Header toggleOverlay={() => {}} />
-        
+
         <div className="question-content">
           {/* Progress bar */}
           <div className="question-progress">
             <div className="progress-bar">
-              <div 
-                className="progress-filled" 
+              <div
+                className="progress-filled"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
             </div>
           </div>
-          
+
           {/* Question information */}
           <div className="question-info">
             <div className="topic-badge">{topic}</div>
             <div className="difficulty-badge">{difficulty}</div>
           </div>
-          
+
           {/* Main question card */}
           <div className="question-card">
             <h1 className="question-text">{question}</h1>
-            
+
             <div className="options-container">
               {questionType === "true_false" ? (
                 // True/False options
                 <div className="tf-options">
-                  <button 
-                    className={`option-button tf-option ${answer === true ? 'selected' : ''} ${feedback && answer === true ? (correct === true ? 'correct' : 'incorrect') : ''}`}
+                  <button
+                    className={`option-button tf-option ${
+                      answer === true ? "selected" : ""
+                    } ${
+                      feedback && answer === true
+                        ? correct === true
+                          ? "correct"
+                          : "incorrect"
+                        : ""
+                    }`}
                     onClick={() => !isSubmitting && updateTFAnswer(true)}
                     disabled={isSubmitting}
                   >
@@ -252,8 +269,16 @@ const Question = () => {
                       <div className="option-text">True</div>
                     </div>
                   </button>
-                  <button 
-                    className={`option-button tf-option ${answer === false ? 'selected' : ''} ${feedback && answer === false ? (correct === false ? 'correct' : 'incorrect') : ''}`}
+                  <button
+                    className={`option-button tf-option ${
+                      answer === false ? "selected" : ""
+                    } ${
+                      feedback && answer === false
+                        ? correct === false
+                          ? "correct"
+                          : "incorrect"
+                        : ""
+                    }`}
                     onClick={() => !isSubmitting && updateTFAnswer(false)}
                     disabled={isSubmitting}
                   >
@@ -263,18 +288,36 @@ const Question = () => {
                     </div>
                   </button>
                 </div>
+              ) : questionType === "free_response" ? (
+                <textarea
+                  className="fr"
+                  onChange={(e) => setAnswer(e.target.value)}
+                  rows={10}
+                  placeholder="type your short response here"
+                  // style={{height : "max-content%"}}
+                ></textarea>
               ) : (
                 // Multiple choice options
                 <div className="mc-options">
                   {options.map((option, index) => (
-                    <button 
+                    <button
                       key={index}
-                      className={`option-button mc-option ${(answer as boolean[])[index] ? 'selected' : ''} ${feedback && (answer as boolean[])[index] ? (index === (correct as number) - 1 ? 'correct' : 'incorrect') : ''}`}
+                      className={`option-button mc-option ${
+                        (answer as boolean[])[index] ? "selected" : ""
+                      } ${
+                        feedback && (answer as boolean[])[index]
+                          ? index === (correct as number) - 1
+                            ? "correct"
+                            : "incorrect"
+                          : ""
+                      }`}
                       onClick={() => !isSubmitting && updateMCAnswer(index)}
                       disabled={isSubmitting}
                     >
                       <div className="option-content">
-                        <div className="option-letter">{String.fromCharCode(65 + index)}</div>
+                        <div className="option-letter">
+                          {String.fromCharCode(65 + index)}
+                        </div>
                         <div className="option-text">{option}</div>
                       </div>
                     </button>
@@ -283,17 +326,23 @@ const Question = () => {
               )}
             </div>
           </div>
-          
+
           {/* Feedback area */}
           {feedback && (
-            <div className={`feedback-container ${feedback.includes("Correct") ? "correct-feedback" : "incorrect-feedback"}`}>
+            <div
+              className={`feedback-container ${
+                feedback.includes("Correct")
+                  ? "correct-feedback"
+                  : "incorrect-feedback"
+              }`}
+            >
               <div className="feedback-icon">
                 {feedback.includes("Correct") ? "🎉" : "❌"}
               </div>
               <div className="feedback-message">{feedback}</div>
             </div>
           )}
-          
+
           {/* Celebration animation */}
           {showCelebration && (
             <div className="celebration">
@@ -305,22 +354,23 @@ const Question = () => {
               <div className="confetti confetti-6">✨</div>
             </div>
           )}
-          
+
           {/* Action buttons */}
           <div className="action-buttons">
             {!isSubmitting ? (
-              <button 
+              <button
                 className="check-button"
                 onClick={submitAnswer}
                 disabled={
-                  (questionType === "multiple_choice" && !(answer as boolean[]).includes(true)) ||
+                  (questionType === "multiple_choice" &&
+                    !(answer as boolean[]).includes(true)) ||
                   (questionType === "true_false" && answer === null)
                 }
               >
                 Check
               </button>
             ) : (
-              <button 
+              <button
                 className="continue-button"
                 onClick={() => navToQuestion(parseInt(id!) + 1)}
               >
@@ -328,10 +378,10 @@ const Question = () => {
               </button>
             )}
           </div>
-          
+
           {/* Bottom navigation */}
           <div className="bottom-nav">
-            <button 
+            <button
               className="skip-button"
               onClick={() => navToQuestion(parseInt(id!) - 1)}
               disabled={parseInt(id!) <= 1}
@@ -341,7 +391,7 @@ const Question = () => {
             <div className="question-counter">
               Question {id} of {totalQuestions}
             </div>
-            <button 
+            <button
               className="skip-button"
               onClick={() => navToQuestion(parseInt(id!) + 1)}
               disabled={parseInt(id!) >= totalQuestions}

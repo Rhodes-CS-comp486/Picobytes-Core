@@ -82,6 +82,7 @@ class GetQuestions:
                     'question_type': question_data['qtype'],
                     'question_topic': question_data['qtopic'],
                     'question_level': question_data['qlevel'],
+                    'professor_answer': question_data['prof_answer']
                 }
                 return jsonify(response)
 

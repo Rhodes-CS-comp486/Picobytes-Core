@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
@@ -51,7 +51,9 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   const goToTopicSelection = () => {
-    navigate("/topic_select");
+
+    navigate('/practice');
+
   };
 
   const goToAllQuestions = () => {

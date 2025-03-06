@@ -133,7 +133,11 @@ def submit_question():
     return jsonify({'uid': uid})
 
 @app.route('/api/topic_selection', methods=['GET'])
-def topic_selection(qtype, topic):
+def topic_selection():
+    qtype = request.args.get('qtype', 'ALL')  # Default to 'ALL' if not provided
+    topic = request.args.get('topic', '')  # Default to empty string if not provided
+
+    print({qtype}, {topic})
     if qtype == "ALL":
         topic_data = topic_service.get_all_questions_by_topic(topic)
         responses = []
@@ -318,6 +322,6 @@ def submit_answer():
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        print(topic_selection("MC", "Science"))
+    #with app.app_context():
+        #print(topic_selection("MC", "Science"))
     app.run(debug=True)

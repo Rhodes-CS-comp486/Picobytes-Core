@@ -59,3 +59,8 @@
   padding: 20px;
   font-size: 18px;
 }
+
+textarea.fr {
+  align-self: center;
+  padding: 10px;
+}

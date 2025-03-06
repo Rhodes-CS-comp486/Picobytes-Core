@@ -1,8 +1,6 @@
 /* Topic Select CSS */
 
-#header,
-#footer {
-    background-color: #f1f1f1;
+#header {
     min-height: 40px;
 }
 
@@ -20,13 +18,11 @@
 }
 
 #left {
-    background-color: #d2d2d2;
     float: left;
     width: 100%;
 }
 
 #right {
-    background-color: #959595;
     float: right;
     width: 50%;
 }  

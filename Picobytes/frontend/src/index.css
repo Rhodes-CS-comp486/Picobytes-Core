@@ -24,6 +24,7 @@ a:hover {
 
 body {
   margin: 0;
+  padding: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
@@ -73,13 +74,25 @@ button:focus-visible {
   button {
     background-color: cadetblue;
   }
+  --grid-bg: #FFF;
+  --grid-text-color: #242424;
+  --border-color: #999999;
+  --card-color: #ffffff;
+
  
 }
 
 .dark-mode {
   color: white;
   background-color: #242424;
+  background-size: auto;
   button {
     background-color: cadetblue;
   }
+
+  --grid-bg: #242424;
+  --grid-button-text-color: #FFF;
+  --border-color: rgba(255, 255, 255, 0.1);
+
+  --card-color: #2d3748;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 // import "./App.css";
@@ -13,14 +13,31 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import FreeResonse from "./pages/free_response";
 import Settings from "./pages/settings";
+import Leaderboard from "./pages/leaderboard/leaderboard";
 
 function App() {
   const [dark, setDark] = useState(true);
   const [fontSize, setFontSize] = useState(14);
 
+  // Load dark mode from local storage.
+  
+
+  // Load dark mode from localStorage when the app loads
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("darkMode");
+    if (savedTheme === "false") {
+      setDark(false);
+    } else {
+      setDark(true); // Default to dark mode
+    }
+  }, []);
+
   const toggleDark = () => {
-    setDark(!dark);
-    console.log(dark);
+    setDark((prevDark) => {
+      const newDark = !prevDark;
+      localStorage.setItem("darkMode", newDark.toString()); // Save to localStorage
+      return newDark;
+    });
   };
 
   return (
@@ -30,7 +47,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Login />} />
-            <Route path="/homepage" element={<Homepage />} />
+            <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
             <Route path="/question/:id" element={<Question />} />
             <Route path="topic_select" element={<Topic_Select />} />
             <Route path="/questions" element={<Questions />} />
@@ -47,6 +64,7 @@ function App() {
                 ></Settings>
               }
             />
+            <Route path="/leaderboard" element={<Leaderboard/>}/>
           </Routes>
         </Router>
       </div>

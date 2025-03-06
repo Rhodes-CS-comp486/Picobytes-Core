@@ -26,16 +26,7 @@ const Home_Header = ({ toggleOverlay }) => {
 
   return (
     <>
-      {/* Profile icon in header */}
-      <div className="homepage-header">
-        <div className="profile-icon-container" onClick={toggleOverlay}>
-          <img
-            src={reactLogo}
-            alt="Profile"
-            className="profile-icon"
-          />
-        </div>
-      </div>
+  
 
       {/* Mobile menu for small screens */}
       <div className="mobile-menu-container">

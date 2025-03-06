@@ -26,18 +26,18 @@ const mockData = {
   },
   questionStats: {
     most_attempted: [
-      { id: 1, title: 'What is the correct syntax for referring to an external script called "script.js"?', attempts: 287 },
-      { id: 2, title: 'How do you create a function in JavaScript?', attempts: 245 },
-      { id: 3, title: 'How to write an IF statement in JavaScript?', attempts: 228 },
+      { id: 1, title: 'Which C operator can be used to access a variables address?', attempts: 287 },
+      { id: 2, title: 'What is the correct way to dynamically allocate memory for an integer in C?', attempts: 245 },
+      { id: 3, title: 'What will happen if you try to dereference a NULL pointer in C?', attempts: 228 },
       { id: 4, title: 'How does a FOR loop start?', attempts: 198 },
-      { id: 5, title: 'What is the correct way to write a JavaScript array?', attempts: 187 }
+      { id: 5, title: 'Which function is used to release dynamically allocated memory in C?', attempts: 187 }
     ],
     problematic: [
-      { id: 15, title: 'Which event occurs when the user clicks on an HTML element?', attempts: 124, success_rate: 36.2 },
-      { id: 23, title: 'How do you declare a JavaScript variable?', attempts: 156, success_rate: 42.8 },
+      { id: 15, title: 'What does the pwd command do in Linux?', attempts: 124, success_rate: 36.2 },
+      { id: 23, title: 'Do all C programs require a main() function?', attempts: 156, success_rate: 42.8 },
       { id: 7, title: 'How do you round the number 7.25, to the nearest integer?', attempts: 98, success_rate: 47.3 },
-      { id: 19, title: 'How can you add a comment in a JavaScript?', attempts: 132, success_rate: 51.9 },
-      { id: 11, title: 'What is the correct JavaScript syntax to change the content of the HTML element below?', attempts: 174, success_rate: 54.1 }
+      { id: 19, title: 'How can you add a comment in C?', attempts: 132, success_rate: 51.9 },
+      { id: 11, title: 'Does the size of a pointer depend on the type of the variable it points to?', attempts: 174, success_rate: 54.1 }
     ]
   },
   usageStats: {

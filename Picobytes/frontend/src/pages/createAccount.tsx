@@ -1,71 +1,143 @@
-import React from 'react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-
-
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Home_Header from "./home/home_header";
+import "./login.css";
 
 const AccountCreate = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
-    const [userId, setUserId] = useState(null);
-    const navigate = useNavigate();
+  const handleCreation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!username.trim() || !password.trim()) {
+      setError("Please enter both username and password");
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
 
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch("http://localhost:5000/api/create_account", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uname: username, upassword: password }),
+      });
 
+      const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(data.error || "Account creation failed");
+      }
 
-    const handleCreation = async (e: any) => {
-        e.preventDefault();
+      // Store user information in localStorage
+      localStorage.setItem("uid", data.uid);
+      localStorage.setItem("username", username);
+      
+      // Show success message and redirect
+      alert("Account created successfully!");
+      navigate("/homepage");
+      
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        try {
-            const response = await fetch("http://localhost:5000/api/create_account", { 
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ uname: username, upassword: password }), 
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Account creation failed");
-            }
-
-            setUserId(data.uid);
-            setError(null);
-            if(data.uid.length >= 10){
-                alert("Account created successfully! Redirecting to homepage...");
-                navigate("/homepage");  
-            }
-            
-
-        } catch (err: any) {
-            setError(err.message);
-        }
-    };    
-
-
-    return(
-        <div id='AccountCreation'>
-            <h1 style={{marginBottom: '20px'}}>CREATE ACCOUNT</h1>
-            <div>
-                <label>Username:</label>
-                <input value={username} onChange={(e) => setUsername(e.target.value)} id='UsernameBox'></input>
-            </div>
-            <div>
-                <label >Password:</label>
-                <input type="password" value={password} onChange={(e)=> setPassword(e.target.value)} id='PasswordBox'></input>
-            </div>
-            <div id='ButtonSections'>
-                <div>
-                    <button onClick={(e) => handleCreation(e)} id='btnCreateAcc'>CREATE ACCOUNT</button>
-                </div>
-            </div>
+  return (
+    <div className="login-page">
+      <Home_Header toggleOverlay={() => {}} />
+      
+      <div className="login-container">
+        <div className="login-mascot">🚀</div>
+        
+        <div className="login-header">
+          <h1 className="login-title">Create Account</h1>
+          <p className="login-subtitle">Join Picobytes and start your coding journey</p>
         </div>
-    )
-}
+        
+        {error && <div className="error-message">{error}</div>}
+        
+        <form className="login-form" onSubmit={handleCreation}>
+          <div className="form-group">
+            <label htmlFor="username" className="form-label">Username</label>
+            <input
+              id="username"
+              className="form-input"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Choose a username"
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <input
+              id="password"
+              className="form-input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a password"
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+            <input
+              id="confirmPassword"
+              className="form-input"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm your password"
+              disabled={loading}
+            />
+          </div>
+          
+          <div className="login-actions">
+            <button 
+              type="submit" 
+              className="login-button primary"
+              disabled={loading}
+              style={{ width: '100%' }}
+            >
+              {loading ? "Creating Account..." : "Create Account"}
+            </button>
+          </div>
+        </form>
+        
+        <div className="login-footer">
+          <p>Already have an account? <a href="#" onClick={(e) => {
+            e.preventDefault();
+            navigate("/");
+          }}>Sign In</a></p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
-export default AccountCreate
+export default AccountCreate;

@@ -91,7 +91,7 @@ const Draggable_Question = () => {
               </div>
             ))}
           </div>
-          <button onClick={() => questionPull(8)}>Pull Question 1</button>
+          <button onClick={() => questionPull(29)}>Pull Question 1</button>
         </div>
 
        

@@ -97,14 +97,6 @@ const Login = () => {
           </div>
           
           <div className="login-actions">
-            <button 
-              type="submit" 
-              className="login-button primary"
-              disabled={loading}
-            >
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
-            
             <button
               type="button"
               className="login-button secondary"
@@ -112,6 +104,14 @@ const Login = () => {
               disabled={loading}
             >
               Create Account
+            </button>
+            
+            <button 
+              type="submit" 
+              className="login-button primary"
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </div>
         </form>

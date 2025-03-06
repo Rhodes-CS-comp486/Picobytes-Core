@@ -10,7 +10,6 @@ import Questions from "./pages/Questions"; //import new Questions component
 import AdminDashboard from "./pages/admin/AdminDashboard"; //import new AdminDashboard component
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
-import FreeResonse from "./pages/free_response";
 import Settings from "./pages/settings";
 import Practice_Page from "./pages/practice/practice";
 import Topic_Select from "./pages/topic selection/topic_select";
@@ -52,7 +51,6 @@ function App() {
             <Route path="topic_select" element={<Topic_Select />} />
             <Route path="/questions" element={<Questions />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/free_response/:id" element={<FreeResonse />} />
             <Route path="/accountcreate" element={<AccountCreate />} />
             <Route
               path="/settings"

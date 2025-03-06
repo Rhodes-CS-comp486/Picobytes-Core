@@ -63,4 +63,6 @@
 textarea.fr {
   align-self: center;
   padding: 10px;
+  width: 80%;
+  border: 1px solid cadetblue;
 }

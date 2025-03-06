@@ -1,50 +1,60 @@
-/* Practice TSX */
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Home_Header from "../home/home_header";
 import Home_Prof_Overlay from "../home/home_prof_overlay";
 
 import './practice.css';
 
-const Practice_Page = () => {
+interface Prop {
+    toggleDark: () => void;
+}
+
+interface Topic {
+    name: string;
+    types: string[];
+}
+
+const Practice_Page = ({ toggleDark }: Prop) => {
     const navigate = useNavigate();
     const [showOverlay, setShowOverlay] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
-
-    // Dummy topics for now
-    const [topics] = useState([
-        { name: "Science", types: ["Multiple Choice", "True/False"] },
-        { name: "Programming", types: ["Multiple Choice", "True/False"] },
-        { name: "Geography", types: ["Multiple Choice", "True/False"] },
-        { name: "Biology", types: ["Multiple Choice", "True/False"] }
-    ]);
+    const [topics, setTopics] = useState<Topic[]>([]); // State for topics
+    const [loading, setLoading] = useState(true); // Loading state
+    const [error, setError] = useState<string | null>(null); // Error state
 
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
     };
 
-    // Handler to filter topics based on search term
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
+    // Dummy topics and question types (initially used)
+    const dummyTopics = [
+        { name: 'Science', types: ['ALL'] },
+        { name: 'Biology', types: ['ALL'] },
+        { name: 'Programming', types: ['ALL'] },
+        { name: 'Geography', types: ['ALL'] },
+    ];
+
+    // Function to handle fetching data on topic and type selection
+    const handleTopicClick = async (topicName: string, questionType: string) => {
+        try {
+            // Navigate to the Questions Page with the selected topic and question type
+            navigate(`/questions/${topicName}/${questionType}`);
+        } catch (err) {
+            setError("Error fetching data");
+            console.error("Fetch error:", err);
+        }
     };
 
-    // Filter topics based on the search term
+    useEffect(() => {
+        // Set dummy topics or fetch real topics from API
+        setTopics(dummyTopics);
+        setLoading(false); // Set loading to false once topics are set
+    }, []);
+
+    // Filter the topics based on the search term
     const filteredTopics = topics.filter((topic) =>
         topic.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    // Handler for expanding/collapsing topic question types
-    const handleTopicClick = (topicName: string) => {
-        setExpandedTopic(expandedTopic === topicName ? null : topicName);
-    };
-
-    // Function to handle navigation to a specific question type page
-    const goToQuestionPage = (topicName: string, questionType: string) => {
-        // Assuming you have a question page for each type under the path `/questions/topic/question-type`
-        navigate(`/questions/${topicName}/${questionType.toLowerCase()}`);
-    };
 
     function goToAllQuestions(): void {
         navigate('/questions');
@@ -59,38 +69,43 @@ const Practice_Page = () => {
             {/* Mobile Menu is included in Header component */}
             <Home_Header toggleOverlay={toggleOverlay} />
             {showOverlay && <Home_Prof_Overlay />}
-            
+
             {/* Left Sidebar */}
             <div className="sidebar">
-            <div className="logo-container">
-            <h1 className="logo-text">Picobytes</h1>
-            </div>
-            
-            <nav className="sidebar-nav">
-            <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={()=> navigate('/homepage')}>
-                <span className="material-icon">🏠</span>
-                <span>Home</span>
-            </div>
-            <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => goToAllQuestions()}>
-                <span className="material-icon">📝</span>
-                <span>Questions</span>
-            </div>
-            <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => goToTopicSelection()}>
-                <span className="material-icon">📚</span>
-                <span>Topics</span>
-            </div>
-            <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>
-                <span className="material-icon">⚙️</span>
-                <span>Settings</span>
-            </div>
-            {/* Admin section if user is admin */}
-            {localStorage.getItem("isAdmin") === "true" && (
-                <div className="nav-item" onClick={() => navigate('/admin/dashboard')}>
-                <span className="material-icon">👑</span>
-                <span>Admin</span>
+                <div className="logo-container">
+                    <h1 className="logo-text">Picobytes</h1>
                 </div>
-            )}
-            </nav>
+
+                <nav className="sidebar-nav">
+                    <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={() => navigate('/homepage')}>
+                        <span className="material-icon">🏠</span>
+                        <span>Home</span>
+                    </div>
+                    <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => goToAllQuestions()}>
+                        <span className="material-icon">📝</span>
+                        <span>Questions</span>
+                    </div>
+                    <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => goToTopicSelection()}>
+                        <span className="material-icon">📚</span>
+                        <span>Topics</span>
+                    </div>
+                    <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>
+                        <span className="material-icon">⚙️</span>
+                        <span>Settings</span>
+                    </div>
+                    {/* Admin section if user is admin */}
+                    {localStorage.getItem("isAdmin") === "true" && (
+                        <div className="nav-item" onClick={() => navigate('/admin/dashboard')}>
+                            <span className="material-icon">👑</span>
+                            <span>Admin</span>
+                        </div>
+                    )}
+
+                    <div className="nav-item" onClick={() => toggleDark()}>
+                        <span className="material-icon">☾</span>
+                        <span>Theme</span>
+                    </div>
+                </nav>
             </div>
 
             {/* MIDDLE CONTENTS */}
@@ -99,34 +114,29 @@ const Practice_Page = () => {
                 <input
                     type="text"
                     value={searchTerm}
-                    onChange={handleSearch}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search for a topic..."
                     className="search-bar"
                 />
 
-                {/* Display filtered topics */}
+                {/* Display topics and their question types */}
                 <div className="topics-list">
-                    {filteredTopics.length > 0 ? (
-                        filteredTopics.map((topic, index) => (
-                            <div key={index} className="topic-item">
-                                <div className="topic-name">{topic.name}</div>
-
-                                <div className="question-types" onClick={() => handleTopicClick(topic.name)}>
-                                        {topic.types.map((type, typeIndex) => (
-                                            <button
-                                                key={typeIndex}
-                                                className="question-type-button"
-                                                onClick={() => goToQuestionPage(topic.name, type)}>
-                                                {type}
-                                            </button>
-                                        ))}
-                                </div>
-
+                    {filteredTopics.map((topic, index) => (
+                        <div key={index} className="topic-item">
+                            <div className="topic-name">{topic.name}</div>
+                            <div className="question-types">
+                                {topic.types.map((type, typeIndex) => (
+                                    <button
+                                        key={typeIndex}
+                                        className="question-type-button"
+                                        onClick={() => handleTopicClick(topic.name, type)}
+                                    >
+                                        {type}
+                                    </button>
+                                ))}
                             </div>
-                        ))
-                    ) : (
-                        <div className="no-results">No topics found</div>
-                    )}
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

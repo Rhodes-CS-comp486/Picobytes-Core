@@ -49,7 +49,7 @@ def create_table():
 
         connection.commit()
 
-        print("true_false table created successfully")
+        print("multiple choice table created successfully")
 
 
 
@@ -76,7 +76,22 @@ def create_table():
 
         connection.commit()
 
-        print("true_false table created successfully")
+        print("code_blocks table created successfully")
+
+
+
+
+
+
+        # User response to multiple_choice
+        cursor.execute("""
+                                          CREATE TABLE IF NOT EXISTS coding (
+                                              qid INTEGER PRIMARY KEY,
+                                              starter STRING NOT NULL,
+                                              FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
+                                              );""")
+
+        connection.commit()
 
 
 
@@ -87,8 +102,9 @@ def create_table():
         #User responses
         cursor.execute("""
                     CREATE TABLE IF NOT EXISTS user_responses (
-                        uid STRING PRIMARY KEY,
-                        qid INTEGER NOT NULL
+                        uid STRING NOT NULL,
+                        qid INTEGER NOT NULL,
+                        PRIMARY KEY (uid, qid)
                         );""")
 
         connection.commit()
@@ -99,9 +115,10 @@ def create_table():
         #User response to free_response
         cursor.execute("""
                     CREATE TABLE IF NOT EXISTS user_free_response (
-                        uid STRING PRIMARY KEY,
+                        uid STRING NOT NULL,
                         qid INTEGER NOT NULL,
-                        answer STRING NOT NULL
+                        answer STRING NOT NULL,
+                        PRIMARY KEY (uid, qid)
                         );""")
 
         connection.commit()
@@ -112,31 +129,68 @@ def create_table():
 
         # User response to multiple_choice
         cursor.execute("""
-                            CREATE TABLE IF NOT EXISTS user_multiple_choice (
-                                uid STRING PRIMARY KEY,
-                                qid INTEGER NOT NULL,
-                                response STRING NOT NULL,
-                                correct INTEGER CHECK (correct BETWEEN 1 AND 4)
-                                );""")
-
+            CREATE TABLE IF NOT EXISTS user_multiple_choice (
+                uid STRING NOT NULL,
+                qid INTEGER NOT NULL,
+                response STRING NOT NULL,
+                correct INTEGER CHECK (correct BETWEEN 1 AND 4),
+                PRIMARY KEY (uid, qid)
+            );
+        """)
         connection.commit()
 
         print("user multiple_choice table created successfully")
 
 
+
+        # User response to multiple_choice
+        cursor.execute("""
+                                    CREATE TABLE IF NOT EXISTS user_coding (
+                                        uid STRING NOT NULL,
+                                        qid INTEGER NOT NULL,
+                                        code STRING NOT NULL,
+                                        PRIMARY KEY (uid, qid)
+                                        );""")
+
+        connection.commit()
+
+        print("user coding table created successfully")
+
+
+
+
+        # User response to multiple_choice
+        cursor.execute("""
+                                            CREATE TABLE IF NOT EXISTS user_code_blocks (
+                                                uid STRING NOT NULL,
+                                                qid INTEGER NOT NULL,
+                                                submission STRING NOT NULL,
+                                                correct STRING NOT NULL,
+                                                PRIMARY KEY (uid, qid)
+                                                );""")
+
+        connection.commit()
+
+        print("user_code_blocks table created successfully")
+
+
         # User response to multiple_choice
         cursor.execute("""
                                     CREATE TABLE IF NOT EXISTS user_true_false (
-                                        uid STRING PRIMARY KEY,
+                                        uid STRING NOT NULL,
                                         qid INTEGER NOT NULL,
                                         response STRING NOT NULL,
-                                        correct BOOLEAN NOT NULL
+                                        correct BOOLEAN NOT NULL,
+                                        PRIMARY KEY (uid, qid)
                                         );""")
 
         connection.commit()
         connection.close()
 
         print("user true false table created successfully")
+
+
+
 
     except Exception as e:
         print(f"Error creating table: {e}")

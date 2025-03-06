@@ -13,6 +13,8 @@ import "./App.css";
 import Settings from "./pages/settings";
 import Practice_Page from "./pages/practice/practice";
 import Topic_Select from "./pages/topic selection/topic_select";
+import Leaderboard from "./pages/leaderboard/leaderboard";
+import Draggable_Question from "./pages/draggable_question";
 
 function App() {
   const [dark, setDark] = useState(true);
@@ -67,6 +69,8 @@ function App() {
               path="/questions/:topicName/:questionType"
               element={<Topic_Select />} // Mount Topic_Select component for this route
             />
+            <Route path="/leaderboard" element={<Leaderboard/>}/>
+            <Route path="/draggable_question" element={<Draggable_Question />} />
           </Routes>
         </Router>
       </div>

@@ -24,7 +24,7 @@ const Draggable_Question = () => {
 
   const questionPull = async (qid: number) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/questions`, {
+      const response = await fetch(`http://localhost:5000/api/questions/${qid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -33,18 +33,17 @@ const Draggable_Question = () => {
 
       const data = await response.json();
 
+      console.log(data);
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to get questions");
       }
 
-      console.log(data.mc[0]);
+      
     } catch (err: any) {
       console.error(err.message);
     }
   }
-
-    
-
 
     return (
         <div className='container'>
@@ -65,7 +64,7 @@ const Draggable_Question = () => {
               </div>
             ))}
           </div>
-          <button onClick={() => questionPull(1)}>Pull Question 1</button>
+          <button onClick={() => questionPull(8)}>Pull Question 1</button>
         </div>
 
        

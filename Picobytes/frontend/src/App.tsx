@@ -5,15 +5,18 @@ import { useState, useEffect } from "react";
 import Homepage from "./pages/home/home";
 import Login from "./pages/login";
 import Question from "./pages/question";
-import Topic_Select from "./pages/topic selection/topic_select";
 import AccountCreate from "./pages/createAccount";
 import Questions from "./pages/Questions"; //import new Questions component
 import AdminDashboard from "./pages/admin/AdminDashboard"; //import new AdminDashboard component
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
-import FreeResonse from "./pages/free_response";
 import Settings from "./pages/settings";
+
 import Leaderboard_All from "./pages/leaderboard/leaderboard_page";
+import Practice_Page from "./pages/practice/practice";
+import Topic_Select from "./pages/topic selection/topic_select";
+import Draggable_Question from "./pages/draggable_question";
+
 
 function App() {
   const [dark, setDark] = useState(true);
@@ -47,12 +50,11 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<Login />} />
-            <Route path="/homepage" element={<Homepage />} />
+            <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
             <Route path="/question/:id" element={<Question />} />
             <Route path="topic_select" element={<Topic_Select />} />
             <Route path="/questions" element={<Questions />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/free_response/:id" element={<FreeResonse />} />
             <Route path="/accountcreate" element={<AccountCreate />} />
             <Route
               path="/settings"
@@ -65,6 +67,12 @@ function App() {
               }
             />
             <Route path="/leaderboard" element={<Leaderboard_All/>}/>
+            <Route path="/practice" element={<Practice_Page toggleDark={toggleDark}/>}/>
+            <Route
+              path="/questions/:topicName/:questionType"
+              element={<Topic_Select />} // Mount Topic_Select component for this route
+            />
+            <Route path="/draggable_question" element={<Draggable_Question />} />
           </Routes>
         </Router>
       </div>

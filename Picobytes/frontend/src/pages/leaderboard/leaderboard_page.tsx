@@ -1,24 +1,22 @@
 /// Leaderboard TSX
-import './leaderboard.css';
+import './leaderboard_page.css'
+import Homepage from '../home/home';
 import { useNavigate } from 'react-router-dom';
 
 
 
-
-const Leaderboard = () => {
-
+const Leaderboard_All = () => {
     const navigate = useNavigate();
 
-    // View full Leaderboard page
-    const goToLeaderboard = () => {
-        navigate('/leaderboard');
+    const goToHomepage = () =>
+    {
+        navigate('/homepage');
     };
 
     // get username
     const username = localStorage.getItem("username") || "Agent 41"
 
-    
-    const players = [username, 'Bob', 'Kugele', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9'];
+    const players = [username, 'Bob', 'Kugele', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9', 'Player 10'];
 
     const getRankEmote = (index: number) => {
         switch (index) {
@@ -34,14 +32,17 @@ const Leaderboard = () => {
     };
 
     return (
-        <div id="leaderboard">
-            <div className="view-all-link" onClick={goToLeaderboard}>VIEW ALL</div>
-            <div id="leaderboard-grid">
-                <div id='leaderboard-header'>🏆 Leaderboard 🏆</div>
+        <div id="leaderboard-all">
+            <div id="leaderboard-all-link" onClick={goToHomepage}>Go Back</div>
+                
+            <div id="leaderboard-all-title">🏆 Leaderboard 🏆</div>
+
+            
+            <div id="leaderboard-all-grid">
 
                 {players.map((player, index) => (
-                    <div className='grid-item' key={index}>
-                        <div id="grid-hbox">
+                    <div id='leaderboard-all-grid-item' key={index}>
+                        <div id="leaderboard-all-grid-hbox">
                             <div className='stat-icon'>
                                 {getRankEmote(index)} 
                             </div>
@@ -60,4 +61,4 @@ const Leaderboard = () => {
     );
 };
 
-export default Leaderboard;
+export default Leaderboard_All;

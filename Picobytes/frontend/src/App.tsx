@@ -13,7 +13,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.css";
 import FreeResonse from "./pages/free_response";
 import Settings from "./pages/settings";
-import Leaderboard from "./pages/leaderboard/leaderboard";
+import Leaderboard_All from "./pages/leaderboard/leaderboard_page";
 
 function App() {
   const [dark, setDark] = useState(true);
@@ -64,7 +64,7 @@ function App() {
                 ></Settings>
               }
             />
-            <Route path="/leaderboard" element={<Leaderboard/>}/>
+            <Route path="/leaderboard" element={<Leaderboard_All/>}/>
           </Routes>
         </Router>
       </div>

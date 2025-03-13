@@ -82,6 +82,7 @@ input {
   --grid-text-color: #242424;
   --border-color: #999999;
   --card-color: #ffffff;
+  --subtitle-color: #222529;
 
  
 }
@@ -99,4 +100,6 @@ input {
   --border-color: #4c4c4c;
 
   --card-color: #2d3748;
+
+  --subtitle-color : #a0aec0;
 }

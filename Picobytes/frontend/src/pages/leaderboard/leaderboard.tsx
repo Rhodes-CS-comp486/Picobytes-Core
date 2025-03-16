@@ -40,13 +40,16 @@ const Leaderboard = () => {
                 <div id='leaderboard-header'>🏆 Leaderboard 🏆</div>
 
                 {players.map((player, index) => (
-                    <div className='grid-item' key={index}>
-                        <div id="grid-hbox">
+                    <div id='leaderboard-grid-item'
+                        key={index}
+                        className={player === username ? 'highlight-user' : ''} // Highlight if current user
+                        >
+                        <div id="leaderboard-grid-hbox">
                             <div className='stat-icon'>
                                 {getRankEmote(index)} 
                             </div>
 
-                            <div id="grid-icon">
+                            <div id="ld-grid-icon">
                                 {player.charAt(0).toUpperCase()}
                             </div>
 

@@ -159,7 +159,7 @@
 
 /* leaderboard_page.css */
 .highlight-user {
-    background-color: rgba(255, 223, 0, 0.2);  /* Light yellow background */
+    background: linear-gradient(to right, #cdfffe, #d3fff2);  
     border: 2px solid #ffd700;  /* Gold border */
     font-weight: bold;  /* Bold text */
 }

@@ -81,8 +81,15 @@ input {
   --grid-bg: #FFF;
   --grid-text-color: #242424;
   --border-color: #999999;
+  
   --card-color: #ffffff;
+
   --subtitle-color: #222529;
+
+  --primary-theme-color: #89ebd5;
+  --secondary-theme-color: #609f95;
+  --accent-theme-color: #ffbb29;
+  /*--accent-theme-color: #f29e84;*/
 
  
 }
@@ -92,7 +99,7 @@ input {
   background-color: #242424;
   background-size: auto;
   button {
-    background-color: cadetblue;
+    background-color: #5f9ea0;
   }
 
   --grid-bg: #242424;
@@ -102,4 +109,8 @@ input {
   --card-color: #2d3748;
 
   --subtitle-color : #a0aec0;
+
+  --primary-theme-color: #89ebd5;
+  --secondary-theme-color: #609f95;
+  --accent-theme-color: #ffbb29;
 }

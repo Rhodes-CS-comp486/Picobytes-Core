@@ -1,5 +1,6 @@
 /* Leaderboard CSS */
 
+/*** CSS FOR LEADERBOARD ***/
 #leader {
     display: flex;
     align-items: center;
@@ -39,7 +40,7 @@
     
 }
 
-#grid-hbox {
+#leaderbaord-grid-hbox {
     display: flex;
     gap: 10px;
     text-align: left;
@@ -47,7 +48,7 @@
     
 }
 
-.grid-item {
+#leaderboard-grid-item {
 
     padding: 20px;
     border-radius: 10px;
@@ -56,7 +57,89 @@
     font-size: 15px;
   }
 
-#grid-icon {
+
+
+/*** CSS FOR LEADERBOARD ALL***/
+
+#leaderboard-all {
+    display: flex;
+    flex-direction: column;
+    
+    
+    padding: 20px;
+    height: 100vh; /* Full height of the viewport to prevent page scrolling */
+    overflow: hidden; /* Disable page scrolling */
+    
+    background-color: var(--card-color);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+#leaderboard-all-title {
+    font-size: 30px;
+    font-weight: 700;
+    text-align: center;
+    
+    position: sticky;  /* Stick to the top */
+    
+    padding: 20px;
+
+    z-index: 2;        /* Ensure it's above the grid items */
+    
+    border-bottom: 2px solid var(--border-color);
+    width: 100%;
+}
+
+#leaderboard-all-link {
+    color: #1cb0f6;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s;
+    float: left;
+}
+#leaderboard-all-grid {
+    display: inline-grid;
+    grid-template-columns: auto;
+
+    overflow-y: auto;   /* Enable scrolling within the leaderboard grid */
+    max-height: calc(100vh - 80px); /* Subtract space for the header */
+    row-gap: 5px;
+    width: 100%;
+    padding: 20px;
+    
+
+    scrollbar-width: thin;
+
+    /* Only apply clipping to the scrollable items inside the grid */
+    clip-path: inset(0px 0 0 0);
+}
+
+#scrollable-grid-items {
+    display: flex;
+    flex-direction: column;
+ 
+}
+
+#leaderboard-all-grid-item {
+    padding: 20px;
+    border-radius: 10px;
+    text-align: left;
+    color: var(--grid-button-text-color);
+    font-size: 25px;
+}
+
+
+
+/* CSS to be used between both leaderboard pages. */
+#leaderboard-grid-hbox {
+    display: flex;
+    gap: 10px;
+    text-align: left;
+    align-items: center;
+}
+
+#ld-grid-icon {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -69,3 +152,16 @@
     color: white;
     border: 2px solid #58cc02;
 }
+
+#leaderboard-xp {
+    margin-left: auto;
+}
+
+/* leaderboard_page.css */
+.highlight-user {
+    background-color: rgba(255, 223, 0, 0.2);  /* Light yellow background */
+    border: 2px solid #ffd700;  /* Gold border */
+    font-weight: bold;  /* Bold text */
+}
+
+

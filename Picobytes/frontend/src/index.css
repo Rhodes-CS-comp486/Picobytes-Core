@@ -76,19 +76,19 @@ input {
   color: black;
   background-color: white;
   button {
-    background-color: cadetblue;
+    background-color: var(--primary-theme-color);
   }
   --grid-bg: #FFF;
   --grid-text-color: #242424;
   --border-color: #999999;
-  
+
   --card-color: #ffffff;
 
   --subtitle-color: #222529;
 
-  --primary-theme-color: #89ebd5;
-  --secondary-theme-color: #609f95;
-  --accent-theme-color: #ffbb29;
+  --primary-theme-color: #44d5b5;
+  --secondary-theme-color: #cbcdd8;
+  --accent-theme-color: #bc9710;
   /*--accent-theme-color: #f29e84;*/
 
  
@@ -99,7 +99,7 @@ input {
   background-color: #242424;
   background-size: auto;
   button {
-    background-color: #5f9ea0;
+    background-color: var(--primary-theme-color)
   }
 
   --grid-bg: #242424;
@@ -110,7 +110,7 @@ input {
 
   --subtitle-color : #a0aec0;
 
-  --primary-theme-color: #89ebd5;
-  --secondary-theme-color: #609f95;
-  --accent-theme-color: #ffbb29;
+  --primary-theme-color: #44d5b5;
+  --secondary-theme-color: #272934;
+  --accent-theme-color: #efca43;
 }

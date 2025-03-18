@@ -1,5 +1,7 @@
 import os
 import sqlite3
+from datetime import datetime
+from distutils.dep_util import newer
 
 
 class Streaks:
@@ -23,9 +25,17 @@ class Streaks:
 
             last_time, days = u
 
-            if time - last_time < 86400:
+            old_dt = datetime.fromtimestamp(last_time)
+
+            new_dt = datetime.fromtimestamp(time)
+
+            difference = new_dt - old_dt
+
+            if difference.days == 0:
+                print()
+            elif difference.days == 1:
                 days += 1
-            else:
+            elif difference.days > 1:
                 days = 0
 
             cursor.execute("""UPDATE users SET ulastanswertime = ?, streak = ? WHERE id = ?""", (time, days, uid,))

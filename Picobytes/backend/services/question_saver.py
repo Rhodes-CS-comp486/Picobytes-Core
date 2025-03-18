@@ -104,12 +104,10 @@ class QuestionSave:
 
     def save_question(self, uid, qid, response):
         try:
-            currtime = time.time()
+            currtime = time()
 
             streaks.update_streak(uid, currtime)
 
-
-            
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""

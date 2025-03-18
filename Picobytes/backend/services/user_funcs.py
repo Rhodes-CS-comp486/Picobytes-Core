@@ -2,6 +2,7 @@ import sqlite3
 import os
 import string
 import random
+import time
 
 from conda_index.index.convert_cache import db_path
 
@@ -32,10 +33,11 @@ class UserFuncs:
 
             # Generate a unique UID
             uid = self.generate_unique_uid(cursor)
+            currtime = time.time()
 
             # Insert the new user
-            cursor.execute("INSERT INTO users (uid, uname, upassword, uadmin) VALUES (?, ?, ?, ?)",
-                           (uid, uname, hashed_password, uadmin))
+            cursor.execute("INSERT INTO users (uid, uname, upassword, uadmin, ulastanswertime, ustreak, upoints) VALUES (?, ?, ?, ?, ?, 1, 0)",
+                           (uid, uname, hashed_password, uadmin, currtime))
             connection.commit()
             print(f"User {uname} added successfully with UID: {uid}")
             connection.close()

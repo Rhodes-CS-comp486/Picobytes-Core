@@ -17,15 +17,20 @@ interface QuestionStatsProps {
 const QuestionStats: React.FC<QuestionStatsProps> = ({ data }) => {
   const [activeTab, setActiveTab] = useState<'attempted' | 'problematic'>('attempted');
   
-  // Add a check for empty data
-  const hasMostAttempted = data?.most_attempted?.length > 0;
-  const hasProblematic = data?.problematic?.length > 0;
+  if (!data || (!data.most_attempted?.length && !data.problematic?.length)) {
+    return (
+      <div className="question-stats">
+        <h2 className="card-title">Question Statistics</h2>
+        <p>No question data available yet. This will populate as users attempt questions.</p>
+      </div>
+    );
+  }
   
   return (
-    <div>
+    <div className="question-stats">
       <h2 className="card-title">Question Statistics</h2>
       
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+      <div className="tab-buttons">
         <button 
           className={`tab-button ${activeTab === 'attempted' ? 'active' : ''}`} 
           onClick={() => setActiveTab('attempted')}
@@ -42,85 +47,55 @@ const QuestionStats: React.FC<QuestionStatsProps> = ({ data }) => {
       
       <div className="stats-table-container">
         {activeTab === 'attempted' ? (
-          hasMostAttempted ? (
-            <table className="stats-table">
-              <thead>
-                <tr>
-                  <th>Question</th>
-                  <th style={{ width: '100px', textAlign: 'center' }}>Attempts</th>
+          <table className="stats-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Attempts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.most_attempted && data.most_attempted.map(q => (
+                <tr key={q.id}>
+                  <td>{q.id}</td>
+                  <td>{q.title}</td>
+                  <td>{q.attempts}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {data.most_attempted.map(question => (
-                  <tr key={question.id}>
-                    <td>{question.title}</td>
-                    <td style={{ textAlign: 'center' }}>
-                      <span style={{ 
-                        backgroundColor: 'rgba(88, 204, 2, 0.2)', 
-                        color: '#58cc02',
-                        padding: '4px 8px', 
-                        borderRadius: '100px',
-                        fontWeight: 700,
-                        fontSize: '14px',
-                        display: 'inline-block' 
-                      }}>
-                        {question.attempts}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No data available for most attempted questions.</p>
-          )
+              ))}
+              {(!data.most_attempted || data.most_attempted.length === 0) && (
+                <tr>
+                  <td colSpan={3}>No data available for most attempted questions.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         ) : (
-          hasProblematic ? (
-            <table className="stats-table">
-              <thead>
-                <tr>
-                  <th>Question</th>
-                  <th style={{ width: '100px', textAlign: 'center' }}>Attempts</th>
-                  <th style={{ width: '120px', textAlign: 'center' }}>Success Rate</th>
+          <table className="stats-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Question</th>
+                <th>Attempts</th>
+                <th>Success Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.problematic && data.problematic.map(q => (
+                <tr key={q.id}>
+                  <td>{q.id}</td>
+                  <td>{q.title}</td>
+                  <td>{q.attempts}</td>
+                  <td>{q.success_rate}%</td>
                 </tr>
-              </thead>
-              <tbody>
-                {data.problematic.map(question => (
-                  <tr key={question.id}>
-                    <td>{question.title}</td>
-                    <td style={{ textAlign: 'center' }}>
-                      <span style={{ 
-                        backgroundColor: 'rgba(28, 176, 246, 0.2)', 
-                        color: '#1cb0f6',
-                        padding: '4px 8px', 
-                        borderRadius: '100px',
-                        fontWeight: 700,
-                        fontSize: '14px',
-                        display: 'inline-block' 
-                      }}>
-                        {question.attempts}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
-                      <span style={{ 
-                        backgroundColor: question.success_rate < 50 ? 'rgba(229, 62, 62, 0.2)' : 'rgba(88, 204, 2, 0.2)', 
-                        color: question.success_rate < 50 ? '#e53e3e' : '#58cc02',
-                        padding: '4px 8px', 
-                        borderRadius: '100px',
-                        fontWeight: 700,
-                        fontSize: '14px',
-                        display: 'inline-block' 
-                      }}>
-                        {question.success_rate}%
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No data available for problematic questions.</p>
-          )
+              ))}
+              {(!data.problematic || data.problematic.length === 0) && (
+                <tr>
+                  <td colSpan={4}>No data available for problematic questions.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

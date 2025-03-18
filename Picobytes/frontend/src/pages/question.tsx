@@ -110,85 +110,121 @@ const Question = () => {
     setAnswer(value);
   };
 
-  const submitAnswer = () => {
-    // Check if an answer is selected
-    if (
-      (questionType === "multiple_choice" &&
-        !(answer as boolean[]).includes(true)) ||
-      (questionType === "true_false" && answer === null)
-    ) {
-      setFeedback("Please select an answer");
-      return;
-    }
-
+  const handleSubmitAnswer = async () => {
     setIsSubmitting(true);
-    setFeedback("");
-
-    if (questionType === "multiple_choice") {
-      fetch("http://127.0.0.1:5000/api/submit_answer", {
-        method: "POST",
+    
+    try {
+      // First, check if the answer is correct
+      let isCorrect = false;
+      
+      if (questionType === 'multiple_choice') {
+        // For multiple choice, check if selected option matches correct answer
+        isCorrect = Array.isArray(answer) && answer.indexOf(true) === (correct as number) - 1;
+      } else if (questionType === 'true_false') {
+        // For true/false, check if selected boolean matches correct answer
+        isCorrect = answer === correct;
+      }
+      
+      // Submit the attempt to the backend
+      const response = await fetch('http://127.0.0.1:5000/api/submit_answer', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          question_id: id,
+          question_id: Number(id),
+          user_id: getUserId(), // You'll need a function to get the current user ID
           selected_answer: answer,
+          is_correct: isCorrect
         }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data.error) {
-            setError(data.error);
-            setIsSubmitting(false);
-          } else {
-            // Display feedback
-            const isCorrect = data.is_correct;
-
-            if (isCorrect) {
-              setFeedback("Correct!");
-              setShowCelebration(true);
-            } else {
-              setFeedback(
-                `Incorrect. The correct answer was: ${
-                  options[data.correct_answer_index]
-                }`
-              );
-            }
-
-            // Enable proceeding to next question
-            setIsSubmitting(true);
-          }
-        })
-        .catch((error) => {
-          console.error("Error submitting answer: ", error);
-          setError(`Error submitting answer: ${error.message}`);
-          setIsSubmitting(false);
-        });
-    } else if (questionType === "true_false") {
-      // For true/false questions, we can check the answer client-side
-      const isCorrect = answer === correct;
-
-      if (isCorrect) {
-        setFeedback("Correct!");
-        setShowCelebration(true);
+      });
+      
+      // Handle the result of the submission
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      
+      if (data.error) {
+        setError(data.error);
       } else {
-        setFeedback(
-          `Incorrect. The correct answer was: ${correct ? "True" : "False"}`
-        );
+        // Display feedback
+        const isCorrect = data.is_correct;
+
+        if (isCorrect) {
+          setFeedback("Correct!");
+          setShowCelebration(true);
+        } else {
+          setFeedback(
+            `Incorrect. The correct answer was: ${
+              options[data.correct_answer_index]
+            }`
+          );
+        }
+
+        // Enable proceeding to next question
+        setIsSubmitting(true);
       }
 
-      // Enable proceeding to next question
-      setIsSubmitting(true);
+      // Track the attempt
+      trackAttempt(isCorrect);
+
+      // Log the attempt
+      logQuestionAttempt(isCorrect);
+    } catch (error) {
+      console.error('Error submitting answer:', error);
+      setError('Failed to submit your answer. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  // Helper to get the current user ID (implement based on your auth system)
+  const getUserId = () => {
+    // Return the user ID from your auth system
+    // If you don't have one, return a default like 1
+    return 1; // Replace with actual user ID logic
   };
 
   // Calculate current progress percentage
   const progressPercentage = id ? (parseInt(id) / totalQuestions) * 100 : 0;
+
+  // Add this function to your component
+  const trackAttempt = async (isCorrect) => {
+    try {
+      // Send a background request to track the attempt
+      // This won't affect your existing submission process
+      await fetch('http://127.0.0.1:5000/api/track_attempt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question_id: Number(id),
+          is_correct: isCorrect
+        }),
+      });
+    } catch (error) {
+      // Just log the error but don't disrupt the user experience
+      console.error('Error tracking attempt:', error);
+    }
+  };
+
+  // Add this function somewhere in your component
+  const logQuestionAttempt = (isCorrect) => {
+    // This runs in the background and won't affect your UI flow
+    fetch('http://127.0.0.1:5000/api/log_question_attempt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        qid: Number(id), 
+        is_correct: isCorrect 
+      })
+    }).catch(err => {
+      // Silent catch - won't affect the user experience
+      console.log('Analytics logging error (non-critical):', err);
+    });
+  };
 
   if (error !== "") {
     return (
@@ -360,7 +396,7 @@ const Question = () => {
             {!isSubmitting ? (
               <button
                 className="check-button"
-                onClick={submitAnswer}
+                onClick={handleSubmitAnswer}
                 disabled={
                   (questionType === "multiple_choice" &&
                     !(answer as boolean[]).includes(true)) ||

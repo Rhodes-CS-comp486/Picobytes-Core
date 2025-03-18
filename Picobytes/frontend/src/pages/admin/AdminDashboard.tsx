@@ -65,70 +65,67 @@ const mockData = {
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'questions'>('dashboard');
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [showOverlay, setShowOverlay] = useState(false);
   
-  // Keeping state for components
-  const [performanceMetrics, setPerformanceMetrics] = useState(mockData.performanceMetrics);
-  const [questionStats, setQuestionStats] = useState(mockData.questionStats);
-  const [usageStats, setUsageStats] = useState(mockData.usageStats);
-  const [activeUsersPeriod, setActiveUsersPeriod] = useState('24h');
+  // State for different metrics
+  const [questionStats, setQuestionStats] = useState(null);
+  const [performanceMetrics, setPerformanceMetrics] = useState(null);
+  const [usageStats, setUsageStats] = useState(null);
+  const [activeUsers, setActiveUsers] = useState(null);
 
-  // Fetch dashboard data
+  // Fetch dashboard data when component mounts
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoading(true);
-      setError(null);
-      
-      try {
-        // Fetch question stats
-        const questionStatsResponse = await fetch('/api/admin/dashboard/question-stats');
-        if (!questionStatsResponse.ok) {
-          throw new Error('Failed to fetch question stats');
-        }
-        const questionStatsData = await questionStatsResponse.json();
-        setQuestionStats(questionStatsData);
-        
-        // Keep using mock data for other metrics for now
-        setPerformanceMetrics(mockData.performanceMetrics);
-        setUsageStats(mockData.usageStats);
-        
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError('Failed to load dashboard data. Using fallback data.');
-        // Use mock data as fallback
-        setQuestionStats(mockData.questionStats);
-        setLoading(false);
-      }
-    };
-    
     fetchDashboardData();
   }, []);
-
-  const handlePeriodChange = (period: string) => {
-    setActiveUsersPeriod(period);
+  
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    
+    try {
+      // Fetch real question stats from backend
+      const response = await fetch('http://127.0.0.1:5000/api/admin/dashboard/question-stats');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch question stats');
+      }
+      
+      const data = await response.json();
+      console.log('Received question stats:', data);
+      
+      // Set the question stats data
+      setQuestionStats(data);
+      
+      // Keep using mock data for other metrics for now
+      setPerformanceMetrics(mockData.performanceMetrics);
+      setUsageStats(mockData.usageStats);
+      setActiveUsers(mockData.activeUsers);
+      
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data');
+      
+      // Use mock data as fallback
+      setQuestionStats(mockData.questionStats);
+      setPerformanceMetrics(mockData.performanceMetrics);
+      setUsageStats(mockData.usageStats);
+      setActiveUsers(mockData.activeUsers);
+    } finally {
+      setLoading(false);
+    }
   };
-
+  
+  const handlePeriodChange = (period) => {
+    // This would update active users data based on period
+    console.log(`Period changed to ${period}`);
+  };
+  
   const handleQuestionAdded = () => {
-    // Refresh question stats
-    fetch('/api/admin/dashboard/question-stats')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch updated question stats');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setQuestionStats(data);
-        console.log('Question stats refreshed after adding new question');
-      })
-      .catch(err => {
-        console.error('Error refreshing question stats:', err);
-      });
+    // Refresh question stats when a new question is added
+    fetchDashboardData();
   };
-
+  
   const toggleOverlay = () => {
     setShowOverlay(!showOverlay);
   };

@@ -14,6 +14,7 @@ from services.question_adder import QuestionAdder  # Import the new service
 from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
 import json
+import sqlite3
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -289,7 +290,9 @@ def get_performance_metrics():
 @app.route('/api/admin/dashboard/question-stats', methods=['GET'])
 def get_question_stats():
     # In a production environment, you should add admin authentication here
+    print("API endpoint /api/admin/dashboard/question-stats called")
     data = admin_service.get_question_stats()
+    print(f"Returning data: {data}")
     return jsonify(data)
 
 @app.route('/api/admin/dashboard/usage-stats', methods=['GET'])
@@ -301,37 +304,118 @@ def get_usage_stats():
 
 @app.route('/api/submit_answer', methods=['POST'])
 def submit_answer():
+    data = request.json
+    qid = data.get('question_id')
+    user_id = data.get('user_id')
+    selected_answer = data.get('selected_answer')
+    is_correct = data.get('is_correct')
+    
+    # Log the attempt to the database
     try:
-        data = request.get_json()
-        question_id = data.get('question_id')
-        selected_answer = data.get('selected_answer')
+        conn = sqlite3.connect('qa.db')
+        cursor = conn.cursor()
         
-        if not question_id:
-            return jsonify({"error": "Missing question_id"}), 400
-        if selected_answer is None:
-            return jsonify({"error": "Missing selected_answer"}), 400
-            
-        # Get the question to verify the correct answer
-        question_data = mc_question_service.get_question_by_id(int(question_id))
-        if not question_data:
-            return jsonify({"error": "Question not found"}), 404
-            
-        correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
-        is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
+        # Check if attempts table exists, if not create it
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='attempts'")
+        if not cursor.fetchone():
+            cursor.execute('''
+            CREATE TABLE attempts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                qid INTEGER NOT NULL,
+                user_id INTEGER,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                is_correct BOOLEAN NOT NULL,
+                FOREIGN KEY (qid) REFERENCES questions(qid)
+            )
+            ''')
         
-        # Here you would typically save the user's answer to your database
-        # For now, we'll just return whether it was correct or not
+        # Insert the attempt
+        cursor.execute(
+            "INSERT INTO attempts (qid, user_id, is_correct) VALUES (?, ?, ?)",
+            (qid, user_id, is_correct)
+        )
+        conn.commit()
+        conn.close()
         
-        return jsonify({
-            'success': True,
-            'is_correct': is_correct,
-            'correct_answer_index': correct_answer_index
-        })
-        
+        return jsonify({"success": True, "message": "Answer submitted and recorded"}), 200
     except Exception as e:
-        print(f"Error in submit_answer: {e}")
-        return jsonify({'error': str(e)}), 500
+        print(f"Error logging attempt: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/track_attempt', methods=['POST'])
+def track_attempt():
+    try:
+        data = request.json
+        qid = data.get('question_id')
+        is_correct = data.get('is_correct', False)
+        
+        # Connect to database
+        conn = sqlite3.connect('qa.db')
+        cursor = conn.cursor()
+        
+        # Create attempts table if it doesn't exist
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS question_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            qid INTEGER NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            is_correct BOOLEAN NOT NULL
+        )
+        ''')
+        
+        # Insert the attempt
+        cursor.execute(
+            "INSERT INTO question_attempts (qid, is_correct) VALUES (?, ?)",
+            (qid, is_correct)
+        )
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        print(f"Error tracking attempt: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/log_question_attempt', methods=['POST'])
+def log_question_attempt():
+    """
+    Silently log question attempts for analytics without affecting existing functionality
+    """
+    try:
+        data = request.json
+        qid = data.get('qid')
+        is_correct = data.get('is_correct', False)
+        
+        # Create/connect to a separate analytics database
+        conn = sqlite3.connect('analytics.db')
+        cursor = conn.cursor()
+        
+        # Create table if it doesn't exist
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS question_analytics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            qid INTEGER NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            is_correct BOOLEAN NOT NULL
+        )
+        ''')
+        
+        # Log the attempt
+        cursor.execute(
+            "INSERT INTO question_analytics (qid, is_correct) VALUES (?, ?)",
+            (qid, is_correct)
+        )
+        
+        conn.commit()
+        conn.close()
+        
+        # Return success silently - this won't affect your app flow
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        print(f"Error logging analytics: {e}")
+        # Even if this fails, your app won't be affected
+        return jsonify({"success": False}), 500
 
 if __name__ == '__main__':
     #with app.app_context():

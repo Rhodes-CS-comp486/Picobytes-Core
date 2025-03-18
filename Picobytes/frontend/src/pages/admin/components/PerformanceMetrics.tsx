@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface PerformanceMetricsProps {
   data: {
@@ -12,8 +12,40 @@ interface PerformanceMetricsProps {
 }
 
 const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ data }) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState(data);
+
+  useEffect(() => {
+    fetchMetrics();
+  }, []);
+
+  const fetchMetrics = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/admin/dashboard/performance');
+      if (!response.ok) throw new Error('Failed to fetch metrics');
+      const data = await response.json();
+      setMetrics(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load performance metrics');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Loading metrics...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
+
   // Calculate max value for chart scaling
-  const maxCompletions = Math.max(...data.daily_completions.map(day => day.count));
+  const maxCompletions = Math.max(...metrics.daily_completions.map(day => day.count));
 
   return (
     <div>
@@ -22,12 +54,12 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ data }) => {
       <div style={{ display: 'flex', gap: '16px' }}>
         <div className="metric-card" style={{ flex: 1 }}>
           <div className="metric-title">Completion Rate</div>
-          <div className="metric-value">{data.completion_rate}%</div>
+          <div className="metric-value">{metrics.completion_rate}%</div>
         </div>
         
         <div className="metric-card" style={{ flex: 1 }}>
           <div className="metric-title">Average Score</div>
-          <div className="metric-value">{data.average_score}%</div>
+          <div className="metric-value">{metrics.average_score}%</div>
         </div>
       </div>
       
@@ -37,7 +69,7 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ data }) => {
       
       <div className="chart-container">
         <div className="bar-chart">
-          {data.daily_completions.map((day, index) => (
+          {metrics.daily_completions.map((day, index) => (
             <div className="chart-item" key={index}>
               <div 
                 className="chart-bar" 

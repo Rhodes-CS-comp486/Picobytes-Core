@@ -62,21 +62,27 @@ class UserFuncs:
     ##################################################
     ##########        ADMIN CHECK           ##########
     ##################################################
+
     def is_admin(self, uid):
-        """Check if a user is an admin"""
         if not uid:
             return False
             
-        conn = self._get_db_connection()
-        cursor = conn.execute(
-            "SELECT is_admin FROM users WHERE uid = ?", 
-            (uid,)
-        )
-        result = cursor.fetchone()
-        conn.close()
-        
-        return bool(result and result['is_admin'] == 1)
-
+        try:
+            connection = sqlite3.connect(self.db_path)
+            cursor = connection.cursor()
+            
+            # Execute the query
+            cursor.execute("SELECT uadmin FROM users WHERE uid = ?", (uid,))
+            result = cursor.fetchone()
+            
+            # Close the connection
+            connection.close()
+            
+            # Return True if user is admin (uadmin = 1), False otherwise
+            return bool(result and result[0] == 1)
+        except Exception as e:
+            print(f"Error checking admin status: {e}")
+            return False
 
 if __name__ == '__main__':
     service = UserFuncs()

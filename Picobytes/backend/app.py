@@ -13,6 +13,7 @@ from services.question_saver import QuestionSave
 from services.question_adder import QuestionAdder  # Import the new service
 from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
+from services.metrics_service import MetricsService
 import json
 
 # get absolute path of current file's directory
@@ -45,6 +46,7 @@ topic_service = Topic_Puller()
 question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
 cb_question_service = CB_QuestionFetcher()
+metrics_service = MetricsService()
 
 @app.route('/')
 def home():
@@ -251,6 +253,24 @@ def add_question():
     except Exception as e:
         print(f"Error in add_question endpoint: {e}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
+    
+
+
+@app.route('/api/admin/dashboard/performance', methods=['GET'])
+def get_performance_metrics():
+    try:
+        data = metrics_service.get_performance_metrics()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/dashboard/question-stats', methods=['GET'])
+def get_question_stats():
+    try:
+        data = metrics_service.get_question_stats()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/admin/check', methods=['GET'])
@@ -268,17 +288,7 @@ def get_active_users():
     data = admin_service.get_active_users(period)
     return jsonify(data)
 
-@app.route('/api/admin/dashboard/performance', methods=['GET'])
-def get_performance_metrics():
-    # In a production environment, you should add admin authentication here
-    data = admin_service.get_performance_metrics()
-    return jsonify(data)
 
-@app.route('/api/admin/dashboard/question-stats', methods=['GET'])
-def get_question_stats():
-    # In a production environment, you should add admin authentication here
-    data = admin_service.get_question_stats()
-    return jsonify(data)
 
 @app.route('/api/admin/dashboard/usage-stats', methods=['GET'])
 def get_usage_stats():
@@ -292,33 +302,23 @@ def submit_answer():
     try:
         data = request.get_json()
         question_id = data.get('question_id')
-        selected_answer = data.get('selected_answer')
+        user_id = data.get('user_id')
+        is_correct = data.get('is_correct')
+
+        conn = sqlite3.connect('qa.db')
+        cursor = conn.cursor()
         
-        if not question_id:
-            return jsonify({"error": "Missing question_id"}), 400
-        if selected_answer is None:
-            return jsonify({"error": "Missing selected_answer"}), 400
-            
-        # Get the question to verify the correct answer
-        question_data = mc_question_service.get_question_by_id(int(question_id))
-        if not question_data:
-            return jsonify({"error": "Question not found"}), 404
-            
-        correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
-        is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
+        cursor.execute("""
+            INSERT INTO question_attempts (question_id, user_id, is_correct)
+            VALUES (?, ?, ?)
+        """, (question_id, user_id, is_correct))
         
-        # Here you would typically save the user's answer to your database
-        # For now, we'll just return whether it was correct or not
-        
-        return jsonify({
-            'success': True,
-            'is_correct': is_correct,
-            'correct_answer_index': correct_answer_index
-        })
-        
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True})
     except Exception as e:
-        print(f"Error in submit_answer: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

@@ -205,5 +205,32 @@ def create_table():
         print(f"Error creating table: {e}")
 
 
+def setup_metrics_tables():
+    conn = sqlite3.connect('qa.db')
+    cursor = conn.cursor()
+
+    # Create question attempts table if it doesn't exist
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS question_attempts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question_id INTEGER NOT NULL,
+        user_id TEXT NOT NULL,
+        is_correct BOOLEAN NOT NULL,
+        attempt_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (question_id) REFERENCES questions (qid),
+        FOREIGN KEY (user_id) REFERENCES users (uid)
+    )
+    """)
+
+    # Create index for faster queries
+    cursor.execute("""
+    CREATE INDEX IF NOT EXISTS idx_question_attempts_date 
+    ON question_attempts(attempt_date)
+    """)
+
+    conn.commit()
+    conn.close()
+
 if __name__ == "__main__":
   create_table()
+  setup_metrics_tables()

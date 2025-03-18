@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface QuestionData {
   id: number;
@@ -15,8 +15,31 @@ interface QuestionStatsProps {
 }
 
 const QuestionStats: React.FC<QuestionStatsProps> = ({ data }) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState(data);
   const [activeTab, setActiveTab] = useState<'attempted' | 'problematic'>('attempted');
-  
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/admin/dashboard/question-stats');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      const data = await response.json();
+      setStats(data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load question statistics');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <h2 className="card-title">Question Statistics</h2>
@@ -47,7 +70,7 @@ const QuestionStats: React.FC<QuestionStatsProps> = ({ data }) => {
           </thead>
           <tbody>
             {activeTab === 'attempted' ? (
-              data.most_attempted.map(question => (
+              stats.most_attempted.map(question => (
                 <tr key={question.id}>
                   <td>{question.title}</td>
                   <td style={{ textAlign: 'center' }}>
@@ -66,7 +89,7 @@ const QuestionStats: React.FC<QuestionStatsProps> = ({ data }) => {
                 </tr>
               ))
             ) : (
-              data.problematic.map(question => (
+              stats.problematic.map(question => (
                 <tr key={question.id}>
                   <td>{question.title}</td>
                   <td style={{ textAlign: 'center' }}>

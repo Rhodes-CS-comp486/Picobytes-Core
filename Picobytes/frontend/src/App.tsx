@@ -16,6 +16,7 @@ import Leaderboard_All from "./pages/leaderboard/leaderboard_page";
 import Practice_Page from "./pages/practice/practice";
 import Topic_Select from "./pages/topic selection/topic_select";
 import Draggable_Question from "./pages/draggable_question";
+import ForgotPassword from "./pages/ForgotPassword";
 
 
 function App() {
@@ -73,6 +74,7 @@ function App() {
               element={<Topic_Select />} // Mount Topic_Select component for this route
             />
             <Route path="/draggable_question" element={<Draggable_Question />} />
+            <Route path="/forgot_password" element={<ForgotPassword />} />
           </Routes>
         </Router>
       </div>

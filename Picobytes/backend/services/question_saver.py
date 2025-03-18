@@ -1,6 +1,7 @@
 import sqlite3
 import random
 import os
+import time
 
 from numpy.lib.npyio import savez
 
@@ -98,6 +99,21 @@ class QuestionSave:
 
     def save_question(self, uid, qid, response):
         try:
+             ### Streak stuff ###
+            currtime = time.time()
+
+            # prevtime = get last time from database for uid
+            # prevstreak = get last streak from database for uid
+
+            # diff = currtime - prevtime
+
+            # if (diff > 8640): #(if it's been longer than a day)
+                # store prevstreak + 1 in current streak for uid
+            # else:
+                # store 0 in current streak for uid
+
+            # store currtime as last time for uid
+
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""

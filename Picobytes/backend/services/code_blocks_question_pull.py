@@ -26,7 +26,6 @@ class CB_QuestionFetcher:
             """)
             all_questions = cursor.fetchall()
             conn.close()
-            print(f"Fetched CB questions: {all_questions}")
             return all_questions
         except Exception as e:
             print(f"Error fetching MC questions: {e}")

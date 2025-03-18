@@ -11,36 +11,28 @@ interface QuestionData {
 
 
 const Questions = () => {
-  console.log("Questions component rendering"); // Debug log
-
   const [data, setData] = useState<QuestionData | null>(null);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Starting fetch request"); // Debug log
-    
     fetch('http://127.0.0.1:5000/api/questions')
       .then(response => {
-        console.log("Response received:", response.status); // Debug log
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         return response.json();
       })
       .then((responseData) => {
-        console.log("Data received:", responseData); // Debug log
         setData(responseData);
         setLoading(false);
       })
       .catch(error => {
-        console.log("Error caught:", error); // Debug log
+        console.log("Error caught:", error);
         setError(error.message);
         setLoading(false);
       });
   }, []);
-
-  console.log("Current state:", { loading, error, data }); // Debug log
 
   if (loading) return <div>Loading questions...</div>;
   if (error) return <div>Error: {error}</div>;

@@ -27,7 +27,6 @@ const Topic_Select = () => {
                     throw new Error("Failed to fetch questions");
                 }
                 const data = await response.json();
-                console.log("Fetched Data:", data);
 
                 if (data.topics && data.topics.length > 0) {
                     setQuestions(data.topics); // Set the questions from the topics array
@@ -50,11 +49,6 @@ const Topic_Select = () => {
     // Update the handleAnswerSelect function to accept both boolean (True/False) or number (multiple choice)
     const handleAnswerSelect = (qid: number, answer: boolean | number) => {
         // Handle the answer selection (could store the answer or submit it)
-        if (typeof answer === "boolean") {
-            console.log(`Question ${qid} - Answer selected: ${answer ? "True" : "False"}`);
-        } else {
-            console.log(`Question ${qid} - Answer selected: Option ${answer}`);
-        }
     };
 
     if (loading) return <div>Loading questions...</div>;

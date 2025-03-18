@@ -237,6 +237,16 @@ const Question = () => {
             </div>
           </div>
 
+          {/* Home button at top */}
+          <div className="top-nav">
+            <button
+              className="home-button"
+              onClick={goToHomepage}
+            >
+              Home
+            </button>
+          </div>
+
           {/* Question information */}
           <div className="question-info">
             <div className="topic-badge">{topic}</div>
@@ -388,8 +398,10 @@ const Question = () => {
             >
               Previous
             </button>
-            <div className="question-counter">
-              Question {id} of {totalQuestions}
+            <div className="nav-center">
+              <div className="question-counter">
+                Question {id} of {totalQuestions}
+              </div>
             </div>
             <button
               className="skip-button"

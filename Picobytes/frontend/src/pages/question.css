@@ -24,11 +24,21 @@
     margin-bottom: 20px;
   }
   
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #a0aec0;
+  }
+  
   .progress-bar {
     height: 12px;
     background-color: #2d3748;
     border-radius: 6px;
     overflow: hidden;
+    position: relative;
   }
   
   .progress-filled {
@@ -36,6 +46,34 @@
     background-color: #58cc02;
     border-radius: 6px;
     transition: width 0.3s ease;
+  }
+  
+  .progress-marker {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #4b5563;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 2;
+  }
+  
+  .progress-marker.current {
+    width: 12px;
+    height: 12px;
+    background-color: white;
+    border: 2px solid #58cc02;
+  }
+  
+  .progress-marker.completed {
+    background-color: #58cc02;
+  }
+  
+  .progress-marker:hover {
+    transform: translate(-50%, -50%) scale(1.3);
   }
   
   /* Top navigation with home button */

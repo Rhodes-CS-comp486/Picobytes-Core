@@ -229,11 +229,29 @@ const Question = () => {
         <div className="question-content">
           {/* Progress bar */}
           <div className="question-progress">
+            <div className="progress-info">
+              <span>Question {id} of {totalQuestions}</span>
+              <span>{Math.round(progressPercentage)}% Complete</span>
+            </div>
             <div className="progress-bar">
               <div
                 className="progress-filled"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
+              {totalQuestions > 0 && Array.from({ length: Math.min(totalQuestions, 20) }, (_, index) => {
+                const questionPosition = ((index + 1) / totalQuestions) * 100;
+                const isCurrentQuestion = parseInt(id!) === index + 1;
+                const isCompletedQuestion = parseInt(id!) > index + 1;
+                return (
+                  <div
+                    key={index}
+                    className={`progress-marker ${isCurrentQuestion ? 'current' : ''} ${isCompletedQuestion ? 'completed' : ''}`}
+                    style={{ left: `${questionPosition}%` }}
+                    title={`Question ${index + 1}`}
+                    onClick={() => navToQuestion(index + 1)}
+                  />
+                );
+              })}
             </div>
           </div>
 

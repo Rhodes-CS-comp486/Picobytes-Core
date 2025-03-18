@@ -77,6 +77,24 @@ class UserFuncs:
         
         return bool(result and result['is_admin'] == 1)
 
+    def change_password(self, uname, hashed_password):
+        try:
+            connection = sqlite3.connect(self.db_path)
+            cursor = connection.cursor()
+
+            cursor.execute("UPDATE users SET upassword = ? WHERE uname = ?", (uname, hashed_password))
+
+            connection.commit()
+
+            print(f"Successfully updated {uname}'s password")
+            connection.close()
+            return True
+
+        except Exception as e:
+            print(f"Error adding user: {e}")
+            return False
+            
+
 
 if __name__ == '__main__':
     service = UserFuncs()

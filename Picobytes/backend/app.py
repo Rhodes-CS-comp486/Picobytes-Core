@@ -231,6 +231,18 @@ def login():
         return jsonify({'error': 'Invalid username or password'}), 401
     return jsonify({'uid': uid})
 
+@app.route('/api/update_password', methods=['POST'])
+def update_password():
+    print("updating password")
+    data = request.get_json()
+    uname = data.get('uname')
+    upassword = data.get('upassword')
+    if not uname or not upassword:
+        return jsonify({'error': 'Missing username or password'}), 400
+    hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
+    success = user_service.change_password(uname, hashed_password)
+    return jsonify({'success': success})
+
 ##########################################
 ##########      ADMIN SHIT      ##########
 ##########################################

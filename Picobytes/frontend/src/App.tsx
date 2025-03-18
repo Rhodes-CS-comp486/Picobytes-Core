@@ -18,6 +18,8 @@ import Topic_Select from "./pages/topic selection/topic_select";
 import Draggable_Question from "./pages/draggable_question";
 
 
+import Lesson_Progress from "./pages/lesson progress/lesson_progress";
+
 function App() {
   const [dark, setDark] = useState(true);
   const [fontSize, setFontSize] = useState(14);
@@ -73,6 +75,7 @@ function App() {
               element={<Topic_Select />} // Mount Topic_Select component for this route
             />
             <Route path="/draggable_question" element={<Draggable_Question />} />
+            <Route path="/lessons" element={<Lesson_Progress toggleDark={toggleDark}/>}/>
           </Routes>
         </Router>
       </div>

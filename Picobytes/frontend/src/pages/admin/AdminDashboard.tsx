@@ -75,13 +75,36 @@ const AdminDashboard = () => {
   const [usageStats, setUsageStats] = useState(mockData.usageStats);
   const [activeUsersPeriod, setActiveUsersPeriod] = useState('24h');
 
-  // Simulate loading delay
+  // Fetch dashboard data
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    const fetchDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Fetch question stats
+        const questionStatsResponse = await fetch('/api/admin/dashboard/question-stats');
+        if (!questionStatsResponse.ok) {
+          throw new Error('Failed to fetch question stats');
+        }
+        const questionStatsData = await questionStatsResponse.json();
+        setQuestionStats(questionStatsData);
+        
+        // Keep using mock data for other metrics for now
+        setPerformanceMetrics(mockData.performanceMetrics);
+        setUsageStats(mockData.usageStats);
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Failed to load dashboard data. Using fallback data.');
+        // Use mock data as fallback
+        setQuestionStats(mockData.questionStats);
+        setLoading(false);
+      }
+    };
     
-    return () => clearTimeout(timer);
+    fetchDashboardData();
   }, []);
 
   const handlePeriodChange = (period: string) => {
@@ -89,9 +112,21 @@ const AdminDashboard = () => {
   };
 
   const handleQuestionAdded = () => {
-    // Refresh question stats or other relevant data
-    console.log('Question added, refreshing data...');
-    // In a real implementation, you would fetch the latest question stats here
+    // Refresh question stats
+    fetch('/api/admin/dashboard/question-stats')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch updated question stats');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setQuestionStats(data);
+        console.log('Question stats refreshed after adding new question');
+      })
+      .catch(err => {
+        console.error('Error refreshing question stats:', err);
+      });
   };
 
   const toggleOverlay = () => {

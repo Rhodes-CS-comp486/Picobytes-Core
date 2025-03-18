@@ -84,5 +84,6 @@ class Topic_Puller:
 if __name__ == '__main__':
     service = Topic_Puller()
     questions = service.get_all_questions_by_topic("Science")
-    for question in questions:
-        print(question)
+    # Commenting out the loop that prints each question
+    # for question in questions:
+    #     print(question)

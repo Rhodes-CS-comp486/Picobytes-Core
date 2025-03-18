@@ -57,9 +57,6 @@ def api_get_questions():
         tf_questions = tf_question_service.pull_questions()
         mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
 
-        print(f"TF Questions: {tf_questions}")
-        print(f"MC Questions: {mc_questions}")
-
         questions = {
             'tf': tf_questions,
             'mc': mc_questions
@@ -70,7 +67,6 @@ def api_get_questions():
             'total_questions': len(tf_questions) + len(mc_questions)
         }
 
-        print(f"Sending response: {response}")  # Debug log
         return jsonify(response)
 
     except Exception as e:
@@ -81,7 +77,6 @@ def api_get_questions():
 def question(qid):
     """API endpoint to fetch a question by ID."""
     response = question_fetcher_service.get_question(qid)
-    print(response)
     return response
 
     #return jsonify({"error": "Unknown server error"}), 404
@@ -137,7 +132,6 @@ def topic_selection():
     qtype = request.args.get('qtype', 'ALL')  # Default to 'ALL' if not provided
     topic = request.args.get('topic', '')  # Default to empty string if not provided
 
-    print({qtype}, {topic})
     if qtype == "ALL":
         topic_data = topic_service.get_all_questions_by_topic(topic)
         responses = []

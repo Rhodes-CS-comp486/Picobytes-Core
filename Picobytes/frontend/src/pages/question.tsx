@@ -64,7 +64,6 @@ const Question = () => {
       .then((data) => {
         if (data.error != null) throw data.error;
 
-        console.log("Question data:", data); // Debug log
         setQuestion(data.question_text);
         setQuestionType(data.question_type);
         setDifficulty(data.question_level);

@@ -1,8 +1,12 @@
 import sqlite3
 import random
 import os
+from streak import Streaks
 
 from numpy.lib.npyio import savez
+
+
+streaks = Streaks()
 
 
 class QuestionSave:
@@ -98,6 +102,12 @@ class QuestionSave:
 
     def save_question(self, uid, qid, response):
         try:
+            #### time = gettime.....####
+
+            streaks.update_streak(uid, time)
+
+
+            
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""

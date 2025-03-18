@@ -13,7 +13,7 @@ def create_table():
                 uname TEXT NOT NULL,
                 upassword TEXT NOT NULL,
                 ustreak INTEGER NOT NULL,
-                ulastanswer FLOAT NOT NULL,
+                ulastanswertime FLOAT NOT NULL,
                 upoints INTEGER NOT NULL,
                 uadmin INTEGER CHECK (uadmin BETWEEN 0 AND 1)
             );""")

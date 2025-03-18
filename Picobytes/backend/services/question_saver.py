@@ -3,6 +3,8 @@ import random
 import os
 from streak import Streaks
 
+import time
+
 from numpy.lib.npyio import savez
 
 
@@ -102,9 +104,9 @@ class QuestionSave:
 
     def save_question(self, uid, qid, response):
         try:
-            #### time = gettime.....####
+            currtime = time.time()
 
-            streaks.update_streak(uid, time)
+            streaks.update_streak(uid, currtime)
 
 
             

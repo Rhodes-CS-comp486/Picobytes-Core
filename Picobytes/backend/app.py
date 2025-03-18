@@ -14,6 +14,7 @@ from services.question_adder import QuestionAdder  # Import the new service
 from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
 import json
+from services.analytics_service import AnalyticsService
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -45,6 +46,7 @@ topic_service = Topic_Puller()
 question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
 cb_question_service = CB_QuestionFetcher()
+analytics_service = AnalyticsService()
 
 @app.route('/')
 def home():
@@ -318,6 +320,9 @@ def submit_answer():
             
         correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
         is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
+        
+        # Record this question attempt in analytics
+        analytics_service.record_question_attempt(int(question_id), is_correct)
         
         # Here you would typically save the user's answer to your database
         # For now, we'll just return whether it was correct or not

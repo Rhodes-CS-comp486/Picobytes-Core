@@ -228,7 +228,12 @@ const Homepage = ({ toggleDark }: Prop) => {
             </span>
             <span>Theme</span>
           </div>
+
+          
+          {/* Leaderboard Card*/}
+          <Leaderboard />
         </nav>
+        
 
         <div className="sidebar-footer">
           <div className="nav-item" onClick={handleLogout}>
@@ -401,8 +406,7 @@ const Homepage = ({ toggleDark }: Prop) => {
             </div>
           </div>
         </div>
-        {/* Leaderboard Card*/}
-        <Leaderboard />
+
 
         {/* Overall Progress Section */}
         <div className="progress-section">

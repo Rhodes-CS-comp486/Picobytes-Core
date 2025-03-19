@@ -101,6 +101,8 @@ const Login = () => {
             />
           </div>
 
+          <a href="/forgot_password">Forgot your password?</a>
+
           <div className="login-actions">
             <button
               type="button"

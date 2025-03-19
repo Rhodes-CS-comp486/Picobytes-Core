@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
@@ -16,6 +16,23 @@ interface Topic {
 }
 
 const Homepage = ({ toggleDark }: Prop) => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const [lessonNumber, setLessonNumber] = useState<string | null>(null);
+  const [answeredQuestions, setAnsweredQuestions] = useState<string | null>(null);
+
+  useEffect(() => {
+      const lessonFromURL = queryParams.get('lesson');
+      const answeredFromURL = queryParams.get('answered');
+      
+      if (lessonFromURL) {
+          setLessonNumber(lessonFromURL);
+      }
+      if (answeredFromURL) {
+          setAnsweredQuestions(answeredFromURL);
+      }
+  }, [location]);
+
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
   const [questionStats, setQuestionStats] = useState({
@@ -106,6 +123,10 @@ const Homepage = ({ toggleDark }: Prop) => {
     navigate('/practice');
   };
 
+  const goToLessonProgress = () => {
+    navigate('/lessons');
+  };
+
   const goToAllQuestions = () => {
     navigate("/questions");
   };
@@ -160,11 +181,8 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   // Calculate overall progress percentage
-  const overallProgress = topicsList.length > 0
-    ? Math.round(
-        Object.values(topicProgress).reduce((sum, val) => sum + val, 0) /
-          Object.keys(topicProgress).length
-      )
+  const overallProgress = lessonNumber && answeredQuestions
+    ? Math.round(Number(answeredQuestions)  * 10)
     : 0;
 
   // Get topic icon or character for display
@@ -193,7 +211,14 @@ const Homepage = ({ toggleDark }: Prop) => {
         </div>
 
         <nav className="sidebar-nav">
-          <div className="nav-item active">
+          <div className="nav-item active" onClick={() => {
+            const lastLesson = localStorage.getItem('selectedLesson');
+            if (lastLesson) {
+                navigate(`/homepage?lesson=${lastLesson}`);
+            } else {
+                navigate('/homepage'); // Default homepage if no lesson was selected
+            }
+          }}>
             <span className="material-icon">🏠</span>
             <span>Home</span>
           </div>
@@ -228,7 +253,12 @@ const Homepage = ({ toggleDark }: Prop) => {
             </span>
             <span>Theme</span>
           </div>
+
+          
+          {/* Leaderboard Card*/}
+          <Leaderboard />
         </nav>
+        
 
         <div className="sidebar-footer">
           <div className="nav-item" onClick={handleLogout}>
@@ -241,12 +271,12 @@ const Homepage = ({ toggleDark }: Prop) => {
       {/* Main Content */}
       <div className="main-content">
         <div className="unit-header">
-          <div className="unit-back" onClick={goToTopicSelection}>
+          <div className="unit-back" onClick={goToLessonProgress}>
             <span className="material-icon">←</span>
           </div>
           <div className="unit-info">
-            <div className="unit-title">Quiz Questions</div>
-            <div className="unit-subtitle">Test Your Knowledge</div>
+            <div className="unit-title">Lesson {lessonNumber}</div>
+            <div className="unit-subtitle">See all lesson progress</div>
           </div>
           <div className="unit-actions">
             <button className="guidebook-button" onClick={goToAllQuestions}>
@@ -401,8 +431,7 @@ const Homepage = ({ toggleDark }: Prop) => {
             </div>
           </div>
         </div>
-        {/* Leaderboard Card*/}
-        <Leaderboard />
+
 
         {/* Overall Progress Section */}
         <div className="progress-section">
@@ -423,7 +452,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           </div>
 
           <div className="progress-label">
-            {questionStats.completedQuestions} of {questionStats.totalQuestions}{" "}
+            {answeredQuestions} of 10{" "}
             questions completed
           </div>
         </div>

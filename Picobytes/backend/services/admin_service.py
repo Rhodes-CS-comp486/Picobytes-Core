@@ -3,10 +3,12 @@
 import sqlite3
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
+from services.analytics_service import AnalyticsService
 
 class AdminService:
     def __init__(self, db_path="users.db"):
         self.db_path = db_path
+        self.analytics_service = AnalyticsService()
     
     def _get_db_connection(self):
         conn = sqlite3.connect(self.db_path)
@@ -96,43 +98,24 @@ class AdminService:
         """
         Get student performance metrics including completion rates and average scores
         """
-        # For now, return dummy data
-        # You can implement real database queries based on your schema
-        return {
-            "completion_rate": 68.5,
-            "average_score": 72.3,
-            "daily_completions": [
-                {"date": "2025-02-19", "count": 24},
-                {"date": "2025-02-20", "count": 31},
-                {"date": "2025-02-21", "count": 18},
-                {"date": "2025-02-22", "count": 12},
-                {"date": "2025-02-23", "count": 9},
-                {"date": "2025-02-24", "count": 27},
-                {"date": "2025-02-25", "count": 35}
-            ]
-        }
+        return self.analytics_service.get_completion_stats()
     
     def get_question_stats(self) -> Dict[str, List[Dict[str, Any]]]:
         """
         Get statistics about most attempted and problematic questions
         """
-        # For now, return dummy data
-        # You can implement real database queries based on your schema
+        most_attempted = self.analytics_service.get_most_attempted_questions(5)
+        problematic = self.analytics_service.get_problematic_questions(5)
+        
+        # If there's no data yet, provide minimal placeholder data
+        if not most_attempted:
+            most_attempted = [{"id": 0, "title": "No questions attempted yet", "attempts": 0}]
+        if not problematic:
+            problematic = [{"id": 0, "title": "No problematic questions yet", "attempts": 0, "success_rate": 0.0}]
+            
         return {
-            "most_attempted": [
-                {"id": 1, "title": "What is the correct syntax for referring to an external script called \"script.js\"?", "attempts": 287},
-                {"id": 2, "title": "How do you create a function in JavaScript?", "attempts": 245},
-                {"id": 3, "title": "How to write an IF statement in JavaScript?", "attempts": 228},
-                {"id": 4, "title": "How does a FOR loop start?", "attempts": 198},
-                {"id": 5, "title": "What is the correct way to write a JavaScript array?", "attempts": 187}
-            ],
-            "problematic": [
-                {"id": 15, "title": "Which event occurs when the user clicks on an HTML element?", "attempts": 124, "success_rate": 36.2},
-                {"id": 23, "title": "How do you declare a JavaScript variable?", "attempts": 156, "success_rate": 42.8},
-                {"id": 7, "title": "How do you round the number 7.25, to the nearest integer?", "attempts": 98, "success_rate": 47.3},
-                {"id": 19, "title": "How can you add a comment in a JavaScript?", "attempts": 132, "success_rate": 51.9},
-                {"id": 11, "title": "What is the correct JavaScript syntax to change the content of the HTML element below?", "attempts": 174, "success_rate": 54.1}
-            ]
+            "most_attempted": most_attempted,
+            "problematic": problematic
         }
     
     def get_usage_stats(self) -> Dict[str, List[Dict[str, Any]]]:

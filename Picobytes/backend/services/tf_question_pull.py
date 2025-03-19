@@ -12,7 +12,6 @@ class QuestionService:
 
     def pull_questions(self):
         try:
-            print(f"Using database path: {self.db_path}")
             conn = self._connect()
             c = conn.cursor()
             c.execute('''
@@ -22,7 +21,6 @@ class QuestionService:
                 WHERE q.qtype = 'tf' AND q.qactive = 1
             ''')
             questions = c.fetchall()
-            print(f"Fetched t/f questions: {questions}")
             conn.close()
             return questions
         
@@ -44,5 +42,6 @@ class QuestionService:
 if __name__ == '__main__':
     service = QuestionService()
     questions = service.pull_questions()
-    for question in questions:
-        print(question)
+    # Commenting out the loop that prints each question
+    # for question in questions:
+    #     print(question)

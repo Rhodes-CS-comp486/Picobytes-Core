@@ -4,6 +4,7 @@ import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
 import Leaderboard from "../leaderboard/leaderboard";
+import Lesson_Progress from "../lesson progress/lesson_progress";
 
 interface Prop {
   toggleDark: () => void;
@@ -104,6 +105,10 @@ const Homepage = ({ toggleDark }: Prop) => {
 
   const goToTopicSelection = () => {
     navigate('/practice');
+  };
+
+  const goToLessonProgress = () => {
+    navigate('/lessons');
   };
 
   const goToAllQuestions = () => {
@@ -246,12 +251,12 @@ const Homepage = ({ toggleDark }: Prop) => {
       {/* Main Content */}
       <div className="main-content">
         <div className="unit-header">
-          <div className="unit-back" onClick={goToTopicSelection}>
+          <div className="unit-back" onClick={goToLessonProgress}>
             <span className="material-icon">←</span>
           </div>
           <div className="unit-info">
-            <div className="unit-title">Quiz Questions</div>
-            <div className="unit-subtitle">Test Your Knowledge</div>
+            <div className="unit-title">Lessons</div>
+            <div className="unit-subtitle">See lesson progress</div>
           </div>
           <div className="unit-actions">
             <button className="guidebook-button" onClick={goToAllQuestions}>

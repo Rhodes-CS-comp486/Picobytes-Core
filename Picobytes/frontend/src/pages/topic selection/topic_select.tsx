@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import Home_Header from "../home/home_header";
 import './topic_select.css';
 
 interface Question {
@@ -18,6 +19,7 @@ const Topic_Select = () => {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchQuestions = async () => {
@@ -27,7 +29,6 @@ const Topic_Select = () => {
                     throw new Error("Failed to fetch questions");
                 }
                 const data = await response.json();
-                console.log("Fetched Data:", data);
 
                 if (data.topics && data.topics.length > 0) {
                     setQuestions(data.topics); // Set the questions from the topics array
@@ -47,21 +48,34 @@ const Topic_Select = () => {
         }
     }, [topicName, questionType]);
 
-    // Update the handleAnswerSelect function to accept both boolean (True/False) or number (multiple choice)
+    // Handle answer selection
     const handleAnswerSelect = (qid: number, answer: boolean | number) => {
-        // Handle the answer selection (could store the answer or submit it)
-        if (typeof answer === "boolean") {
-            console.log(`Question ${qid} - Answer selected: ${answer ? "True" : "False"}`);
-        } else {
-            console.log(`Question ${qid} - Answer selected: Option ${answer}`);
-        }
+        // Navigate to the question page with the selected answer
+        navigate(`/question/${qid}`);
     };
 
-    if (loading) return <div>Loading questions...</div>;
-    if (error) return <div>{error}</div>;
+    const goToHomepage = () => {
+        navigate('/homepage');
+    };
+
+    if (loading) return (
+        <div className="questions-layout">
+            <Home_Header toggleOverlay={() => {}} />
+            <div>Loading questions...</div>
+        </div>
+    );
+    
+    if (error) return (
+        <div className="questions-layout">
+            <Home_Header toggleOverlay={() => {}} />
+            <div>{error}</div>
+        </div>
+    );
 
     return (
         <div className="questions-layout">
+            <Home_Header toggleOverlay={() => {}} />
+            
             <div className="header">
                 <h1>{topicName} - {questionType} Questions</h1>
             </div>
@@ -69,7 +83,12 @@ const Topic_Select = () => {
             <div className="questions-list">
                 {questions.length > 0 ? (
                     questions.map((question) => (
-                        <div key={question.question_id} className="question-item">
+                        <div 
+                            key={question.question_id} 
+                            className="question-item"
+                            onClick={() => navigate(`/question/${question.question_id}`)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <div className="question-text">{question.question_text}</div>
                             <div className="question-meta">
                                 <span className="question-level">{question.qlevel}</span>
@@ -79,10 +98,16 @@ const Topic_Select = () => {
                             {/* For True/False Questions */}
                             {question.question_type.toLowerCase() === "true_false" && (
                                 <div className="answer-choices">
-                                    <button onClick={() => handleAnswerSelect(question.question_id, true)}>
+                                    <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAnswerSelect(question.question_id, true);
+                                    }}>
                                         True
                                     </button>
-                                    <button onClick={() => handleAnswerSelect(question.question_id, false)}>
+                                    <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAnswerSelect(question.question_id, false);
+                                    }}>
                                         False
                                     </button>
                                 </div>
@@ -91,26 +116,41 @@ const Topic_Select = () => {
                             {/* For Multiple Choice Questions */}
                             {question.question_type.toLowerCase() === "multiple_choice" && (
                                 <div className="answer-choices">
-                                    <button onClick={() => handleAnswerSelect(question.question_id, 1)}>
+                                    <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAnswerSelect(question.question_id, 1);
+                                    }}>
                                         {question.option1}
                                     </button>
-                                    <button onClick={() => handleAnswerSelect(question.question_id, 2)}>
+                                    <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAnswerSelect(question.question_id, 2);
+                                    }}>
                                         {question.option2}
                                     </button>
-                                    <button onClick={() => handleAnswerSelect(question.question_id, 3)}>
+                                    <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAnswerSelect(question.question_id, 3);
+                                    }}>
                                         {question.option3}
                                     </button>
-                                    <button onClick={() => handleAnswerSelect(question.question_id, 4)}>
+                                    <button onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAnswerSelect(question.question_id, 4);
+                                    }}>
                                         {question.option4}
                                     </button>
                                 </div>
                             )}
-
                         </div>
                     ))
                 ) : (
                     <div>No questions found for this topic.</div>
                 )}
+                
+                <button className="back-button" onClick={goToHomepage}>
+                    Back to Home
+                </button>
             </div>
         </div>
     );

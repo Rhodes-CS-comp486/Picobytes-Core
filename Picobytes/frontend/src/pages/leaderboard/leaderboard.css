@@ -1,24 +1,62 @@
 /* Leaderboard CSS */
 
-/*** CSS FOR LEADERBOARD ***/
-#leader {
+/* CSS FOR BOTH LEADERBOARD PAGES */
+#leaderboard-user-stats {
     display: flex;
+    flex-direction: column;
+    padding-left: 5%;
+}
+
+#leaderboard-grid-hbox {
+    display: flex;
+    gap: 10px;
+    text-align: left;
+    align-items: center;
+}
+
+
+#leaderboard-questions-answered {
+    margin-left: auto;
+}
+
+.highlight-user {
+    background-color: rgba(255, 223, 0, 0.2);  /* Light yellow background */
+    font-weight: bold;  /* Bold text */
+}
+
+
+
+
+/*** CSS FOR LEADERBOARD TSX ***/
+#ld {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     position: relative;
     padding: 20px;
+    background-color: var(--card-color);
+    border-radius: 16px;
+
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    
 }
-
-#leaderboard-header {
-    font-size: 18px;
-    font-weight: 700;
-
-    padding-bottom: 30px;
+#ld-header {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 20px;
     border-bottom: 4px solid var(--border-color);
     border-width: 100%;
     width: 100%;
 }
 
-#leaderboard-grid {
+#ld-title {
+    font-size: 18px;
+    font-weight: 700;
+
+}
+
+#ld-grid {
     display: inline-grid;
     grid-template-columns: auto;
 
@@ -27,41 +65,52 @@
     row-gap: 5px;
     width: 100%;
     max-height: 300px;
- 
-
-    padding: 20px;
-
-    background-color: var(--card-color);
-    border-radius: 10px;
-
-    border: 1px solid var(--border-color);
 
     scrollbar-width: thin;
     
 }
 
-#leaderbaord-grid-hbox {
-    display: flex;
-    gap: 10px;
-    text-align: left;
-    align-items: center;
-    
-}
-
-#leaderboard-grid-item {
-
+#ld-grid-item {
     padding: 20px;
-    border-radius: 10px;
     text-align: left;
     color: var(--grid-button-text-color);
     font-size: 15px;
   }
+#ld-rank-icon {
+    display: flex;
+    width: 30px;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;;
+}
+
+#ld-pfp-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    border: 2px solid #58cc02;
+}
 
 
 
-/*** CSS FOR LEADERBOARD ALL***/
+/*** CSS FOR LEADERBOARD_PAGE TSX ***/
 
-#leaderboard-all {
+#ld-all {
+    display: grid;
+    grid-template-columns: 220px auto;
+    min-height: 100vh;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+#ld-all-old {
     display: flex;
     flex-direction: column;
     
@@ -75,7 +124,13 @@
     border: 1px solid var(--border-color);
 }
 
-#leaderboard-all-title {
+#ld-all-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#ld-all-title {
     font-size: 30px;
     font-weight: 700;
     text-align: center;
@@ -98,7 +153,8 @@
     transition: color 0.2s;
     float: left;
 }
-#leaderboard-all-grid {
+
+#ld-all-grid {
     display: inline-grid;
     grid-template-columns: auto;
 
@@ -106,7 +162,6 @@
     max-height: calc(100vh - 80px); /* Subtract space for the header */
     row-gap: 5px;
     width: 100%;
-    padding: 20px;
     
 
     scrollbar-width: thin;
@@ -121,27 +176,24 @@
  
 }
 
-#leaderboard-all-grid-item {
+#ld-all-grid-item {
     padding: 20px;
-    border-radius: 10px;
     text-align: left;
     color: var(--grid-button-text-color);
     font-size: 25px;
 }
 
-
-
-/* CSS to be used between both leaderboard pages. */
-#leaderboard-grid-hbox {
+#ld-all-rank-icon {
     display: flex;
-    gap: 10px;
-    text-align: left;
+    width: 50px;
+    justify-content: center;
     align-items: center;
+    font-size: 30px;
 }
 
-#ld-grid-icon {
-    width: 30px;
-    height: 30px;
+#ld-all-pfp-icon {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background-color: #4b5563;
     display: flex;
@@ -153,15 +205,6 @@
     border: 2px solid #58cc02;
 }
 
-#leaderboard-xp {
-    margin-left: auto;
-}
 
-/* leaderboard_page.css */
-.highlight-user {
-    background-color: rgba(255, 223, 0, 0.2);  /* Light yellow background */
-    border: 2px solid #ffd700;  /* Gold border */
-    font-weight: bold;  /* Bold text */
-}
 
 

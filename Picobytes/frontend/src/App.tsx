@@ -66,7 +66,7 @@ function App() {
                 ></Settings>
               }
             />
-            <Route path="/leaderboard" element={<Leaderboard_All/>}/>
+            <Route path="/leaderboard" element={<Leaderboard_All toggleDark={toggleDark}/>}/>
             <Route path="/practice" element={<Practice_Page toggleDark={toggleDark}/>}/>
             <Route
               path="/questions/:topicName/:questionType"

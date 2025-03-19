@@ -4,7 +4,6 @@ import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
 import Leaderboard from "../leaderboard/leaderboard";
-import Lesson_Progress from "../lesson progress/lesson_progress";
 
 interface Prop {
   toggleDark: () => void;
@@ -267,7 +266,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           </div>
           <div className="unit-info">
             <div className="unit-title">Lesson {lessonNumber}</div>
-            <div className="unit-subtitle">Test Your Knowledge</div>
+            <div className="unit-subtitle">See all lesson progress</div>
           </div>
           <div className="unit-actions">
             <button className="guidebook-button" onClick={goToAllQuestions}>

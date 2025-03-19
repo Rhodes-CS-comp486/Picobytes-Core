@@ -15,6 +15,7 @@ from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
 import json
 from services.analytics_service import AnalyticsService
+from services.streak import Streaks
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -47,11 +48,16 @@ question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
 cb_question_service = CB_QuestionFetcher()
 analytics_service = AnalyticsService()
+streak_service = Streaks()
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
+@app.route('/get_user_stats/<string:uid>')
+def get_user_stats(uid):
+    
 
 @app.route('/api/questions', methods=['GET'])
 def api_get_questions():

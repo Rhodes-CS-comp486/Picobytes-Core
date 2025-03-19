@@ -20,11 +20,6 @@ const Leaderboard = () => {
 
 
     /// FUNCTIONS  /////////////////////////////////////////////////////////
-    // Generate random streak (in days)
-    const generateRandomStreak = () => {
-        return Math.floor(Math.random() * 500); // Random streak between 0 and 500 days
-    };
-
 
     const getRankEmote = (index: number) => {
         switch (index) {

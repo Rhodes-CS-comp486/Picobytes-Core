@@ -64,7 +64,6 @@ const Question = () => {
       .then((data) => {
         if (data.error != null) throw data.error;
 
-        console.log("Question data:", data); // Debug log
         setQuestion(data.question_text);
         setQuestionType(data.question_type);
         setDifficulty(data.question_level);
@@ -229,12 +228,40 @@ const Question = () => {
         <div className="question-content">
           {/* Progress bar */}
           <div className="question-progress">
+            <div className="progress-info">
+              <span>Question {id} of {totalQuestions}</span>
+              <span>{Math.round(progressPercentage)}% Complete</span>
+            </div>
             <div className="progress-bar">
               <div
                 className="progress-filled"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
+              {totalQuestions > 0 && Array.from({ length: Math.min(totalQuestions, 20) }, (_, index) => {
+                const questionPosition = ((index + 1) / totalQuestions) * 100;
+                const isCurrentQuestion = parseInt(id!) === index + 1;
+                const isCompletedQuestion = parseInt(id!) > index + 1;
+                return (
+                  <div
+                    key={index}
+                    className={`progress-marker ${isCurrentQuestion ? 'current' : ''} ${isCompletedQuestion ? 'completed' : ''}`}
+                    style={{ left: `${questionPosition}%` }}
+                    title={`Question ${index + 1}`}
+                    onClick={() => navToQuestion(index + 1)}
+                  />
+                );
+              })}
             </div>
+          </div>
+
+          {/* Home button at top */}
+          <div className="top-nav">
+            <button
+              className="home-button"
+              onClick={goToHomepage}
+            >
+              Home
+            </button>
           </div>
 
           {/* Question information */}
@@ -388,8 +415,10 @@ const Question = () => {
             >
               Previous
             </button>
-            <div className="question-counter">
-              Question {id} of {totalQuestions}
+            <div className="nav-center">
+              <div className="question-counter">
+                Question {id} of {totalQuestions}
+              </div>
             </div>
             <button
               className="skip-button"

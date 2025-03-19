@@ -188,7 +188,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
               id="questionTopic" 
               value={questionTopic} 
               onChange={(e) => setQuestionTopic(e.target.value)}
-              placeholder="e.g., Science, Math, Programming"
+              placeholder="e.g. Linux, C Basics, C Memory Management"
               disabled={isSubmitting}
               required
             />

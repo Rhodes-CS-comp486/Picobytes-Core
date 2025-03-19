@@ -1,63 +1,180 @@
 /* Updated Questions.css with better color contrast for dark theme */
 
 .questions-page {
-  padding: 20px;
+  width: 100%;
   max-width: 800px;
-  margin: 0 auto;
-  color: #f0f0f0; /* Light text color for dark background */
+  margin: 80px auto 40px;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  background-color: #111827;
 }
 
 .questions-page h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 30px;
   text-align: center;
-  margin-bottom: 20px;
-  color: #ffffff; /* Bright white for headings */
 }
 
 .questions-page h2 {
-  color: #ffffff; /* Bright white for subheadings */
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
   margin: 30px 0 20px;
+  width: 100%;
 }
 
 .questions-page ul {
   list-style: none;
   padding: 0;
+  width: 100%;
 }
 
 .question-item {
-  background: #f5f5f5;
-  margin: 10px 0;
-  padding: 15px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  color: #333; /* Dark text for light background items */
-  margin-bottom: 20px;
+  background-color: #1f2937;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 16px 0;
+  width: 100%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.question-item:hover {
+  transform: translateY(-4px);
 }
 
 .question-item strong {
-  color: #000; /* Black text for labels inside light boxes */
+  font-weight: 700;
+  color: #a0aec0;
   display: inline-block;
   margin-right: 8px;
-  font-weight: 600;
 }
 
 .question-item ol {
   margin: 10px 0;
-  padding-left: 20px;
+  padding-left: 25px;
 }
 
 .question-item li {
   background: none;
   box-shadow: none;
   padding: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
+  color: white;
 }
 
 /* Style for error and loading states */
 .questions-page > div:not(.question-item) {
-  color: #ffffff; /* Ensure error/loading messages are visible */
+  color: white;
   text-align: center;
   padding: 20px;
   font-size: 18px;
+  font-weight: 600;
+  margin-top: 40px;
+}
+
+/* Additional styles for different question levels */
+.question-item .level {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  margin-top: 10px;
+  background-color: #4b5563;
+}
+
+.question-item .answer {
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+.question-item .answer .correct {
+  color: #58cc02;
+}
+
+.question-item .answer .incorrect {
+  color: #e53e3e;
+}
+
+/* Question navigation back to home */
+.home-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  background-color: #58cc02;
+  border: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 0 #58a700;
+  margin-top: 30px;
+}
+
+.home-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #58a700;
+}
+
+.home-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #58a700;
+}
+
+/* Styling for multiple choice options */
+.answer-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+  width: 100%;
+}
+
+.option-button {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: #2d3748;
+  border: 2px solid transparent;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: default;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.option-button:disabled {
+  opacity: 1; /* Keep disabled buttons fully visible */
+}
+
+.option-button.correct {
+  border-color: #58cc02;
+  background-color: rgba(88, 204, 2, 0.2);
+  position: relative;
+}
+
+.option-button.correct::after {
+  content: "✓";
+  position: absolute;
+  right: 16px;
+  color: #58cc02;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.options {
+  width: 100%;
+  margin-top: 10px;
 }
 
 textarea.fr {
@@ -65,4 +182,21 @@ textarea.fr {
   padding: 10px;
   width: 80%;
   border: 1px solid cadetblue;
+}
+
+.option-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #4b5563;
+  margin-right: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.option-button.correct .option-number {
+  background-color: #58cc02;
 }

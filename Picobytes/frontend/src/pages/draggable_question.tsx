@@ -54,13 +54,13 @@ const Draggable_Question = () => {
       setQuestionType(data.question_type);
       setDifficulty(data.question_level);
       setTopic(data.question_topic);
+
+      
+      let questions = [data.block1, data.block2, data.block3, data.block4, data.block5, data.block6, data.block7, data.block8, data.block9, data.block10];
+      questions = questions.filter(item => item !== -1000)
   
       if (data.question_type === "code_blocks") {
-        setQuestion(
-          [data.block1, data.block2, data.block3,
-           data.block4, data.block5, data.block6,
-           data.block7, data.block8, data.block9, data.block10].filter(Boolean)
-        );
+        setQuestion(questions);
   
         setCorrect(data.answer ?? "");
       }

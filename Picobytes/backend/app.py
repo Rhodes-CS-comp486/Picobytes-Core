@@ -14,6 +14,7 @@ from services.question_adder import QuestionAdder  # Import the new service
 from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
 import json
+from services.analytics_service import AnalyticsService
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -45,6 +46,7 @@ topic_service = Topic_Puller()
 question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
 cb_question_service = CB_QuestionFetcher()
+analytics_service = AnalyticsService()
 
 @app.route('/')
 def home():
@@ -57,9 +59,6 @@ def api_get_questions():
         tf_questions = tf_question_service.pull_questions()
         mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
 
-        print(f"TF Questions: {tf_questions}")
-        print(f"MC Questions: {mc_questions}")
-
         questions = {
             'tf': tf_questions,
             'mc': mc_questions
@@ -70,7 +69,6 @@ def api_get_questions():
             'total_questions': len(tf_questions) + len(mc_questions)
         }
 
-        print(f"Sending response: {response}")  # Debug log
         return jsonify(response)
 
     except Exception as e:
@@ -81,7 +79,6 @@ def api_get_questions():
 def question(qid):
     """API endpoint to fetch a question by ID."""
     response = question_fetcher_service.get_question(qid)
-    print(response)
     return response
 
     #return jsonify({"error": "Unknown server error"}), 404
@@ -137,7 +134,6 @@ def topic_selection():
     qtype = request.args.get('qtype', 'ALL')  # Default to 'ALL' if not provided
     topic = request.args.get('topic', '')  # Default to empty string if not provided
 
-    print({qtype}, {topic})
     if qtype == "ALL":
         topic_data = topic_service.get_all_questions_by_topic(topic)
         responses = []
@@ -318,6 +314,9 @@ def submit_answer():
             
         correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
         is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
+        
+        # Record this question attempt in analytics
+        analytics_service.record_question_attempt(int(question_id), is_correct)
         
         # Here you would typically save the user's answer to your database
         # For now, we'll just return whether it was correct or not

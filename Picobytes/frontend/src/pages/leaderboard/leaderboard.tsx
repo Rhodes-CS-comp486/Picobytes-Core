@@ -56,10 +56,9 @@ const Leaderboard = () => {
 
     return (
         <div id="ld">
-            <div id="ld-header">
-                <div id='ld-title'>🏆 Leaderboard 🏆</div>
-                <div className="view-all-link" onClick={goToLeaderboard}>VIEW ALL</div>
-            </div>
+            
+            <div id='ld-title'>🏆 Leaderboard 🏆</div>
+            
 
 
             <div id="ld-grid">
@@ -81,11 +80,8 @@ const Leaderboard = () => {
                                     {player.charAt(0).toUpperCase()}
                                 </div>
 
-                                <div id="leaderboard-user-stats">
+                                <div id="ld-player-name">
                                     {player}
-                                    <div id="leaderboard-streak">
-                                        🔥 {getStreakDisplay(streak)}
-                                    </div>
                                 </div>
                                 
                             </div>
@@ -96,6 +92,7 @@ const Leaderboard = () => {
                     
 
             </div>
+            <div id="ld-link" onClick={goToLeaderboard}>VIEW ALL</div>
         </div>
     );
 };

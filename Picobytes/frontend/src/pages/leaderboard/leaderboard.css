@@ -33,7 +33,6 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    padding: 20px;
     background-color: var(--card-color);
     border-radius: 16px;
 
@@ -41,20 +40,31 @@
     border: 1px solid var(--border-color);
     
 }
-#ld-header {
-    display: flex;
-    justify-content: space-between;
-    padding-bottom: 20px;
+
+#ld-title {
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    padding: 5px;
     border-bottom: 4px solid var(--border-color);
     border-width: 100%;
     width: 100%;
 }
 
-#ld-title {
-    font-size: 18px;
-    font-weight: 700;
-
+#ld-player-name {
+    padding-left: 3px;
+    font-size: 15px;
 }
+
+#ld-link {
+    color: #1cb0f6;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s;
+    float: left;
+}
+
 
 #ld-grid {
     display: inline-grid;
@@ -71,28 +81,28 @@
 }
 
 #ld-grid-item {
-    padding: 20px;
+    padding: 10px;
     text-align: left;
     color: var(--grid-button-text-color);
     font-size: 15px;
   }
 #ld-rank-icon {
     display: flex;
-    width: 30px;
+    width: 25px;
     justify-content: center;
     align-items: center;
-    font-size: 30px;;
+    font-size: 25px;;
 }
 
 #ld-pfp-icon {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
     background-color: #4b5563;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size:10px;
     font-weight: bold;
     color: white;
     border: 2px solid #58cc02;

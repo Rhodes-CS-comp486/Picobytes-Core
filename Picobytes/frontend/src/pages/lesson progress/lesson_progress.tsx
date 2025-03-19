@@ -39,15 +39,12 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
         { name: 'Lesson 3', progress: 90, totalQuestions: 10, answeredQuestions: 9 }
     ];
 
-    /// NAVIGATION /////////////////////////////////////
+    /// FUNCTIONS /////////////////////////////////////
 
-    function goToAllQuestions(): void {
-        navigate('/questions');
-    }
-
-    function goToTopicSelection(): void {
-        navigate('/practice');
-    }
+    function goToLesson(lessonNumber: number) {
+        localStorage.setItem('selectedLesson', lessonNumber.toString());
+        navigate(`/homepage?lesson=${lessonNumber}`);
+    }    
 
 
     /// MAIN CONTENT //////////////////////////////////
@@ -65,15 +62,22 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
                 </div>
 
                 <nav className="sidebar-nav">
-                    <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={() => navigate('/homepage')}>
+                    <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={() => {
+                        const lastLesson = localStorage.getItem('selectedLesson');
+                        if (lastLesson) {
+                            navigate(`/homepage?lesson=${lastLesson}`);
+                        } else {
+                            navigate('/homepage'); // Default homepage if no lesson was selected
+                        }
+                    }}>
                         <span className="material-icon">🏠</span>
                         <span>Home</span>
                     </div>
-                    <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => goToAllQuestions()}>
+                    <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => navigate('/questions')}>
                         <span className="material-icon">📝</span>
                         <span>Questions</span>
                     </div>
-                    <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => goToTopicSelection()}>
+                    <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => navigate('/practice')}>
                         <span className="material-icon">📚</span>
                         <span>Topics</span>
                     </div>
@@ -102,7 +106,7 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
                 <h1>All Lessons</h1>
                 <div className='topics-list'>
                     {lessons.map((lesson: Lesson, index: number) => (
-                            <div key={index} className='topic-item'>
+                            <div key={index} className='topic-item' onClick={() => goToLesson(index + 1)}>
                                 <div className='topic-name'>{lesson.name}</div>
                                 <div id='lesson-prog-info'>
                                     <progress max='100' value={lesson.progress} id='lesson-prog-bar'></progress>

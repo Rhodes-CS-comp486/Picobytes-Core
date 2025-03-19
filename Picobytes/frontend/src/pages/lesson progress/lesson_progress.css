@@ -16,7 +16,7 @@
 
 /* Style the progress value */
 #lesson-prog-bar::-webkit-progress-value {
-    background-color: #58CC02; 
+    background-color: var(--primary-theme-color); 
     border-radius: 15px; /* Rounded corners */
 }
 

@@ -15,6 +15,7 @@ from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
 from services.verification import Verification
 import json
+from services.analytics_service import AnalyticsService
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -47,6 +48,7 @@ question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
 cb_question_service = CB_QuestionFetcher()
 verification_service = Verification()
+analytics_service = AnalyticsService()
 
 @app.route('/')
 def home():
@@ -198,7 +200,6 @@ def topic_selection(uid):
     else:
         return jsonify({"error": "Topic not found"}), 404
 
-
     #print(json.dumps({'topics': responses}, indent=4))
     return jsonify({'topics': responses}), 200
 
@@ -319,7 +320,7 @@ def get_usage_stats(uid):
         return jsonify({"error": "No admin access found"}), 401
 
 
-'''@app.route('/api/submit_answer', methods=['POST'])
+@app.route('/api/submit_answer', methods=['POST'])
 def submit_answer():
     try:
         data = request.get_json()
@@ -339,6 +340,9 @@ def submit_answer():
         correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
         is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
         
+        # Record this question attempt in analytics
+        analytics_service.record_question_attempt(int(question_id), is_correct)
+
         # Here you would typically save the user's answer to your database
         # For now, we'll just return whether it was correct or not
         
@@ -350,7 +354,7 @@ def submit_answer():
         
     except Exception as e:
         print(f"Error in submit_answer: {e}")
-        return jsonify({'error': str(e)}), 500'''
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

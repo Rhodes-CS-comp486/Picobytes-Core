@@ -39,18 +39,6 @@ const Leaderboard = () => {
         }
     };
 
-    // Function to convert streaks into days, months, or years
-    const getStreakDisplay = (streakDays: number) => {
-        if (streakDays >= 365) {
-            const years = Math.floor(streakDays / 365);
-            return `${years} year${years > 1 ? 's' : ''}`;
-        } else if (streakDays >= 30) {
-            const months = Math.floor(streakDays / 30);
-            return `${months} month${months > 1 ? 's' : ''}`;
-        } else {
-            return `${streakDays} day${streakDays > 1 ? 's' : ''}`;
-        }
-    };
 
     /// MAIN CONTENT /////////////////////////////////////////////////////////
 
@@ -64,7 +52,6 @@ const Leaderboard = () => {
             <div id="ld-grid">
 
                 {players.map((player, index) => {
-                    const streak = generateRandomStreak();
                  
                     return(
                         <div id='ld-grid-item'

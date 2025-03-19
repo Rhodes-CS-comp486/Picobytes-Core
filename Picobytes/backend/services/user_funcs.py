@@ -62,7 +62,7 @@ class UserFuncs:
     ##################################################
     ##########        ADMIN CHECK           ##########
     ##################################################
-    def is_admin(self, uid):
+    '''def is_admin(self, uid):
         """Check if a user is an admin"""
         if not uid:
             return False
@@ -75,7 +75,7 @@ class UserFuncs:
         result = cursor.fetchone()
         conn.close()
         
-        return bool(result and result['is_admin'] == 1)
+        return bool(result and result['is_admin'] == 1)'''
 
     def change_password(self, uname, hashed_password):
         try:
@@ -83,12 +83,13 @@ class UserFuncs:
             cursor = connection.cursor()
 
             cursor.execute("UPDATE users SET upassword = ? WHERE uname = ?", (uname, hashed_password))
-
+            cursor.execute("select uid from users where uname = ?", (uname,))
+            uid = cursor.fetchone()
             connection.commit()
 
             print(f"Successfully updated {uname}'s password")
             connection.close()
-            return True
+            return uid
 
         except Exception as e:
             print(f"Error adding user: {e}")

@@ -13,6 +13,7 @@ from services.question_saver import QuestionSave
 from services.question_adder import QuestionAdder  # Import the new service
 from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
+from services.verification import Verification
 import json
 from services.analytics_service import AnalyticsService
 
@@ -46,6 +47,7 @@ topic_service = Topic_Puller()
 question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
 cb_question_service = CB_QuestionFetcher()
+verification_service = Verification()
 analytics_service = AnalyticsService()
 
 
@@ -54,44 +56,51 @@ def home():
     return render_template('index.html')
 
 
-@app.route('/api/questions', methods=['GET'])
-def api_get_questions():
+@app.route('/api/questions/<string:uid>', methods=['GET'])
+def api_get_questions(uid):
     try:
-        tf_questions = tf_question_service.pull_questions()
-        mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
+        if verification_service.verify_user(uid):
+            tf_questions = tf_question_service.pull_questions()
+            mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
 
-        questions = {
-            'tf': tf_questions,
-            'mc': mc_questions
-        }
+            questions = {
+                'tf': tf_questions,
+                'mc': mc_questions
+            }
 
-        response = {
-            'questions': questions,
-            'total_questions': len(tf_questions) + len(mc_questions)
-        }
+            response = {
+                'questions': questions,
+                'total_questions': len(tf_questions) + len(mc_questions),
+                'uid': uid
+            }
 
-        return jsonify(response)
+            return jsonify(response)
+        else:
+            return jsonify({'error': 'User not found'}), 401
 
     except Exception as e:
         print(f"Error in api_get_questions: {e}")
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/question/<int:qid>', methods=['GET'])
-def question(qid):
+@app.route('/api/question/<int:qid>/<string:uid>', methods=['GET'])
+def question(qid, uid):
     """API endpoint to fetch a question by ID."""
-    response = question_fetcher_service.get_question(qid)
-    return response
+    if verification_service.verify_user(uid):
+        response = question_fetcher_service.get_question(qid, uid)
+        return response
+    else:
+        return jsonify({'error': 'Not authorized'}), 401
 
-    # return jsonify({"error": "Unknown server error"}), 404
 
-
-@app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
-def get_active_users_list():
-    # In a production environment, you should add admin authentication here
-    period = request.args.get('period', '24h')
-    users = admin_service.get_active_users_list(period)
-    return jsonify(users)
+@app.route('/api/admin/dashboard/active-users-list/<string:uid>', methods=['GET'])
+def get_active_users_list(uid):
+    if verification_service.verify_admin(uid):
+        period = request.args.get('period', '24h')
+        users = admin_service.get_active_users_list(period)
+        return jsonify(users)
+    else:
+        return jsonify({'error': 'Not authorized'}), 401
 
 
 @app.route('/api/admin/update-user-status', methods=['POST'])
@@ -131,8 +140,8 @@ def submit_question():
     return jsonify({'uid': uid})
 
 
-@app.route('/api/topic_selection', methods=['GET'])
-def topic_selection():
+@app.route('/api/topic_selection/<string:uid>', methods=['GET'])
+def topic_selection(uid):
     qtype = request.args.get('qtype', 'ALL')  # Default to 'ALL' if not provided
     topic = request.args.get('topic', '')  # Default to empty string if not provided
 
@@ -238,8 +247,8 @@ def update_password():
     if not uname or not upassword:
         return jsonify({'error': 'Missing username or password'}), 400
     hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
-    success = user_service.change_password(uname, hashed_password)
-    return jsonify({'success': success})
+    uid = user_service.change_password(uname, hashed_password)
+    return jsonify({uid})
 
 
 ##########################################
@@ -254,52 +263,65 @@ def add_question():
 
         if not data:
             return jsonify({"error": "No data provided"}), 400
+        uid = data.get('uid')
 
-        result, status_code = question_adder_service.add_question(data)
+        if verification_service.verify_admin(uid):
+            result, status_code = question_adder_service.add_question(data)
 
-        return jsonify(result), status_code
+            return jsonify(result), status_code
+        else:
+            return jsonify({"error": "No admin access found"}), 401
 
     except Exception as e:
         print(f"Error in add_question endpoint: {e}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
-@app.route('/api/admin/check', methods=['GET'])
+'''@app.route('/api/admin/check', methods=['GET'])
 def check_admin():
     # This is a simple verification that would need to be replaced with
     # proper authentication in a production environment
     uid = request.args.get('uid')
     is_admin = user_service.is_admin(uid)
-    return jsonify({'is_admin': is_admin})
+    return jsonify({'is_admin': is_admin})'''
 
 
-@app.route('/api/admin/dashboard/active-users', methods=['GET'])
-def get_active_users():
+@app.route('/api/admin/dashboard/active-users/<string:uid>', methods=['GET'])
+def get_active_users(uid):
+    if verification_service.verify_admin(uid):
+        period = request.args.get('period', '24h')
+        data = admin_service.get_active_users(period)
+        return jsonify(data)
+    else:
+        return jsonify({"error": "No admin access found"}), 401
+
+
+@app.route('/api/admin/dashboard/performance/<string:uid>', methods=['GET'])
+def get_performance_metrics(uid):
+    if verification_service.verify_admin(uid):
+        data = admin_service.get_performance_metrics()
+        return jsonify(data)
+    else:
+        return jsonify({"error": "No admin access found"}), 401
+
+
+@app.route('/api/admin/dashboard/question-stats/<string:uid>', methods=['GET'])
+def get_question_stats(uid):
+    if verification_service.verify_admin(uid):
+        data = admin_service.get_question_stats()
+        return jsonify(data)
+    else:
+        return jsonify({"error": "No admin access found"}), 401
+
+
+@app.route('/api/admin/dashboard/usage-stats/<string:uid>', methods=['GET'])
+def get_usage_stats(uid):
     # In a production environment, you should add admin authentication here
-    period = request.args.get('period', '24h')
-    data = admin_service.get_active_users(period)
-    return jsonify(data)
-
-
-@app.route('/api/admin/dashboard/performance', methods=['GET'])
-def get_performance_metrics():
-    # In a production environment, you should add admin authentication here
-    data = admin_service.get_performance_metrics()
-    return jsonify(data)
-
-
-@app.route('/api/admin/dashboard/question-stats', methods=['GET'])
-def get_question_stats():
-    # In a production environment, you should add admin authentication here
-    data = admin_service.get_question_stats()
-    return jsonify(data)
-
-
-@app.route('/api/admin/dashboard/usage-stats', methods=['GET'])
-def get_usage_stats():
-    # In a production environment, you should add admin authentication here
-    data = admin_service.get_usage_stats()
-    return jsonify(data)
+    if verification_service.verify_admin(uid):
+        data = admin_service.get_usage_stats()
+        return jsonify(data)
+    else:
+        return jsonify({"error": "No admin access found"}), 401
 
 
 @app.route('/api/submit_answer', methods=['POST'])

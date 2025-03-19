@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
@@ -16,6 +16,10 @@ interface Topic {
 }
 
 const Homepage = ({ toggleDark }: Prop) => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const lessonNumber = queryParams.get('lesson');
+
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
   const [questionStats, setQuestionStats] = useState({
@@ -193,7 +197,14 @@ const Homepage = ({ toggleDark }: Prop) => {
         </div>
 
         <nav className="sidebar-nav">
-          <div className="nav-item active">
+          <div className="nav-item active" onClick={() => {
+            const lastLesson = localStorage.getItem('selectedLesson');
+            if (lastLesson) {
+                navigate(`/homepage?lesson=${lastLesson}`);
+            } else {
+                navigate('/homepage'); // Default homepage if no lesson was selected
+            }
+          }}>
             <span className="material-icon">🏠</span>
             <span>Home</span>
           </div>
@@ -250,7 +261,7 @@ const Homepage = ({ toggleDark }: Prop) => {
             <span className="material-icon">←</span>
           </div>
           <div className="unit-info">
-            <div className="unit-title">Quiz Questions</div>
+            <div className="unit-title">Lesson {lessonNumber}</div>
             <div className="unit-subtitle">Test Your Knowledge</div>
           </div>
           <div className="unit-actions">

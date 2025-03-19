@@ -18,7 +18,20 @@ interface Topic {
 const Homepage = ({ toggleDark }: Prop) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const lessonNumber = queryParams.get('lesson');
+  const [lessonNumber, setLessonNumber] = useState<string | null>(null);
+  const [answeredQuestions, setAnsweredQuestions] = useState<string | null>(null);
+
+  useEffect(() => {
+      const lessonFromURL = queryParams.get('lesson');
+      const answeredFromURL = queryParams.get('answered');
+      
+      if (lessonFromURL) {
+          setLessonNumber(lessonFromURL);
+      }
+      if (answeredFromURL) {
+          setAnsweredQuestions(answeredFromURL);
+      }
+  }, [location]);
 
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
@@ -168,11 +181,8 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   // Calculate overall progress percentage
-  const overallProgress = topicsList.length > 0
-    ? Math.round(
-        Object.values(topicProgress).reduce((sum, val) => sum + val, 0) /
-          Object.keys(topicProgress).length
-      )
+  const overallProgress = lessonNumber && answeredQuestions
+    ? Math.round(Number(answeredQuestions)  * 10)
     : 0;
 
   // Get topic icon or character for display
@@ -442,7 +452,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           </div>
 
           <div className="progress-label">
-            {questionStats.completedQuestions} of {questionStats.totalQuestions}{" "}
+            {answeredQuestions} of 10{" "}
             questions completed
           </div>
         </div>

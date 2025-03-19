@@ -41,10 +41,11 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
 
     /// FUNCTIONS /////////////////////////////////////
 
-    function goToLesson(lessonNumber: number) {
-        localStorage.setItem('selectedLesson', lessonNumber.toString());
-        navigate(`/homepage?lesson=${lessonNumber}`);
-    }    
+    function goToLesson(lessonNumber: number, answeredQuestions: number) {
+        // Store both lesson number and answered questions in the URL query parameters
+        navigate(`/homepage?lesson=${lessonNumber}&answered=${answeredQuestions}`);
+    }
+    
 
 
     /// MAIN CONTENT //////////////////////////////////
@@ -106,7 +107,7 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
                 <h1>All Lessons</h1>
                 <div className='topics-list'>
                     {lessons.map((lesson: Lesson, index: number) => (
-                            <div key={index} className='topic-item' onClick={() => goToLesson(index + 1)}>
+                            <div key={index} className='topic-item' onClick={() => goToLesson(index + 1, lesson.answeredQuestions)}>
                                 <div className='topic-name'>{lesson.name}</div>
                                 <div id='lesson-prog-info'>
                                     <progress max='100' value={lesson.progress} id='lesson-prog-bar'></progress>

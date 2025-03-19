@@ -91,6 +91,12 @@ input {
   --accent-theme-color: #ff4258;
   /*--accent-theme-color: #f29e84;*/
 
+  --primary-shadow-color: #58a700;
+
+  --first-bg-color: #dfe6eb;
+  --second-bg-color: #ecf0f5;
+  --third-bg-color: #ffffff;
+
  
 }
 
@@ -113,4 +119,10 @@ input {
   --primary-theme-color: #58CC02;
   --secondary-theme-color: #272934;
   --accent-theme-color: #ff4258;
+
+  --primary-shadow-color: #58a700;
+
+  --first-bg-color: #111827;
+  --second-bg-color: #1f2937;
+  --third-bg-color: #2d3748;
 }

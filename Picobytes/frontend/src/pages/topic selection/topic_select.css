@@ -1,15 +1,26 @@
 /* Topic Selection page styling to match the Duolingo-inspired theme */
 
+.light-mode .answer-choices button,
+.light-mode .question-text,
+.light-mode .question-level {
+  color: black;
+}
+.dark-mode .answer-choices button,
+.dark-mode .question-text,
+.dark-mode .question-level {
+  color: white;
+}
+
 .questions-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #111827;
+  background-color: var(--first-bg-color);
   font-family: 'Nunito', sans-serif;
 }
 
 .header {
-  background-color: #1f2937;
+  background-color: var(--second-bg-color);
   padding: 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
@@ -17,7 +28,6 @@
 }
 
 .header h1 {
-  color: white;
   font-size: 28px;
   font-weight: 700;
   margin: 0;
@@ -34,13 +44,12 @@
 }
 
 .question-item {
-  background-color: #1f2937;
+  background-color: var(--second-bg-color);
   border-radius: 16px;
   padding: 20px;
   margin: 16px 0;
   width: 100%;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  color: white;
   transition: transform 0.3s ease;
 }
 
@@ -53,7 +62,6 @@
   font-weight: 600;
   margin-bottom: 15px;
   line-height: 1.4;
-  color: white;
 }
 
 .question-meta {
@@ -67,11 +75,10 @@
   border-radius: 100px;
   font-size: 12px;
   font-weight: 700;
-  color: white;
 }
 
 .question-level {
-  background-color: #4b5563;
+  background-color: var(--second-bg-color);
 }
 
 .question-type {
@@ -88,9 +95,8 @@
 .answer-choices button {
   padding: 12px 16px;
   border-radius: 12px;
-  background-color: #2d3748;
+  background-color: var(--third-bg-color);
   border: 2px solid transparent;
-  color: white;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -99,44 +105,43 @@
 }
 
 .answer-choices button:hover {
-  background-color: #374151;
-  border-color: #58cc02;
+  background-color: var(--third-bg-color);
+  border-color: var(--primary-theme-color);
 }
 
 .back-button {
   padding: 10px 20px;
   border-radius: 8px;
-  background-color: #58cc02;
+  background-color: var(--primary-theme-color);
   border: none;
-  color: white;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 0 #58a700;
+  box-shadow: 0 2px 0 var(--primary-shadow-color);
   margin: 30px auto;
   display: block;
 }
 
 .back-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 0 #58a700;
+  box-shadow: 0 4px 0 var(--primary-shadow-color);
 }
 
 .back-button:active {
   transform: translateY(1px);
-  box-shadow: 0 1px 0 #58a700;
+  box-shadow: 0 1px 0 var(--primary-shadow-color);
 }
 
 /* Error and loading states */
 .questions-layout > div:not(.header):not(.questions-list) {
-  color: white;
   text-align: center;
   padding: 20px;
   font-size: 18px;
   font-weight: 600;
   margin-top: 40px;
 }
+
 
 
 

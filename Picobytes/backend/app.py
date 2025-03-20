@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, jsonify, request
 from services.free_response_question_pull import FR_QuestionFetcher
 from services.tf_question_pull import QuestionService
-from services.mc_question_pull import MC_QuestionFetcher# type: ignore
+from services.mc_question_pull import MC_QuestionFetcher  # type: ignore
 from services.user_funcs import UserFuncs
 from services.topic_pull import Topic_Puller
 import os
@@ -14,6 +14,9 @@ from services.question_adder import QuestionAdder  # Import the new service
 from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
 import json
+from services.analytics_service import AnalyticsService
+from services.streak import Streaks
+from services.verification import Verification
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -22,17 +25,17 @@ base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 frontend_dir = os.path.join(base_dir, 'frontend')
 public_dir = os.path.join(base_dir, 'public')
 
-app = Flask(__name__, 
-            template_folder=frontend_dir, 
+app = Flask(__name__,
+            template_folder=frontend_dir,
             static_folder=public_dir)
 
 # Update CORS configuration to explicitly allow requests from your frontend
 CORS(app, resources={
-    r"/api/*": {
+    r"/*": {
         "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]
-        }
+    }
 })
 
 tf_question_service = QuestionService()
@@ -45,47 +48,49 @@ topic_service = Topic_Puller()
 question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
 cb_question_service = CB_QuestionFetcher()
+analytics_service = AnalyticsService()
+streak_service = Streaks()
+verification_service = Verification()
+
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
 
-@app.route('/api/questions', methods=['GET'])
-def api_get_questions():
-    try:
-        tf_questions = tf_question_service.pull_questions()
-        mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
-
-        print(f"TF Questions: {tf_questions}")
-        print(f"MC Questions: {mc_questions}")
-
-        questions = {
-            'tf': tf_questions,
-            'mc': mc_questions
-        }
-
+@app.route('/get_user_stats/<string:uid>')
+def get_user_stats(uid):
+    print(f"Received uid: {uid}") 
+    if verification_service.verify_user(uid) == True:
+        curr_streak = streak_service.get_streak(uid)
+        if curr_streak == -1:
+            return jsonify({'error getting streak'}), 500
         response = {
-            'questions': questions,
-            'total_questions': len(tf_questions) + len(mc_questions)
+            'streak': curr_streak,
+            'uid': uid
         }
+        return jsonify(response), 200
+    else:
+        return jsonify({'error': 'User not found'}), 401
 
-        print(f"Sending response: {response}")  # Debug log
-        return jsonify(response)
 
-    except Exception as e:
-        print(f"Error in api_get_questions: {e}")
-        return jsonify({'error': str(e)}), 500
 
-@app.route('/api/question/<int:qid>', methods=['GET'])
-def question(qid):
+
+
+####UPDATED#####
+@app.route('/api/question/<int:qid>/<string:uid>', methods=['GET'])
+def question(qid, uid):
     """API endpoint to fetch a question by ID."""
-    response = question_fetcher_service.get_question(qid)
-    print(response)
-    return response
+    if verification_service.verify_user(uid) == True:
+        response = question_fetcher_service.get_question(qid, uid)
+        return response
+    else:
+        return jsonify({'error': 'User not found'}), 401
 
-    #return jsonify({"error": "Unknown server error"}), 404
-    
+
+
+
+
 
 @app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
 def get_active_users_list():
@@ -101,17 +106,16 @@ def update_user_status():
     data = request.get_json()
     uid = data.get('uid')
     is_admin = data.get('is_admin')
-    
+
     if uid is None or is_admin is None:
         return jsonify({'success': False, 'error': 'Missing required parameters'}), 400
-    
+
     success = admin_service.update_user_admin_status(uid, is_admin)
-    
+
     if success:
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'Failed to update user status'}), 500
-
 
 
 @app.route('/api/submit_question', methods=['POST'])
@@ -132,12 +136,12 @@ def submit_question():
 
     return jsonify({'uid': uid})
 
+
 @app.route('/api/topic_selection', methods=['GET'])
 def topic_selection():
     qtype = request.args.get('qtype', 'ALL')  # Default to 'ALL' if not provided
     topic = request.args.get('topic', '')  # Default to empty string if not provided
 
-    print({qtype}, {topic})
     if qtype == "ALL":
         topic_data = topic_service.get_all_questions_by_topic(topic)
         responses = []
@@ -193,7 +197,7 @@ def topic_selection():
     else:
         return jsonify({"error": "Topic not found"}), 404
 
-    #print(json.dumps({'topics': responses}, indent=4))
+    # print(json.dumps({'topics': responses}, indent=4))
     return jsonify({'topics': responses}), 200
 
 
@@ -216,7 +220,6 @@ def create_account():
     return jsonify({'uid': uid})
 
 
-
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -231,6 +234,20 @@ def login():
         return jsonify({'error': 'Invalid username or password'}), 401
     return jsonify({'uid': uid})
 
+
+@app.route('/api/update_password', methods=['POST'])
+def update_password():
+    print("updating password")
+    data = request.get_json()
+    uname = data.get('uname')
+    upassword = data.get('upassword')
+    if not uname or not upassword:
+        return jsonify({'error': 'Missing username or password'}), 400
+    hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
+    success = user_service.change_password(uname, hashed_password)
+    return jsonify({'success': success})
+
+
 ##########################################
 ##########      ADMIN SHIT      ##########
 ##########################################
@@ -240,14 +257,14 @@ def add_question():
     """API endpoint to add a new question to the database."""
     try:
         data = request.get_json()
-        
+
         if not data:
             return jsonify({"error": "No data provided"}), 400
-        
+
         result, status_code = question_adder_service.add_question(data)
-        
+
         return jsonify(result), status_code
-        
+
     except Exception as e:
         print(f"Error in add_question endpoint: {e}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
@@ -261,6 +278,7 @@ def check_admin():
     is_admin = user_service.is_admin(uid)
     return jsonify({'is_admin': is_admin})
 
+
 @app.route('/api/admin/dashboard/active-users', methods=['GET'])
 def get_active_users():
     # In a production environment, you should add admin authentication here
@@ -268,17 +286,20 @@ def get_active_users():
     data = admin_service.get_active_users(period)
     return jsonify(data)
 
+
 @app.route('/api/admin/dashboard/performance', methods=['GET'])
 def get_performance_metrics():
     # In a production environment, you should add admin authentication here
     data = admin_service.get_performance_metrics()
     return jsonify(data)
 
+
 @app.route('/api/admin/dashboard/question-stats', methods=['GET'])
 def get_question_stats():
     # In a production environment, you should add admin authentication here
     data = admin_service.get_question_stats()
     return jsonify(data)
+
 
 @app.route('/api/admin/dashboard/usage-stats', methods=['GET'])
 def get_usage_stats():
@@ -293,35 +314,38 @@ def submit_answer():
         data = request.get_json()
         question_id = data.get('question_id')
         selected_answer = data.get('selected_answer')
-        
+
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
         if selected_answer is None:
             return jsonify({"error": "Missing selected_answer"}), 400
-            
+
         # Get the question to verify the correct answer
         question_data = mc_question_service.get_question_by_id(int(question_id))
         if not question_data:
             return jsonify({"error": "Question not found"}), 404
-            
+
         correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
         is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
-        
+
+        # Record this question attempt in analytics
+        analytics_service.record_question_attempt(int(question_id), is_correct)
+
         # Here you would typically save the user's answer to your database
         # For now, we'll just return whether it was correct or not
-        
+
         return jsonify({
             'success': True,
             'is_correct': is_correct,
             'correct_answer_index': correct_answer_index
         })
-        
+
     except Exception as e:
         print(f"Error in submit_answer: {e}")
         return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
-    #with app.app_context():
-        #print(topic_selection("MC", "Science"))
+    # with app.app_context():
+    # print(topic_selection("MC", "Science"))
     app.run(debug=True)

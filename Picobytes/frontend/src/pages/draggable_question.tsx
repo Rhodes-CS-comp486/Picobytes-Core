@@ -59,8 +59,7 @@ const Draggable_Question = () => {
       const data = await response.json();
 
       if (data.error) throw new Error(data.error);
-
-      console.log("Question data:", data);
+      
       setQuestionText(data.question_text);
       setQuestionType(data.question_type);
       setDifficulty(data.question_level);

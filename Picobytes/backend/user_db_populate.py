@@ -11,6 +11,7 @@ def populate_users():
     hashed_password1 = hashlib.sha256(upass1.encode()).hexdigest()
 
 
+
     uname2 = 'Matt'
     upass2 = 'iliketheory'
     uadmin2 = 1

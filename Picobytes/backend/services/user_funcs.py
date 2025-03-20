@@ -2,6 +2,7 @@ import sqlite3
 import os
 import string
 import random
+import time
 
 from conda_index.index.convert_cache import db_path
 
@@ -32,10 +33,11 @@ class UserFuncs:
 
             # Generate a unique UID
             uid = self.generate_unique_uid(cursor)
+            currtime = time.time()
 
             # Insert the new user
-            cursor.execute("INSERT INTO users (uid, uname, upassword, uadmin) VALUES (?, ?, ?, ?)",
-                           (uid, uname, hashed_password, uadmin))
+            cursor.execute("INSERT INTO users (uid, uname, upassword, uadmin, ustreak, ulastanswertime, upoints) VALUES (?, ?, ?, ?, 1, ?, 0)",
+                           (uid, uname, hashed_password, uadmin, currtime))
             connection.commit()
             print(f"User {uname} added successfully with UID: {uid}")
             connection.close()
@@ -62,7 +64,7 @@ class UserFuncs:
     ##################################################
     ##########        ADMIN CHECK           ##########
     ##################################################
-    def is_admin(self, uid):
+    '''def is_admin(self, uid):
         """Check if a user is an admin"""
         if not uid:
             return False
@@ -75,7 +77,26 @@ class UserFuncs:
         result = cursor.fetchone()
         conn.close()
         
-        return bool(result and result['is_admin'] == 1)
+        return bool(result and result['is_admin'] == 1)'''
+
+    def change_password(self, uname, hashed_password):
+        try:
+            connection = sqlite3.connect(self.db_path)
+            cursor = connection.cursor()
+
+            cursor.execute("UPDATE users SET upassword = ? WHERE uname = ?", (uname, hashed_password))
+            cursor.execute("select uid from users where uname = ?", (uname,))
+            uid = cursor.fetchone()
+            connection.commit()
+
+            print(f"Successfully updated {uname}'s password")
+            connection.close()
+            return uid
+
+        except Exception as e:
+            print(f"Error adding user: {e}")
+            return False
+            
 
 
 if __name__ == '__main__':

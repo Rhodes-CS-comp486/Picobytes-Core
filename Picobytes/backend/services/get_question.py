@@ -25,7 +25,7 @@ class GetQuestions:
         """Establish and return a database connection."""
         return sqlite3.connect(self.db_path)
 
-    def get_question(self, qid):
+    def get_question(self, qid, uid):
         try:
             conn = self._connect()
             cursor = conn.cursor()
@@ -58,7 +58,8 @@ class GetQuestions:
                     'answer': question_data['answer'],
                     'question_type': question_data['qtype'],
                     'question_level': question_data['qlevel'],
-                    'question_topic': question_data['qtopic']
+                    'question_topic': question_data['qtopic'],
+                    'uid': uid
                 }
                 return jsonify(response)
 
@@ -70,7 +71,8 @@ class GetQuestions:
                     'correct_answer': question_data['correct'],
                     'question_type': question_data['qtype'],
                     'question_level': question_data['qlevel'],
-                    'question_topic': question_data['qtopic']
+                    'question_topic': question_data['qtopic'],
+                    'uid': uid
                 }
                 return jsonify(response)
 
@@ -82,7 +84,8 @@ class GetQuestions:
                     'question_type': question_data['qtype'],
                     'question_topic': question_data['qtopic'],
                     'question_level': question_data['qlevel'],
-                    'professor_answer': question_data['prof_answer']
+                    'professor_answer': question_data['prof_answer'],
+                    'uid': uid
                 }
                 return jsonify(response)
 
@@ -105,6 +108,7 @@ class GetQuestions:
                     'block9': question_data['block9'],
                     'block10': question_data['block10'],
                     'answer': question_data['answer'],
+                    'uid': uid
                 }
                 return jsonify(response)
 

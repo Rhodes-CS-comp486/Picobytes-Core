@@ -1,11 +1,25 @@
 /// Leaderboard TSX
-import './leaderboard.css'
-
-// get username
-const username = localStorage.getItem("username") || "Agent 41"
+import './leaderboard.css';
+import { useNavigate } from 'react-router-dom';
 
 const Leaderboard = () => {
+    /// CONSTANTS /////////////////////////////////////////////////////////
+
+    const navigate = useNavigate();
+
+    // View full Leaderboard page
+    const goToLeaderboard = () => {
+        navigate('/leaderboard');
+    };
+
+    // get username
+    const username = localStorage.getItem("username") || "Agent 41"
+
+    
     const players = [username, 'Bob', 'Kugele', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9'];
+
+
+    /// FUNCTIONS  /////////////////////////////////////////////////////////
 
     const getRankEmote = (index: number) => {
         switch (index) {
@@ -20,29 +34,47 @@ const Leaderboard = () => {
         }
     };
 
+
+    /// MAIN CONTENT /////////////////////////////////////////////////////////
+
     return (
-        <div id="leaderboard">
+        <div id="ld">
             
-            <div id="leaderboard-grid">
-                <div id='leaderboard-header'>🏆 Leaderboard 🏆</div>
+            <div id='ld-title'>🏆 Leaderboard 🏆</div>
+            
 
-                {players.map((player, index) => (
-                    <div className='grid-item' key={index}>
-                        <div id="grid-hbox">
-                            <div className='stat-icon'>
-                                {getRankEmote(index)} 
+
+            <div id="ld-grid">
+
+                {players.map((player, index) => {
+                 
+                    return(
+                        <div id='ld-grid-item'
+                            key={index}
+                            className={player === username ? 'highlight-user' : ''} // Highlight if current user
+                            >
+                            <div id="leaderboard-grid-hbox">
+                                <div id="ld-rank-icon">
+                                    {getRankEmote(index)} 
+                                </div>
+
+                                <div id="ld-pfp-icon">
+                                    {player.charAt(0).toUpperCase()}
+                                </div>
+
+                                <div id="ld-player-name">
+                                    {player}
+                                </div>
+                                
                             </div>
-
-                            <div id="grid-icon">
-                                {player.charAt(0).toUpperCase()}
-                            </div>
-
-                            {player}
                         </div>
-                    </div>
-                ))}
+                    );
+                }
+                )}
+                    
 
             </div>
+            <div id="ld-link" onClick={goToLeaderboard}>VIEW ALL</div>
         </div>
     );
 };

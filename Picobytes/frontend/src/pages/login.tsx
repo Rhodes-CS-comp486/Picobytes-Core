@@ -12,7 +12,7 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!username.trim() || !password.trim()) {
       setError("Please enter both username and password");
       return;
@@ -21,7 +21,7 @@ const Login = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: {
@@ -39,7 +39,7 @@ const Login = () => {
       // Store user information in localStorage
       localStorage.setItem("uid", data.uid);
       localStorage.setItem("username", username);
-      
+
       // Check if user is admin and set in localStorage if needed
       if (data.is_admin) {
         localStorage.setItem("isAdmin", "true");
@@ -47,7 +47,6 @@ const Login = () => {
 
       // Navigate to homepage on successful login
       navigate("/homepage");
-      
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -58,20 +57,24 @@ const Login = () => {
   return (
     <div className="login-page">
       <Home_Header toggleOverlay={() => {}} />
-      
+
       <div className="login-container">
         <div className="login-mascot">🤖</div>
-        
+
         <div className="login-header">
           <h1 className="login-title">Welcome to Picobytes</h1>
-          <p className="login-subtitle">Sign in to continue your learning journey</p>
+          <p className="login-subtitle">
+            Sign in to continue your learning journey
+          </p>
         </div>
-        
+
         {error && <div className="error-message">{error}</div>}
-        
+
         <form className="login-form" onSubmit={handleLogin}>
           <div className="form-group">
-            <label htmlFor="username" className="form-label">Username</label>
+            <label htmlFor="username" className="form-label">
+              Username
+            </label>
             <input
               id="username"
               className="form-input"
@@ -82,9 +85,11 @@ const Login = () => {
               disabled={loading}
             />
           </div>
-          
+
           <div className="form-group">
-            <label htmlFor="password" className="form-label">Password</label>
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
             <input
               id="password"
               className="form-input"
@@ -95,7 +100,9 @@ const Login = () => {
               disabled={loading}
             />
           </div>
-          
+
+          <a href="/forgot_password">Forgot your password?</a>
+
           <div className="login-actions">
             <button
               type="button"
@@ -105,9 +112,9 @@ const Login = () => {
             >
               Create Account
             </button>
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               className="login-button primary"
               disabled={loading}
             >
@@ -115,9 +122,11 @@ const Login = () => {
             </button>
           </div>
         </form>
-        
+
         <div className="login-footer">
-          <p>Need help? <a href="#help">Contact Support</a></p>
+          <p>
+            Need help? <a href="mailto:kugeles@rhodes.edu">Contact Support</a>
+          </p>
         </div>
       </div>
     </div>

@@ -28,10 +28,11 @@ const Practice_Page = ({ toggleDark }: Prop) => {
 
     // Dummy topics and question types (initially used)
     const dummyTopics = [
-        { name: 'Science', types: ['ALL'] },
-        { name: 'Biology', types: ['ALL'] },
+        { name: 'C Basics', types: ['ALL'] },
+        { name: 'C Memory Management', types: ['ALL'] },
+        { name: 'C Functions', types: ['ALL'] },
+        { name: 'Linux', types: ['ALL'] },
         { name: 'Programming', types: ['ALL'] },
-        { name: 'Geography', types: ['ALL'] },
     ];
 
     // Function to handle fetching data on topic and type selection

@@ -1,23 +1,72 @@
 /* Leaderboard CSS */
 
-#leader {
+/* CSS FOR BOTH LEADERBOARD PAGES */
+#leaderboard-user-stats {
     display: flex;
-    align-items: center;
-    position: relative;
-    padding: 20px;
+    flex-direction: column;
+    padding-left: 5%;
 }
 
-#leaderboard-header {
-    font-size: 18px;
-    font-weight: 700;
+#leaderboard-grid-hbox {
+    display: flex;
+    gap: 10px;
+    text-align: left;
+    align-items: center;
+}
 
-    padding-bottom: 30px;
+
+#leaderboard-questions-answered {
+    margin-left: auto;
+}
+
+.highlight-user {
+    background-color: rgba(255, 223, 0, 0.2);  /* Light yellow background */
+    font-weight: bold;  /* Bold text */
+}
+
+
+
+
+/*** CSS FOR LEADERBOARD TSX ***/
+#ld {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    background-color: var(--card-color);
+    border-radius: 16px;
+
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    
+}
+
+#ld-title {
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    padding: 5px;
     border-bottom: 4px solid var(--border-color);
     border-width: 100%;
     width: 100%;
 }
 
-#leaderboard-grid {
+#ld-player-name {
+    padding-left: 3px;
+    font-size: 15px;
+}
+
+#ld-link {
+    color: #1cb0f6;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s;
+    float: left;
+}
+
+
+#ld-grid {
     display: inline-grid;
     grid-template-columns: auto;
 
@@ -26,39 +75,135 @@
     row-gap: 5px;
     width: 100%;
     max-height: 300px;
- 
-
-    padding: 20px;
-
-    background-color: var(--card-color);
-    border-radius: 10px;
-
-    border: 1px solid var(--border-color);
 
     scrollbar-width: thin;
     
 }
 
-#grid-hbox {
-    display: flex;
-    gap: 10px;
-    text-align: left;
-    align-items: center;
-    
-}
-
-.grid-item {
-
-    padding: 20px;
-    border-radius: 10px;
+#ld-grid-item {
+    padding: 10px;
     text-align: left;
     color: var(--grid-button-text-color);
     font-size: 15px;
   }
+#ld-rank-icon {
+    display: flex;
+    width: 25px;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;;
+}
 
-#grid-icon {
-    width: 30px;
-    height: 30px;
+#ld-pfp-icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size:10px;
+    font-weight: bold;
+    color: white;
+    border: 2px solid #58cc02;
+}
+
+
+
+/*** CSS FOR LEADERBOARD_PAGE TSX ***/
+
+#ld-all {
+    display: grid;
+    grid-template-columns: 220px auto;
+    min-height: 100vh;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+#ld-all-old {
+    display: flex;
+    flex-direction: column;
+    
+    
+    padding: 20px;
+    height: 100vh; /* Full height of the viewport to prevent page scrolling */
+    overflow: hidden; /* Disable page scrolling */
+    
+    background-color: var(--card-color);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+#ld-all-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#ld-all-title {
+    font-size: 30px;
+    font-weight: 700;
+    text-align: center;
+    
+    position: sticky;  /* Stick to the top */
+    
+    padding: 20px;
+
+    z-index: 2;        /* Ensure it's above the grid items */
+    
+    border-bottom: 2px solid var(--border-color);
+    width: 100%;
+}
+
+#leaderboard-all-link {
+    color: #1cb0f6;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s;
+    float: left;
+}
+
+#ld-all-grid {
+    display: inline-grid;
+    grid-template-columns: auto;
+
+    overflow-y: auto;   /* Enable scrolling within the leaderboard grid */
+    max-height: calc(100vh - 80px); /* Subtract space for the header */
+    row-gap: 5px;
+    width: 100%;
+    
+
+    scrollbar-width: thin;
+
+    /* Only apply clipping to the scrollable items inside the grid */
+    clip-path: inset(0px 0 0 0);
+}
+
+#scrollable-grid-items {
+    display: flex;
+    flex-direction: column;
+ 
+}
+
+#ld-all-grid-item {
+    padding: 20px;
+    text-align: left;
+    color: var(--grid-button-text-color);
+    font-size: 25px;
+}
+
+#ld-all-rank-icon {
+    display: flex;
+    width: 50px;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+}
+
+#ld-all-pfp-icon {
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background-color: #4b5563;
     display: flex;
@@ -69,3 +214,7 @@
     color: white;
     border: 2px solid #58cc02;
 }
+
+
+
+

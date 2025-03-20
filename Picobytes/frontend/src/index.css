@@ -76,12 +76,26 @@ input {
   color: black;
   background-color: white;
   button {
-    background-color: cadetblue;
+    background-color: var(--primary-theme-color);
   }
   --grid-bg: #FFF;
   --grid-text-color: #242424;
   --border-color: #999999;
+
   --card-color: #ffffff;
+
+  --subtitle-color: #222529;
+
+  --primary-theme-color: #58CC02;
+  --secondary-theme-color: #cbcdd8;
+  --accent-theme-color: #ff4258;
+  /*--accent-theme-color: #f29e84;*/
+
+  --primary-shadow-color: #58a700;
+
+  --first-bg-color: #dfe6eb;
+  --second-bg-color: #ecf0f5;
+  --third-bg-color: #ffffff;
 
  
 }
@@ -91,12 +105,24 @@ input {
   background-color: #242424;
   background-size: auto;
   button {
-    background-color: cadetblue;
+    background-color: var(--primary-theme-color)
   }
 
   --grid-bg: #242424;
   --grid-button-text-color: #FFF;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --border-color: #4c4c4c;
 
   --card-color: #2d3748;
+
+  --subtitle-color : #a0aec0;
+
+  --primary-theme-color: #58CC02;
+  --secondary-theme-color: #272934;
+  --accent-theme-color: #ff4258;
+
+  --primary-shadow-color: #58a700;
+
+  --first-bg-color: #111827;
+  --second-bg-color: #1f2937;
+  --third-bg-color: #2d3748;
 }

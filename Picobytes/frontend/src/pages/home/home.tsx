@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
@@ -9,25 +9,46 @@ interface Prop {
   toggleDark: () => void;
 }
 
+// Define interfaces for topic data
+interface Topic {
+  name: string;
+  progress: number;
+}
+
 const Homepage = ({ toggleDark }: Prop) => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const [lessonNumber, setLessonNumber] = useState<string | null>(null);
+  const [answeredQuestions, setAnsweredQuestions] = useState<string | null>(null);
+
+  useEffect(() => {
+      const lessonFromURL = queryParams.get('lesson');
+      const answeredFromURL = queryParams.get('answered');
+      
+      if (lessonFromURL) {
+          setLessonNumber(lessonFromURL);
+      }
+      if (answeredFromURL) {
+          setAnsweredQuestions(answeredFromURL);
+      }
+  }, [location]);
+
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
   const [questionStats, setQuestionStats] = useState({
     totalQuestions: 0,
     completedQuestions: 0,
   });
-  const [topicProgress, setTopicProgress] = useState({
-    Science: 60,
-    Programming: 40,
-    Geography: 20,
-    Biology: 10,
-  });
+  // Initialize with empty object, will be populated from API
+  const [topicProgress, setTopicProgress] = useState<Record<string, number>>({});
+  const [isTopicsLoading, setIsTopicsLoading] = useState(true);
 
   // Get username from localStorage with fallback
   const username = localStorage.getItem("username") || "Agent 41";
 
-  // Fetch total number of questions
+  // Fetch both questions and topics data
   useEffect(() => {
+    // Fetch total number of questions
     fetch("http://localhost:5000/api/questions")
       .then((response) => response.json())
       .then((data) => {
@@ -40,6 +61,54 @@ const Homepage = ({ toggleDark }: Prop) => {
       .catch((error) => {
         console.error("Error fetching total questions:", error);
       });
+
+    // Fetch topics from the database
+    fetch("http://localhost:5000/api/topics")
+      .then((response) => response.json())
+      .then((data) => {
+        // Extract unique topics from the questions
+        const topicsSet = new Set();
+        const topicProgressData: Record<string, number> = {};
+
+        // Extract unique topics from the data
+        data.forEach((question) => {
+          if (question.qtopic && !topicsSet.has(question.qtopic)) {
+            topicsSet.add(question.qtopic);
+            topicProgressData[question.qtopic] = 0; // Initialize progress to 0
+          }
+        });
+
+        // If no topics are found, use fallback topics
+        if (Object.keys(topicProgressData).length === 0) {
+          setTopicProgress({
+            "C Basics": 60,
+            "C Functions": 45,
+            "C Memory Management": 30,
+            "Linux": 20,
+            "Programming": 10,
+          });
+        } else {
+          // Assign some random progress for now (this would normally come from user data)
+          for (const topic of Object.keys(topicProgressData)) {
+            // Random progress between 10 and 80
+            topicProgressData[topic] = Math.floor(Math.random() * 70) + 10;
+          }
+          setTopicProgress(topicProgressData);
+        }
+        setIsTopicsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching topics:", error);
+        // Fallback to hardcoded topics in case of error
+        setTopicProgress({
+          "C Basics": 60,
+          "C Functions": 45,
+          "C Memory Management": 30,
+          "Linux": 20,
+          "Programming": 10,
+        });
+        setIsTopicsLoading(false);
+      });
   }, []);
 
   const toggleOverlay = () => {
@@ -51,9 +120,11 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   const goToTopicSelection = () => {
-
     navigate('/practice');
+  };
 
+  const goToLessonProgress = () => {
+    navigate('/lessons');
   };
 
   const goToAllQuestions = () => {
@@ -110,10 +181,22 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   // Calculate overall progress percentage
-  const overallProgress = Math.round(
-    Object.values(topicProgress).reduce((sum, val) => sum + val, 0) /
-      Object.keys(topicProgress).length
-  );
+  const overallProgress = lessonNumber && answeredQuestions
+    ? Math.round(Number(answeredQuestions)  * 10)
+    : 0;
+
+  // Get topic icon or character for display
+  const getTopicIcon = (topic) => {
+    // Handle C programming related topics
+    if (topic.includes("C Basics")) return "B";
+    if (topic.includes("C Functions")) return "F";
+    if (topic.includes("C Memory")) return "M";
+    if (topic.toLowerCase() === "linux") return "L";
+    if (topic.toLowerCase() === "programming") return "P";
+    
+    // For other topics, use first letter
+    return topic.charAt(0).toUpperCase();
+  };
 
   return (
     <div className="duolingo-layout">
@@ -128,7 +211,14 @@ const Homepage = ({ toggleDark }: Prop) => {
         </div>
 
         <nav className="sidebar-nav">
-          <div className="nav-item active">
+          <div className="nav-item active" onClick={() => {
+            const lastLesson = localStorage.getItem('selectedLesson');
+            if (lastLesson) {
+                navigate(`/homepage?lesson=${lastLesson}`);
+            } else {
+                navigate('/homepage'); // Default homepage if no lesson was selected
+            }
+          }}>
             <span className="material-icon">🏠</span>
             <span>Home</span>
           </div>
@@ -163,7 +253,12 @@ const Homepage = ({ toggleDark }: Prop) => {
             </span>
             <span>Theme</span>
           </div>
+
+          
+          {/* Leaderboard Card*/}
+          <Leaderboard />
         </nav>
+        
 
         <div className="sidebar-footer">
           <div className="nav-item" onClick={handleLogout}>
@@ -176,12 +271,12 @@ const Homepage = ({ toggleDark }: Prop) => {
       {/* Main Content */}
       <div className="main-content">
         <div className="unit-header">
-          <div className="unit-back" onClick={goToTopicSelection}>
+          <div className="unit-back" onClick={goToLessonProgress}>
             <span className="material-icon">←</span>
           </div>
           <div className="unit-info">
-            <div className="unit-title">Quiz Questions</div>
-            <div className="unit-subtitle">Test Your Knowledge</div>
+            <div className="unit-title">Lesson {lessonNumber}</div>
+            <div className="unit-subtitle">See all lesson progress</div>
           </div>
           <div className="unit-actions">
             <button className="guidebook-button" onClick={goToAllQuestions}>
@@ -216,39 +311,46 @@ const Homepage = ({ toggleDark }: Prop) => {
             <div className="streak-days">5 days</div>
           </div>
 
-          <div className="topic-path-container">
-            <div className="path-line"></div>
-            <div className="topic-nodes">
-              {topicsList.map((topic, index) => {
-                const status = getTopicStatus(index);
-                return (
-                  <div
-                    className="topic-node"
-                    key={index}
-                    onClick={() =>
-                      status !== "locked" && goToQuestion(index + 1)
-                    }
-                  >
-                    <div className={`node-circle ${status}`}>
-                      {status === "completed"
-                        ? "✓"
-                        : status === "locked"
-                        ? "🔒"
-                        : topic.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="node-label">{topic}</div>
-                  </div>
-                );
-              })}
-              <div className="treasure-chest">🏆</div>
+          {isTopicsLoading ? (
+            <div style={{ textAlign: 'center', margin: '30px 0' }}>
+              Loading topics...
             </div>
-          </div>
+          ) : (
+            <div className="topic-path-container">
+              <div className="path-line"></div>
+              <div className="topic-nodes">
+                {topicsList.map((topic, index) => {
+                  const status = getTopicStatus(index);
+                  const topicIcon = getTopicIcon(topic);
+                  return (
+                    <div
+                      className="topic-node"
+                      key={index}
+                      onClick={() =>
+                        status !== "locked" && goToQuestion(index + 1)
+                      }
+                    >
+                      <div className={`node-circle ${status}`}>
+                        {status === "completed"
+                          ? "✓"
+                          : status === "locked"
+                          ? "🔒"
+                          : topicIcon}
+                      </div>
+                      <div className="node-label">{topic}</div>
+                    </div>
+                  );
+                })}
+                <div className="treasure-chest">🏆</div>
+              </div>
+            </div>
+          )}
 
           <div className="mascot-container">
             <div className="mascot-speech">
               {overallProgress > 0
-                ? "Great progress! Ready to continue?"
-                : "Ready to start learning?"}
+                ? "Great progress! Ready to continue learning C programming?"
+                : "Ready to start learning C programming?"}
             </div>
             <div className="mascot-character">🤖</div>
           </div>
@@ -329,8 +431,7 @@ const Homepage = ({ toggleDark }: Prop) => {
             </div>
           </div>
         </div>
-        {/* Leaderboard Card*/}
-        <Leaderboard />
+
 
         {/* Overall Progress Section */}
         <div className="progress-section">
@@ -351,7 +452,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           </div>
 
           <div className="progress-label">
-            {questionStats.completedQuestions} of {questionStats.totalQuestions}{" "}
+            {answeredQuestions} of 10{" "}
             questions completed
           </div>
         </div>
@@ -365,23 +466,29 @@ const Homepage = ({ toggleDark }: Prop) => {
             </div>
           </div>
 
-          {Object.entries(topicProgress).map(([topic, progress]) => (
-            <div className="topic-item" key={topic}>
-              <div className="topic-header">
-                <div className="topic-name">
-                  <div className="topic-icon">{topic.charAt(0)}</div>
-                  {topic}
-                </div>
-                <div className="topic-percentage">{progress}%</div>
-              </div>
-              <div className="progress-bar">
-                <div
-                  className="progress-filled"
-                  style={{ width: `${progress}%` }}
-                ></div>
-              </div>
+          {isTopicsLoading ? (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              Loading topics...
             </div>
-          ))}
+          ) : (
+            Object.entries(topicProgress).map(([topic, progress]) => (
+              <div className="topic-item" key={topic}>
+                <div className="topic-header">
+                  <div className="topic-name">
+                    <div className="topic-icon">{getTopicIcon(topic)}</div>
+                    {topic}
+                  </div>
+                  <div className="topic-percentage">{progress}%</div>
+                </div>
+                <div className="progress-bar">
+                  <div
+                    className="progress-filled"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Daily Goals Section */}

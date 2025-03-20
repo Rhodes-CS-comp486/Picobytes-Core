@@ -31,7 +31,7 @@ app = Flask(__name__,
 
 # Update CORS configuration to explicitly allow requests from your frontend
 CORS(app, resources={
-    r"/api/*": {
+    r"/*": {
         "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]
@@ -60,6 +60,7 @@ def home():
 
 @app.route('/get_user_stats/<string:uid>')
 def get_user_stats(uid):
+    print(f"Received uid: {uid}") 
     if verification_service.verify_user(uid) == True:
         curr_streak = streak_service.get_streak(uid)
         if curr_streak == -1:

@@ -5,8 +5,6 @@ from services.streak import Streaks
 
 import time
 
-from numpy.lib.npyio import savez
-
 
 streaks_service = Streaks()
 

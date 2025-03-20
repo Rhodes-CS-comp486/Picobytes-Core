@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './draggable_question.css';
 
 const Draggable_Question = () => {
@@ -25,6 +25,7 @@ const Draggable_Question = () => {
   const [questionText, setQuestionText] = useState("");
   const [questions, setQuestion] = useState(["Question 1", "A 2", "Question 3", "Question 4", "Question 5"]);
   const [draggedWords, setDraggedWords] = useState<string[]>([]); // New state for dragged words
+  const [uid, setUid] = useState<string | null>(null); // State to store the UID
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: HTMLElement) => {
     setDraggedItem(item);
@@ -53,13 +54,18 @@ const Draggable_Question = () => {
     }
   };
 
+  const userid = localStorage.getItem("uid");
+  
+
+
+
   const questionPull = async (qid: number) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}`);
+      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}/${userid}`);
       const data = await response.json();
 
       if (data.error) throw new Error(data.error);
-      
+
       setQuestionText(data.question_text);
       setQuestionType(data.question_type);
       setDifficulty(data.question_level);
@@ -89,6 +95,7 @@ const Draggable_Question = () => {
       setError(err.message);
     }
   };
+
 
   return (
     <div className="container">

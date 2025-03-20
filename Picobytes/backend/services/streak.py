@@ -49,6 +49,7 @@ class Streaks:
 
     def get_streak(self, uid):
         try:
+            print(f"Received uid: {uid}")
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""

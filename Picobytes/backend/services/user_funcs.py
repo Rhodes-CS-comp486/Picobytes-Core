@@ -34,7 +34,7 @@ class UserFuncs:
             uid = self.generate_unique_uid(cursor)
 
             # Insert the new user
-            cursor.execute("INSERT INTO users (uid, uname, upassword, uadmin) VALUES (?, ?, ?, ?)",
+            cursor.execute("INSERT INTO users (uid, uname, upassword, streak, points, uadmin) VALUES (?, ?, ?, 1, 0, ?)",
                            (uid, uname, hashed_password, uadmin))
             connection.commit()
             print(f"User {uname} added successfully with UID: {uid}")

@@ -12,6 +12,8 @@ def create_table():
                 uid TEXT PRIMARY KEY,
                 uname TEXT NOT NULL,
                 upassword TEXT NOT NULL,
+                streak INTEGER NOT NULL,
+                points INTEGER NOT NULL,
                 uadmin INTEGER CHECK (uadmin BETWEEN 0 AND 1)
             );""")
 

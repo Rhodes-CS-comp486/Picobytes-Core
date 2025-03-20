@@ -24,7 +24,7 @@ const Topic_Select = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/topic_selection?qtype=ALL&topic=${topicName}`);
+                const response = await fetch(`http://localhost:5000/api/topic_selection?qtype=${questionType}&topic=${topicName}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch questions");
                 }

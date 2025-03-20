@@ -6,6 +6,9 @@
     align-items: center; /* Center horizontally */
     justify-content: center; /* Center vertically */
     gap: 40px; /* Space between boxes */
+    background-color: var(--background-color); /* Match the background color */
+    font-family: 'Nunito', sans-serif; /* Use the same font as home.css */
+    color: var(--text-color); /* Match text color */
 }
 
 #answer_input, #question_table {
@@ -19,13 +22,85 @@
     padding: 10px; 
     gap: 15px; /* Space between dragged questions */
     overflow: auto; /* Add scrollbar if too many items */
+    border-radius: 12px; /* Rounded corners */
+    background-color: var(--card-color); /* Match card background color */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transitions */
+}
+
+#answer_input:hover, #question_table:hover {
+    background-color: rgba(255, 255, 255, 0.05); /* Slight hover effect */
+    border-color: var(--active-border-color); /* Highlight border on hover */
 }
 
 .question_drag {
-    width: 150px; 
-    padding: 10px; 
-    text-align: center; 
-    border: 2px solid #fff; 
-    cursor: grab; 
+    width: 150px;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid #66bb6a; /* Green border */
+    cursor: grab;
     transition: all 0.3s ease; /* Smooth animation */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #a5d6a7; /* Medium green background */
+    color: #1b5e20; /* Dark green text */
+    font-weight: 600; /* Bold text */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+.question_drag:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+    background-color: #81c784; /* Slightly darker green on hover */
+}
+
+.question_drag:active {
+    transform: translateY(2px); /* Pressed effect */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow on press */
+}
+
+#dragged_words_display {
+    width: 70%;
+    min-height: 50px;
+    padding: 10px;
+    border: 2px solid var(--border-color); /* Match border color */
+    border-radius: 8px; /* Rounded corners */
+    background-color: var(--card-color); /* Match card background color */
+    color: var(--text-color); /* Match text color */
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -20px; /* Slight overlap with question text */
+}
+.question_drag {
+    width: 150px;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid #66bb6a; /* Green border */
+    cursor: grab;
+    transition: all 0.3s ease; /* Smooth animation */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #a5d6a7; /* Medium green background */
+    color: #1b5e20; /* Dark green text */
+    font-weight: 600; /* Bold text */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+.question_drag:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+    /* Removed background-color change */
+}
+
+.question_drag:active {
+    transform: translateY(2px); /* Pressed effect */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow on press */
+}
+
+#dragged_words_display {
+    width: 70%;
+    min-height: 50px;
 }

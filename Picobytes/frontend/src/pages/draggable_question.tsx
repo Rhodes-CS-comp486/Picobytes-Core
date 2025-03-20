@@ -61,7 +61,7 @@ const Draggable_Question = () => {
 
   const questionPull = async (qid: number) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}/${userid}`);
+      const response = await fetch(`http://localhost:5000/api/question/${qid}/${userid}`);
       const data = await response.json();
 
       if (data.error) throw new Error(data.error);

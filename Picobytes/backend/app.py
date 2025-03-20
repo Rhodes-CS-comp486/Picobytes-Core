@@ -347,6 +347,34 @@ def submit_answer():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/questions', methods=['GET'])
+def get_all_questions():
+    """API endpoint to fetch all questions."""
+    try:
+        # Get true/false questions
+        tf_questions = tf_question_service.pull_questions()
+        
+        # Get multiple choice questions
+        mc_questions = mc_question_service.get_all_mc_questions()
+        
+        # Count total questions
+        total_questions = len(tf_questions) + len(mc_questions)
+        
+        # Format the response as expected by the frontend
+        response = {
+            'questions': {
+                'tf': tf_questions,
+                'mc': mc_questions
+            },
+            'total_questions': total_questions
+        }
+        
+        return jsonify(response)
+    except Exception as e:
+        print(f"Error fetching all questions: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))

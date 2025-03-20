@@ -74,38 +74,21 @@ def get_user_stats(uid):
 
 
 
-    
-
-@app.route('/api/questions', methods=['GET'])
-def api_get_questions():
-    try:
-        tf_questions = tf_question_service.pull_questions()
-        mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
-
-        questions = {
-            'tf': tf_questions,
-            'mc': mc_questions
-        }
-
-        response = {
-            'questions': questions,
-            'total_questions': len(tf_questions) + len(mc_questions)
-        }
-
-        return jsonify(response)
-
-    except Exception as e:
-        print(f"Error in api_get_questions: {e}")
-        return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/question/<int:qid>', methods=['GET'])
-def question(qid):
+####UPDATED#####
+@app.route('/api/question/<int:qid>/<string:uid>', methods=['GET'])
+def question(qid, uid):
     """API endpoint to fetch a question by ID."""
-    response = question_fetcher_service.get_question(qid)
-    return response
+    if verification_service.verify_user(uid) == True:
+        response = question_fetcher_service.get_question(qid, uid)
+        return response
+    else:
+        return jsonify({'error': 'User not found'}), 401
 
-    # return jsonify({"error": "Unknown server error"}), 404
+
+
+
 
 
 @app.route('/api/admin/dashboard/active-users-list', methods=['GET'])

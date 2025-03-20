@@ -25,7 +25,8 @@ class QuestionService:
             return questions
         
         except Exception as e:
-            print(f"Error fetching questions: {e}")
+            # Keep error logging
+            print(f"Error fetching TF questions: {e}")
             return []
 
 

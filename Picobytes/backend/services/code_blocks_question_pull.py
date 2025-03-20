@@ -28,7 +28,8 @@ class CB_QuestionFetcher:
             conn.close()
             return all_questions
         except Exception as e:
-            print(f"Error fetching MC questions: {e}")
+            # Keep error logging
+            print(f"Error fetching code block questions: {e}")
             return []
 
     def get_question_by_id(self, question_id):

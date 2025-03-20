@@ -60,7 +60,6 @@ def home():
 
 @app.route('/api/get_user_stats/<string:uid>')
 def get_user_stats(uid):
-    print(f"Received uid: {uid}") 
     if verification_service.verify_user(uid) == True:
         curr_streak = streak_service.get_streak(uid)
         if curr_streak == -1:
@@ -69,28 +68,17 @@ def get_user_stats(uid):
             'streak': curr_streak,
             'uid': uid
         }
-        #return response
         return jsonify(response), 200
     else:
-        #print("error")
         return jsonify({'error': 'User not found'}), 401
-
-
-
 
 
 ####UPDATED#####
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):
     """API endpoint to fetch a question by ID."""
-    #if verification_service.verify_user(uid):
     response = question_fetcher_service.get_question(qid)
     return response
-    #else:
-      #  return jsonify({'error': 'User not found'}), 401
-
-
-
 
 
 @app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
@@ -101,16 +89,11 @@ def get_active_users_list():
     return jsonify(users)
 
 
-
-
 @app.route('/api/questions', methods=['GET'])
 def api_get_questions():
     try:
         tf_questions = tf_question_service.pull_questions()
         mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
-
-        print(f"TF Questions: {tf_questions}")
-        print(f"MC Questions: {mc_questions}")
 
         questions = {
             'tf': tf_questions,
@@ -122,7 +105,6 @@ def api_get_questions():
             'total_questions': len(tf_questions) + len(mc_questions)
         }
 
-        print(f"Sending response: {response}")  # Debug log
         return jsonify(response)
 
     except Exception as e:
@@ -227,7 +209,6 @@ def topic_selection():
     else:
         return jsonify({"error": "Topic not found"}), 404
 
-    # print(json.dumps({'topics': responses}, indent=4))
     return jsonify({'topics': responses}), 200
 
 
@@ -267,7 +248,6 @@ def login():
 
 @app.route('/api/update_password', methods=['POST'])
 def update_password():
-    print("updating password")
     data = request.get_json()
     uname = data.get('uname')
     upassword = data.get('upassword')
@@ -377,7 +357,4 @@ def submit_answer():
 
 
 if __name__ == '__main__':
-    # with app.app_context():
-    # print(topic_selection("MC", "Science"))
-    #print(question(1,"pvCYNLaP7Z"))
     app.run(debug=True)

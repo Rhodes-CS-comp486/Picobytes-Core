@@ -24,7 +24,8 @@ class Topic_Puller:
             conn.close()
             return question
         except Exception as e:
-            print(f"Error fetching MC questions: {e}")
+            # Keep error logging
+            print(f"Error fetching MC questions by topic: {e}")
             return []
 
     def get_tf_by_topic(self, topic):
@@ -39,7 +40,8 @@ class Topic_Puller:
             conn.close()
             return question
         except Exception as e:
-            print(f"Error fetching MC questions: {e}")
+            # Keep error logging
+            print(f"Error fetching TF questions by topic: {e}")
             return []
 
     def get_all_questions_by_topic(self, topic):
@@ -77,13 +79,11 @@ class Topic_Puller:
             return all_questions
 
         except Exception as e:
-            print(f"Error fetching all questions: {e}")
+            # Keep error logging
+            print(f"Error fetching all questions by topic: {e}")
             return []
 
 
 if __name__ == '__main__':
     service = Topic_Puller()
     questions = service.get_all_questions_by_topic("Science")
-    # Commenting out the loop that prints each question
-    # for question in questions:
-    #     print(question)

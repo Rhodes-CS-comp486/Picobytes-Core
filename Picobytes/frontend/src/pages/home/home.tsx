@@ -478,7 +478,7 @@ const Homepage = ({ toggleDark }: Prop) => {
                     <div className="topic-icon">{getTopicIcon(topic)}</div>
                     {topic}
                   </div>
-                  <div className="topic-percentage">{progress}%</div>
+                  <div className="topic-percentage" data-percentage={`${progress}%`}>{progress}%</div>
                 </div>
                 <div className="progress-bar">
                   <div

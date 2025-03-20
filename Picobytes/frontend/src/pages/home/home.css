@@ -709,31 +709,40 @@
 
 .topic-item {
   margin-bottom: 16px;
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.topic-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .topic-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .topic-name {
   font-weight: 600;
-  
+  font-size: 16px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
 }
 
 .topic-icon {
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background-color: #1cb0f6;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   color: white;
 }
@@ -741,7 +750,26 @@
 .topic-percentage {
   color: #58cc02;
   font-weight: 700;
+  font-size: 16px;
+  min-width: 60px;
+  text-align: right;
 }
+
+/* Percentage color variations based on completion level */
+.topic-percentage[data-percentage="60%"],
+.topic-percentage[data-percentage="45%"],
+.topic-percentage[data-percentage="30%"],
+.topic-percentage[data-percentage="20%"],
+.topic-percentage[data-percentage="10%"] {
+  color: #58cc02;
+}
+
+/* Add a gradient color effect based on percentage */
+[data-percentage="60%"] { color: #58cc02; }
+[data-percentage="45%"] { color: #78cb02; }
+[data-percentage="30%"] { color: #97ca02; }
+[data-percentage="20%"] { color: #b6c802; }
+[data-percentage="10%"] { color: #d4c702; }
 
 /* Daily goals section */
 .daily-goals-section {
@@ -838,3 +866,25 @@
   box-sizing: border-box;
   background: transparent;
 }
+
+/* Progress bar for topics */
+.topic-item .progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.topic-item .progress-filled {
+  height: 100%;
+  background-color: #58cc02;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Progress gradient based on percentage */
+.topic-item:nth-child(1) .progress-filled { background-color: #58cc02; }
+.topic-item:nth-child(2) .progress-filled { background-color: #78cb02; }
+.topic-item:nth-child(3) .progress-filled { background-color: #97ca02; }
+.topic-item:nth-child(4) .progress-filled { background-color: #b6c802; }
+.topic-item:nth-child(5) .progress-filled { background-color: #d4c702; }

@@ -42,12 +42,9 @@ class GetQuestions:
                 return jsonify("Question not found")
                 
             q_type = type
-            print(q_type)
 
             if q_type[0] == 'multiple_choice':
-                print(qid)
                 question_data = mc_question_service.get_question_by_id(qid)
-                print(question_data)
                 response = {
                     'question_id': question_data['qid'],
                     'question_text': question_data['qtext'],

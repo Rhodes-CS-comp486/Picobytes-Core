@@ -4,18 +4,25 @@ import './leaderboard.css';
 import Home_Header from '../home/home_header';
 import Home_Prof_Overlay from '../home/home_prof_overlay';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 /// INTERFACES /////////////////////////////////////////////////////////////
 interface Prop {
     toggleDark: () => void;
 }
 
+interface PlayerStreaks {
+    [key: string]: number; // Map of UID to their streak
+}
+
+
 const Leaderboard_All = ({toggleDark}: Prop) => {
     /// CONSTANTS ////////////////////////////////////////////////////////
     const navigate = useNavigate();
 
     const [showOverlay, setShowOverlay] = useState(false);
+    const [playerStreaks, setPlayerStreaks] = useState<PlayerStreaks>({});
+    const [players, setPlayers] = useState<{ username: string, uid: string }[]>([]);
     
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
@@ -23,28 +30,14 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
 
     // Get username from localStorage or set default
     const username = localStorage.getItem("username") || "Agent 41";
+    const uid = localStorage.getItem("uid") || "pvCYNLaP7Z"; //will correctly fetch uid from local storage except for Will and Matt users
 
     // Players array
-    const players = [username, 'Bob', 'Kugele', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9', 'Player 10'];
+    //const players = [username, 'Bob', 'Kugele', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9', 'Player 10'];
+   
 
 
     /// FUNCTIONS ////////////////////////////////////////////////////////
-    // Generate random questions answered (out of 50)
-    const generateRandomQuestionsAnswered = () => {
-        return Math.floor(Math.random() * 51); // Random value between 0 and 50
-    };
-
-    // Generate random streak (in days)
-    const generateRandomStreak = () => {
-        return Math.floor(Math.random() * 500); // Random streak between 0 and 500 days
-    };
-
-    // Generate random correctness percentage (0 to 100)
-    const generateRandomCorrectness = () => {
-        return Math.floor(Math.random() * 101); // Random value between 0 and 100
-    };
-
-
     // Get rank emote based on index
     const getRankEmote = (index: number) => {
         switch (index) {
@@ -58,19 +51,62 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                 return index + 1 + ".";  // Regular emote for other players
         }
     };
+    
 
-    // Function to convert streaks into days, months, or years
     const getStreakDisplay = (streakDays: number) => {
-        if (streakDays >= 365) {
-            const years = Math.floor(streakDays / 365);
-            return `${years} year${years > 1 ? 's' : ''}`;
-        } else if (streakDays >= 30) {
-            const months = Math.floor(streakDays / 30);
-            return `${months} month${months > 1 ? 's' : ''}`;
-        } else {
-            return `${streakDays} day${streakDays > 1 ? 's' : ''}`;
-        }
+        if (!streakDays) return ''; // No streak to display
+        const streakDisplay = streakDays >= 365
+            ? `${Math.floor(streakDays / 365)} year${streakDays >= 730 ? 's' : ''}`
+            : streakDays >= 30
+            ? `${Math.floor(streakDays / 30)} month${streakDays >= 60 ? 's' : ''}`
+            : `${streakDays} day${streakDays > 1 ? 's' : ''}`;
+        
+        // Add the fire emoji if streakDays is >= 1
+        return streakDays >= 1 ? `🔥 ${streakDisplay}` : streakDisplay;
     };
+
+
+    useEffect(() => {
+        // Example list of player UIDs (You can replace it with actual data)
+        
+        const playersList = [
+            { username: username, uid: uid },
+            { username: 'Bob', uid: 'pvCYNLaP7Z' },
+            { username: 'Kugele', uid: '5YAN6mAhvf' },
+            { username: 'Player 4', uid: '5YAN6mAhvf' },
+            { username: 'Player 5', uid: '5YAN6mAhvf' },
+            { username: 'Player 6', uid: '5YAN6mAhvf' },
+            { username: 'Player 7', uid: '5YAN6mAhvf' },
+            { username: 'Player 8', uid: '5YAN6mAhvf' },
+            { username: 'Player 9', uid: '5YAN6mAhvf' },
+            { username: 'Player 10', uid: '5YAN6mAhvf' }
+        ];
+
+        setPlayers(playersList); // Set player data
+
+        // Fetch streaks for all players
+        const fetchStreaks = async () => {
+            const streaks: PlayerStreaks = {};
+            for (const player of playersList) {
+                try {
+                    const response = await fetch(`http://localhost:5000/get_user_stats/${player.uid}`);
+                    const data = await response.json();
+                    if (response.status === 200 && data.streak !== undefined) {
+                        streaks[player.uid] = data.streak;
+                    } else {
+                        streaks[player.uid] = 0; // If there's an error or no streak, set to 0
+                    }
+                } catch (error) {
+                    console.error(`Error fetching streak for ${player.uid}:`, error);
+                    streaks[player.uid] = 0; // If there's an error fetching streak, set to 0
+                }
+            }
+            setPlayerStreaks(streaks); // Update the streaks in the state
+        };
+
+        fetchStreaks();
+    }, []);
+
 
 
     /// MAIN CONTENT ////////////////////////////////////////////////////
@@ -129,14 +165,11 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                 
                 <div id="ld-all-grid">
                     {players.map((player, index) => {
-                        // Generate random streak for each player
-                        const streak = generateRandomStreak();
-                        const questionsAnswered = generateRandomQuestionsAnswered();
-                        const correctness = generateRandomCorrectness();  // Generate random correctness
+                        const streak = playerStreaks[player.uid] || 0;
 
                         return (
                             <div id='ld-all-grid-item' key={index}
-                                className={player === username ? 'highlight-user' : ''} // Highlight if current user
+                                className={player.username === username ? 'highlight-user' : ''} // Highlight if current user
                             >
                                 <div id="leaderboard-grid-hbox">
                                     <div id="ld-all-rank-icon">
@@ -144,28 +177,28 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                                     </div>
 
                                     <div id="ld-all-pfp-icon">
-                                        {player.charAt(0).toUpperCase()}
+                                        {player.username.charAt(0).toUpperCase()}
                                     </div>
 
                                     {/* PLAYER USERNAME & STREAKS */}
                                     <div id="leaderboard-user-stats">
-                                        {player}
+                                        {player.username}
                                         <div id="leaderboard-streak">
-                                            🔥 {getStreakDisplay(streak)}
+                                            {getStreakDisplay(streak)}
                                         </div>
                                     </div>
 
                                     {/* DISPLAY TOTAL QUESTIONS ANSWERED */}
                                     <div id="leaderboard-questions-answered">
-                                        {questionsAnswered} / 50
+                                        10 / 50
                                     </div>
 
                                     {/* DISPLAY CORRECTNESS PERCENTAGE */}
                                     <div id="leaderboard-correctness">
-                                        ✅ {correctness}%
+                                        ✅ 50%
                                     </div>
 
-                                    
+                                  
                                 </div>
                             </div>
                         );

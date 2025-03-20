@@ -15,6 +15,8 @@ from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
 import json
 from services.analytics_service import AnalyticsService
+from services.streak import Streaks
+from services.verification import Verification
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -47,12 +49,32 @@ question_adder_service = QuestionAdder()  # Initialize the new service
 question_fetcher_service = GetQuestions()
 cb_question_service = CB_QuestionFetcher()
 analytics_service = AnalyticsService()
+streak_service = Streaks()
+verification_service = Verification()
 
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
+@app.route('/get_user_stats/<string:uid>')
+def get_user_stats(uid):
+    if verification_service.verify_user(uid) == True:
+        curr_streak = streak_service.get_streak(uid)
+        if curr_streak == -1:
+            return jsonify({'error getting streak'}), 500
+        response = {
+            'streak': curr_streak,
+            'uid': uid
+        }
+        return jsonify(response), 200
+    else:
+        return jsonify({'error': 'User not found'}), 401
+
+
+
+    
 
 @app.route('/api/questions', methods=['GET'])
 def api_get_questions():

@@ -17,15 +17,20 @@ class AnalyticsService:
         conn.row_factory = sqlite3.Row
         return conn
         
-    def record_question_attempt(self, qid: int, is_correct: bool) -> bool:
+    def record_question_attempt(self, qid: int, is_correct: bool, uid: str = None) -> bool:
         """
         Record a question attempt in the analytics database
+        
+        Args:
+            qid: Question ID
+            is_correct: Whether the answer was correct
+            uid: User ID (optional)
         """
         conn = self._get_analytics_db_connection()
         try:
             cursor = conn.execute(
-                "INSERT INTO question_analytics (qid, is_correct) VALUES (?, ?)",
-                (qid, is_correct)
+                "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (?, ?, ?)",
+                (qid, uid, is_correct)
             )
             conn.commit()
             return True

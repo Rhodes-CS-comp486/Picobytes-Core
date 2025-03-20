@@ -75,44 +75,52 @@ const AdminDashboard = () => {
   const [usageStats, setUsageStats] = useState(mockData.usageStats);
   const [activeUsersPeriod, setActiveUsersPeriod] = useState('24h');
 
-  // Fetch real metrics from the backend
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoading(true);
-      
-      try {
-        // Fetch performance metrics
-        const perfResponse = await fetch('http://localhost:5000/api/admin/dashboard/performance');
-        if (perfResponse.ok) {
-          const perfData = await perfResponse.json();
-          setPerformanceMetrics(perfData);
-        }
-        
-        // Fetch question stats
-        const questionsResponse = await fetch('http://localhost:5000/api/admin/dashboard/question-stats');
-        if (questionsResponse.ok) {
-          const questionsData = await questionsResponse.json();
-          setQuestionStats(questionsData);
-        }
-        
-        // Fetch usage stats
-        const usageResponse = await fetch('http://localhost:5000/api/admin/dashboard/usage-stats');
-        if (usageResponse.ok) {
-          const usageData = await usageResponse.json();
-          setUsageStats(usageData);
-        }
-        
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError('Failed to load dashboard data. Using fallback data.');
-        // Keep the mock data as fallback
-      } finally {
-        setLoading(false);
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch performance metrics
+      const perfResponse = await fetch('http://localhost:5000/api/admin/dashboard/performance');
+      if (perfResponse.ok) {
+        const perfData = await perfResponse.json();
+        setPerformanceMetrics(perfData);
       }
-    };
+      
+      // Fetch question stats
+      const questionsResponse = await fetch('http://localhost:5000/api/admin/dashboard/question-stats');
+      if (questionsResponse.ok) {
+        const questionsData = await questionsResponse.json();
+        setQuestionStats(questionsData);
+      }
+      
+      // Fetch usage stats
+      const usageResponse = await fetch('http://localhost:5000/api/admin/dashboard/usage-stats');
+      if (usageResponse.ok) {
+        const usageData = await usageResponse.json();
+        setUsageStats(usageData);
+      }
+      
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data. Using fallback data.');
+      // Keep the mock data as fallback
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    setLoading(true);
+    fetchDashboardData().finally(() => setLoading(false));
+  }, []);
+  
+  // Set up real-time polling for question stats
+  useEffect(() => {
+    // Refresh data every 5 seconds
+    const intervalId = setInterval(() => {
+      fetchDashboardData();
+    }, 5000);
     
-    fetchDashboardData();
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const handlePeriodChange = (period: string) => {

@@ -63,7 +63,7 @@ class UserFuncs:
     ##################################################
     ##########        ADMIN CHECK           ##########
     ##################################################
-    '''def is_admin(self, uid):
+    def is_admin(self, uid):
         """Check if a user is an admin"""
         if not uid:
             return False
@@ -76,7 +76,7 @@ class UserFuncs:
         result = cursor.fetchone()
         conn.close()
         
-        return bool(result and result['is_admin'] == 1)'''
+        return bool(result and result['is_admin'] == 1)
 
     def change_password(self, uname, hashed_password):
         try:

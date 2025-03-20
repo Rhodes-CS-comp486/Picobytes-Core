@@ -4,7 +4,6 @@ import string
 import random
 import time
 
-from conda_index.index.convert_cache import db_path
 
 
 class UserFuncs:

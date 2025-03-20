@@ -80,15 +80,14 @@ def get_user_stats(uid):
 
 
 ####UPDATED#####
-@app.route('/api/question/<int:qid>/<string:uid>', methods=['GET'])
-def question(qid, uid):
+@app.route('/api/question/<int:qid>', methods=['GET'])
+def question(qid):
     """API endpoint to fetch a question by ID."""
-    if verification_service.verify_user(uid) == True:
-        response = question_fetcher_service.get_question(qid, uid)
-        return response
-    else:
-        return jsonify({'error': 'User not found'}), 401
-
+    #if verification_service.verify_user(uid):
+    response = question_fetcher_service.get_question(qid)
+    return response
+    #else:
+      #  return jsonify({'error': 'User not found'}), 401
 
 
 
@@ -350,5 +349,5 @@ def submit_answer():
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))
-    #print(get_user_stats("pvCYNLaP7Z"))
+    #print(question(1,"pvCYNLaP7Z"))
     app.run(debug=True)

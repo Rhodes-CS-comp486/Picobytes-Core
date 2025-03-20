@@ -15,9 +15,7 @@ class Verification:
     def verify_user(self, uid):
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.execute("""
-                        select * from users where uid = ?
-                        """, (uid))
+        cursor.execute("""select * from users where uid = ?""", (uid,))
         user = cursor.fetchone()
         if user is None:
             return False

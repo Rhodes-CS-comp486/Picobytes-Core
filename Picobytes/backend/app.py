@@ -58,7 +58,7 @@ def home():
     return render_template('index.html')
 
 
-@app.route('/get_user_stats/<string:uid>')
+@app.route('/api/get_user_stats/<string:uid>')
 def get_user_stats(uid):
     print(f"Received uid: {uid}") 
     if verification_service.verify_user(uid) == True:
@@ -69,8 +69,10 @@ def get_user_stats(uid):
             'streak': curr_streak,
             'uid': uid
         }
+        #return response
         return jsonify(response), 200
     else:
+        #print("error")
         return jsonify({'error': 'User not found'}), 401
 
 
@@ -348,4 +350,5 @@ def submit_answer():
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))
+    #print(get_user_stats("pvCYNLaP7Z"))
     app.run(debug=True)

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import './draggable_question.css';
 
 const Draggable_Question = () => {
@@ -25,6 +25,7 @@ const Draggable_Question = () => {
   const [questionText, setQuestionText] = useState("");
   const [questions, setQuestion] = useState(["Question 1", "A 2", "Question 3", "Question 4", "Question 5"]);
   const [draggedWords, setDraggedWords] = useState<string[]>([]); // New state for dragged words
+  const [uid, setUid] = useState<string | null>(null); // State to store the UID
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: HTMLElement) => {
     setDraggedItem(item);
@@ -53,13 +54,39 @@ const Draggable_Question = () => {
     }
   };
 
-  const questionPull = async (qid: number) => {
+  const fetchUid = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}`);
+      const response = await fetch('http://127.0.0.1:5000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uname: '123456', 
+          upassword: '123456', 
+        }),
+      });
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      setUid(data.uid); // Store the UID in state
+      console.log("UID:", data.uid);
+    } catch (err: any) {
+      console.error("Error fetching UID:", err.message);
+      setError(err.message);
+    }
+  };
+
+  const questionPull = async (qid: number) => {
+    if (!uid) {
+      console.error("UID is not available");
+      return;
+    }
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}/${uid}`);
       const data = await response.json();
 
       if (data.error) throw new Error(data.error);
-      
+
       setQuestionText(data.question_text);
       setQuestionType(data.question_type);
       setDifficulty(data.question_level);
@@ -89,6 +116,10 @@ const Draggable_Question = () => {
       setError(err.message);
     }
   };
+
+  useEffect(() => {
+    fetchUid(); // Fetch the UID when the component mounts
+  }, []);
 
   return (
     <div className="container">

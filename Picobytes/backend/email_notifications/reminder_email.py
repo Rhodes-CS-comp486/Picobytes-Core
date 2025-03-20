@@ -1,4 +1,4 @@
-from send_email import send
+from email_notifications.send_email import send
 import datetime
 
 def reminder(name : str, n : int, mail : str): 

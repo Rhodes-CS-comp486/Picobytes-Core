@@ -1,7 +1,7 @@
-from send_email import send
+from email_notifications.send_email import send
 import datetime
 
-def streak(name : str, n : int, mail : str, )
+def streak(name : str, n : int, mail : str):
     d = datetime.datetime.now()
 
     formatted_date = d.strftime("(%B %d, %Y)")

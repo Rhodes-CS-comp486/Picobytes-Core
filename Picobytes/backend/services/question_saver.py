@@ -1,14 +1,14 @@
 import sqlite3
 import random
 import os
-from streak import Streaks
+from services.streak import Streaks
 
 import time
 
 from numpy.lib.npyio import savez
 
 
-streaks = Streaks()
+streaks_service = Streaks()
 
 
 class QuestionSave:
@@ -106,7 +106,7 @@ class QuestionSave:
         try:
             currtime = time()
 
-            streaks.update_streak(uid, currtime)
+            streaks_service.update_streak(uid, currtime)
 
             conn = self._connect()
             cursor = conn.cursor()

@@ -58,7 +58,7 @@ class GetQuestions:
                     'answer': question_data['answer'],
                     'question_type': question_data['qtype'],
                     'question_level': question_data['qlevel'],
-                    'question_topic': question_data['qtopic'].
+                    'question_topic': question_data['qtopic'],
                     'uid': uid
                 }
                 return jsonify(response)

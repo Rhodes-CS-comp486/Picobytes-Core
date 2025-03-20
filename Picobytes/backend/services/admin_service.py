@@ -102,8 +102,10 @@ class AdminService:
     
     def get_question_stats(self) -> Dict[str, List[Dict[str, Any]]]:
         """
-        Get statistics about most attempted and problematic questions
+        Get statistics about most attempted and problematic questions.
+        Always fetches fresh data directly from the database.
         """
+        # Force fresh data to be fetched from the database
         most_attempted = self.analytics_service.get_most_attempted_questions(5)
         problematic = self.analytics_service.get_problematic_questions(5)
         

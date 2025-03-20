@@ -11,6 +11,7 @@ def create_analytics_db():
             CREATE TABLE IF NOT EXISTS question_analytics (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 qid INTEGER NOT NULL,
+                uid TEXT,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
                 is_correct BOOLEAN NOT NULL
             );

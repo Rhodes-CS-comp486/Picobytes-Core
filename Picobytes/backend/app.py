@@ -344,6 +344,7 @@ def submit_answer():
         data = request.get_json()
         question_id = data.get('question_id')
         selected_answer = data.get('selected_answer')
+        uid = data.get('uid')  # Extract UID from request
 
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
@@ -358,8 +359,8 @@ def submit_answer():
         correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
         is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
 
-        # Record this question attempt in analytics
-        analytics_service.record_question_attempt(int(question_id), is_correct)
+        # Record this question attempt in analytics with the UID if available
+        analytics_service.record_question_attempt(int(question_id), is_correct, uid)
 
         # Here you would typically save the user's answer to your database
         # For now, we'll just return whether it was correct or not

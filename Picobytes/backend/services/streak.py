@@ -38,7 +38,7 @@ class Streaks:
             elif difference.days > 1:
                 days = 0
 
-            cursor.execute("""UPDATE users SET ulastanswertime = ?, streak = ? WHERE id = ?""", (time, days, uid,))
+            cursor.execute("""UPDATE users SET ulastanswertime = ?, ustreak = ? WHERE id = ?""", (time, days, uid,))
             conn.commit()
             conn.close()
             return 1
@@ -52,7 +52,7 @@ class Streaks:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                       select streak from users where uid=?
+                       select ustreak from users where uid=?
                    """, (uid,))
 
             streak = cursor.fetchone()

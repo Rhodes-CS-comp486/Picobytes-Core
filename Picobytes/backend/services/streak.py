@@ -45,3 +45,20 @@ class Streaks:
         except Exception as e:
             print(f"Error saving response: {e}")
             return 0
+
+
+    def get_streak(self, uid):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""
+                       select streak from users where uid=?
+                   """, (uid,))
+
+            streak = cursor.fetchone()
+
+            conn.close()
+            return streak
+        except Exception as e:
+            print(f"Error saving response: {e}")
+            return -1

@@ -101,6 +101,35 @@ def get_active_users_list():
     return jsonify(users)
 
 
+
+
+@app.route('/api/questions', methods=['GET'])
+def api_get_questions():
+    try:
+        tf_questions = tf_question_service.pull_questions()
+        mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
+
+        print(f"TF Questions: {tf_questions}")
+        print(f"MC Questions: {mc_questions}")
+
+        questions = {
+            'tf': tf_questions,
+            'mc': mc_questions
+        }
+
+        response = {
+            'questions': questions,
+            'total_questions': len(tf_questions) + len(mc_questions)
+        }
+
+        print(f"Sending response: {response}")  # Debug log
+        return jsonify(response)
+
+    except Exception as e:
+        print(f"Error in api_get_questions: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/admin/update-user-status', methods=['POST'])
 def update_user_status():
     # In a production environment, you should add admin authentication here

@@ -54,35 +54,14 @@ const Draggable_Question = () => {
     }
   };
 
-  const fetchUid = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:5000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          uname: '123456', 
-          upassword: '123456', 
-        }),
-      });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      setUid(data.uid); // Store the UID in state
-      console.log("UID:", data.uid);
-    } catch (err: any) {
-      console.error("Error fetching UID:", err.message);
-      setError(err.message);
-    }
-  };
+  const userid = localStorage.getItem("uid");
+  
+
+
 
   const questionPull = async (qid: number) => {
-    if (!uid) {
-      console.error("UID is not available");
-      return;
-    }
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}/${uid}`);
+      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}/${userid}`);
       const data = await response.json();
 
       if (data.error) throw new Error(data.error);
@@ -117,9 +96,6 @@ const Draggable_Question = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUid(); // Fetch the UID when the component mounts
-  }, []);
 
   return (
     <div className="container">

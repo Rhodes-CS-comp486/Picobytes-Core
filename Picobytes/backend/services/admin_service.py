@@ -6,7 +6,7 @@ from typing import Dict, List, Any
 from services.analytics_service import AnalyticsService
 
 class AdminService:
-    def __init__(self, db_path="users.db"):
+    def __init__(self, db_path="pico.db"):
         self.db_path = db_path
         self.analytics_service = AnalyticsService()
     

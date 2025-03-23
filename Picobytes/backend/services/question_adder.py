@@ -2,7 +2,7 @@ import sqlite3
 
 class QuestionAdder:
     def __init__(self):
-        self.db_path = "qa.db"
+        self.db_path = "pico.db"
     
     def add_question(self, question_data):
         """Add a new question to the database."""

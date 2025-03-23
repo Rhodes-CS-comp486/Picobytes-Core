@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class Streaks:
-    def __init__(self, db_filename="users.db"):
+    def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
         self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
 

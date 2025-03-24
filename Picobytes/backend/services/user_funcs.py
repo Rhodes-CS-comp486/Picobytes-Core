@@ -8,7 +8,7 @@ import time
 
 class UserFuncs:
 
-    def __init__(self, db_filename="users.db"):
+    def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
         self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
 
@@ -63,7 +63,7 @@ class UserFuncs:
     ##################################################
     ##########        ADMIN CHECK           ##########
     ##################################################
-    '''def is_admin(self, uid):
+    def is_admin(self, uid):
         """Check if a user is an admin"""
         if not uid:
             return False
@@ -76,7 +76,7 @@ class UserFuncs:
         result = cursor.fetchone()
         conn.close()
         
-        return bool(result and result['is_admin'] == 1)'''
+        return bool(result and result['is_admin'] == 1)
 
     def change_password(self, uname, hashed_password):
         try:

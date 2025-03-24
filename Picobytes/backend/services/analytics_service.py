@@ -3,29 +3,31 @@ from typing import Dict, List, Any
 from datetime import datetime, timedelta
 
 class AnalyticsService:
-    def __init__(self, analytics_db_path="analytics.db", question_db_path="qa.db"):
-        self.analytics_db_path = analytics_db_path
-        self.question_db_path = question_db_path
+    def __init__(self, db_path="pico.db",):
+        self.db_path = db_path
+
     
-    def _get_analytics_db_connection(self):
-        conn = sqlite3.connect(self.analytics_db_path)
+    def _get_db_connection(self):
+        conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
     
-    def _get_question_db_connection(self):
-        conn = sqlite3.connect(self.question_db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
+
         
-    def record_question_attempt(self, qid: int, is_correct: bool) -> bool:
+    def record_question_attempt(self, qid: int, is_correct: bool, uid: str = None) -> bool:
         """
         Record a question attempt in the analytics database
+        
+        Args:
+            qid: Question ID
+            is_correct: Whether the answer was correct
+            uid: User ID (optional)
         """
-        conn = self._get_analytics_db_connection()
+        conn = self._get_db_connection()
         try:
             cursor = conn.execute(
-                "INSERT INTO question_analytics (qid, is_correct) VALUES (?, ?)",
-                (qid, is_correct)
+                "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (?, ?, ?)",
+                (qid, uid, is_correct)
             )
             conn.commit()
             return True
@@ -39,14 +41,13 @@ class AnalyticsService:
         """
         Get the most attempted questions with their counts
         """
-        analytics_conn = self._get_analytics_db_connection()
-        question_conn = self._get_question_db_connection()
+        conn = self._get_db_connection()
         
         result = []
         
         try:
             # Get question attempt counts
-            cursor = analytics_conn.execute("""
+            cursor = conn.execute("""
                 SELECT qid, COUNT(*) as attempts 
                 FROM question_analytics 
                 GROUP BY qid 
@@ -61,7 +62,7 @@ class AnalyticsService:
                 qid = row['qid']
                 attempts = row['attempts']
                 
-                question_cursor = question_conn.execute(
+                question_cursor = conn.execute(
                     "SELECT qtext FROM questions WHERE qid = ?", 
                     (qid,)
                 )
@@ -80,21 +81,19 @@ class AnalyticsService:
             print(f"Error getting most attempted questions: {e}")
             return []
         finally:
-            analytics_conn.close()
-            question_conn.close()
+            conn.close()
     
     def get_problematic_questions(self, limit: int = 5) -> List[Dict[str, Any]]:
         """
         Get questions with the lowest success rates
         """
-        analytics_conn = self._get_analytics_db_connection()
-        question_conn = self._get_question_db_connection()
+        conn = self._get_db_connection()
         
         result = []
         
         try:
             # Get questions with at least 5 attempts, ordered by success rate
-            cursor = analytics_conn.execute("""
+            cursor = conn.execute("""
                 SELECT 
                     qid, 
                     COUNT(*) as attempts,
@@ -114,7 +113,7 @@ class AnalyticsService:
                 attempts = row['attempts']
                 success_rate = row['success_rate']
                 
-                question_cursor = question_conn.execute(
+                question_cursor = conn.execute(
                     "SELECT qtext FROM questions WHERE qid = ?", 
                     (qid,)
                 )
@@ -134,14 +133,14 @@ class AnalyticsService:
             print(f"Error getting problematic questions: {e}")
             return []
         finally:
-            analytics_conn.close()
-            question_conn.close()
+            conn.close()
+
     
     def get_completion_stats(self) -> Dict[str, Any]:
         """
         Get overall completion rates and average scores
         """
-        conn = self._get_analytics_db_connection()
+        conn = self._get_db_connection()
         
         try:
             # Overall success rate

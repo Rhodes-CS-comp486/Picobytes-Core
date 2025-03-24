@@ -80,15 +80,14 @@ def get_user_stats(uid):
 
 
 ####UPDATED#####
-@app.route('/api/question/<int:qid>/<string:uid>', methods=['GET'])
-def question(qid, uid):
+@app.route('/api/question/<int:qid>', methods=['GET'])
+def question(qid):
     """API endpoint to fetch a question by ID."""
-    if verification_service.verify_user(uid) == True:
-        response = question_fetcher_service.get_question(qid, uid)
-        return response
-    else:
-        return jsonify({'error': 'User not found'}), 401
-
+    #if verification_service.verify_user(uid):
+    response = question_fetcher_service.get_question(qid)
+    return response
+    #else:
+      #  return jsonify({'error': 'User not found'}), 401
 
 
 
@@ -100,6 +99,35 @@ def get_active_users_list():
     period = request.args.get('period', '24h')
     users = admin_service.get_active_users_list(period)
     return jsonify(users)
+
+
+
+
+@app.route('/api/questions', methods=['GET'])
+def api_get_questions():
+    try:
+        tf_questions = tf_question_service.pull_questions()
+        mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
+
+        print(f"TF Questions: {tf_questions}")
+        print(f"MC Questions: {mc_questions}")
+
+        questions = {
+            'tf': tf_questions,
+            'mc': mc_questions
+        }
+
+        response = {
+            'questions': questions,
+            'total_questions': len(tf_questions) + len(mc_questions)
+        }
+
+        print(f"Sending response: {response}")  # Debug log
+        return jsonify(response)
+
+    except Exception as e:
+        print(f"Error in api_get_questions: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/admin/update-user-status', methods=['POST'])
@@ -316,6 +344,7 @@ def submit_answer():
         data = request.get_json()
         question_id = data.get('question_id')
         selected_answer = data.get('selected_answer')
+        uid = data.get('uid')  # Extract UID from request
 
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
@@ -330,8 +359,8 @@ def submit_answer():
         correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
         is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
 
-        # Record this question attempt in analytics
-        analytics_service.record_question_attempt(int(question_id), is_correct)
+        # Record this question attempt in analytics with the UID if available
+        analytics_service.record_question_attempt(int(question_id), is_correct, uid)
 
         # Here you would typically save the user's answer to your database
         # For now, we'll just return whether it was correct or not
@@ -350,5 +379,5 @@ def submit_answer():
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))
-    #print(get_user_stats("pvCYNLaP7Z"))
+    #print(question(1,"pvCYNLaP7Z"))
     app.run(debug=True)

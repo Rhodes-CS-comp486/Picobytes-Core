@@ -17,7 +17,7 @@ cb_question_service = CB_QuestionFetcher()
 
 class GetQuestions:
 
-    def __init__(self, db_filename="qa.db"):
+    def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
         self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
 
@@ -25,7 +25,7 @@ class GetQuestions:
         """Establish and return a database connection."""
         return sqlite3.connect(self.db_path)
 
-    def get_question(self, qid, uid):
+    def get_question(self, qid):
         try:
             conn = self._connect()
             cursor = conn.cursor()
@@ -41,10 +41,10 @@ class GetQuestions:
             if type is None:
                 return jsonify("Question not found")
                 
-            q_type = type[0]
+            q_type = type
             print(q_type)
 
-            if q_type == 'multiple_choice':
+            if q_type[0] == 'multiple_choice':
                 print(qid)
                 question_data = mc_question_service.get_question_by_id(qid)
                 print(question_data)
@@ -59,9 +59,10 @@ class GetQuestions:
                     'question_type': question_data['qtype'],
                     'question_level': question_data['qlevel'],
                     'question_topic': question_data['qtopic'],
-                    'uid': uid
+                    #'uid': uid
                 }
                 return jsonify(response)
+                #return response
 
             elif q_type == 'true_false':
                 question_data = tf_question_service.get_question_by_id(qid)
@@ -72,7 +73,7 @@ class GetQuestions:
                     'question_type': question_data['qtype'],
                     'question_level': question_data['qlevel'],
                     'question_topic': question_data['qtopic'],
-                    'uid': uid
+                    #'uid': uid
                 }
                 return jsonify(response)
 
@@ -85,7 +86,7 @@ class GetQuestions:
                     'question_topic': question_data['qtopic'],
                     'question_level': question_data['qlevel'],
                     'professor_answer': question_data['prof_answer'],
-                    'uid': uid
+                    #'uid': uid
                 }
                 return jsonify(response)
 
@@ -108,7 +109,7 @@ class GetQuestions:
                     'block9': question_data['block9'],
                     'block10': question_data['block10'],
                     'answer': question_data['answer'],
-                    'uid': uid
+                    #'uid': uid
                 }
                 return jsonify(response)
 

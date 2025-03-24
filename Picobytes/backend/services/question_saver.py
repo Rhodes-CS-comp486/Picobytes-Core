@@ -7,6 +7,7 @@ import time
 from flask import jsonify
 
 
+
 streaks_service = Streaks()
 analytics_service = AnalyticsService()
 
@@ -129,9 +130,17 @@ class QuestionSave:
             if qtype is None:
                 return -1
 
+            cursor.execute('select qid from user_responses where uid = ? and qid = ?', (uid,qid))
+            exists = cursor.fetchone()
+
+            if exists is None:
+                return jsonify({'error': 'user has already answered this question'})
+
             cursor.execute('insert into user_responses (uid, qid) values (?, ?)', (uid, qid))
 
             conn.commit()
+
+            qtype = qtype[0]
 
             if qtype == 'multiple_choice':
                 cursor.execute('select answer from multiple_choice where qid = ?', (qid,))
@@ -197,7 +206,7 @@ class QuestionSave:
                 cursor.execute('UPDATE users SET ucorrect = 0 WHERE uid = ?', (uid,))
                 conn.commit()
                 cursor.execute('select uincorrect from users where uid = ?', (uid,))
-                num_wrong = cursor.fetchone()
+                num_wrong = cursor.fetchone()[0]
 
                 new_points = -1*get_multiplier(num_wrong)
                 cursor.execute('update users set uincorrect = ? where uid = ?', (num_wrong + 1, uid,))
@@ -206,7 +215,7 @@ class QuestionSave:
 
             cursor.execute('select upoints from users where uid = ?', (uid,))
             curr_points = cursor.fetchone()
-            cursor.execute('update users set upoinds = ? where uid = ?', (curr_points+new_points, uid,))
+            cursor.execute('update users set upoints = ? where uid = ?', (curr_points+new_points, uid,))
 
 
 
@@ -220,8 +229,7 @@ class QuestionSave:
             return 0
 
 
-question_save = QuestionSave()
 
-question_save.save_question('Jb0vrawZvV', 1, 0)
+
 
 

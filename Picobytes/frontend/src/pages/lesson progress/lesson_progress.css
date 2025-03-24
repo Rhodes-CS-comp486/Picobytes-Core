@@ -16,7 +16,8 @@
 
 /* Style the progress value */
 #lesson-prog-bar::-webkit-progress-value {
-    background-color: var(--primary-theme-color); 
+    background-color: var(--primary-theme-color);
+    transition: width 1s ease-in-out; /* Smooth transition for filling */
     border-radius: 15px; /* Rounded corners */
 }
 
@@ -24,4 +25,10 @@
 #lesson-prog-bar::-webkit-progress-bar {
     background-color: #e0e0e0; /* Light gray background */
     border-radius: 15px; /* Rounded corners */
+}
+
+#lesson-prog-bar::-moz-progress-bar {
+    background-color: #4caf50;
+    transition: width 1s ease-in-out; /* For Firefox */
+    border-radius: 20px;
 }

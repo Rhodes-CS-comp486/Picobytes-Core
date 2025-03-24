@@ -16,6 +16,7 @@ interface PlayerStreaks {
 }
 
 
+
 const Leaderboard_All = ({toggleDark}: Prop) => {
     /// CONSTANTS ////////////////////////////////////////////////////////
     const navigate = useNavigate();
@@ -23,6 +24,10 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
     const [showOverlay, setShowOverlay] = useState(false);
     const [playerStreaks, setPlayerStreaks] = useState<PlayerStreaks>({});
     const [players, setPlayers] = useState<{ username: string, uid: string }[]>([]);
+
+    const [progressValue, setProgressValue] = useState(0); // Initial value is 0
+
+
     
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
@@ -105,6 +110,11 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
         };
 
         fetchStreaks();
+
+        // Animate progress bar from 0 to target value (e.g., 30)
+        setTimeout(() => {
+            setProgressValue(30); // Set your target value here
+        }, 500); // Delay animation slightly
     }, []);
 
 
@@ -188,10 +198,7 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                                         </div>
                                     </div>
 
-                                    {/* DISPLAY TOTAL QUESTIONS ANSWERED */}
-                                    <div id="leaderboard-questions-answered">
-                                        10 / 50
-                                    </div>
+                                  
 
                                     {/* DISPLAY CORRECTNESS PERCENTAGE */}
                                     <div id="leaderboard-correctness">
@@ -205,6 +212,59 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                     })}
                 </div>
             </div>
+
+            {/* USER STATS */}
+            <div id="ld-all-user-stats">
+                <div id="ld-all-user-header">
+                  
+                    1.
+                    <div id="ld-all-user-icon">
+                        {username.charAt(0).toUpperCase()}
+                    </div>
+                    {username}
+            
+                </div>
+                <div id="ld-all-user-stats-vbox">
+                    <div id="ld-all-user-stats-hbox">
+
+                        {/* Points */}
+                        <div className="stat-item">
+                            <div className="stat-icon">👾</div>
+                            <div className="stat-value">
+                                0
+                            </div>
+                            <div className="stat-label">Bytes</div>
+                        </div>
+
+                        {/* Streak */}
+                        <div className="stat-item">
+                            <div className="stat-icon">🔥</div>
+                            <div className="stat-value">
+                                0
+                            </div>
+                            <div className="stat-label">Streaks</div>
+                        </div>
+
+                        {/* Completed */}
+                        <div className="stat-item">
+                            <div className="stat-icon">⭐</div>
+                            <div className="stat-value">
+                                10/50
+                            </div>
+                            <div className="stat-label">Completed</div>
+                        </div>
+                    </div>
+
+                    {/* Progress */}
+                    
+                    <div id="ld-all-user-goal-text">
+                        {100-progressValue} points left until next goal
+                    </div>
+                    <progress max='100' value={progressValue} id='lesson-prog-bar'></progress>
+                    
+                </div>
+            </div>
+                
         </div>
     );
 };

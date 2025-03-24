@@ -50,6 +50,9 @@ const Login = () => {
       if(data.uid != -1){
         navigate("/homepage");
       }
+      else{
+        setError("Invalid username or password");
+      }
       
     } catch (err: any) {
       setError(err.message);

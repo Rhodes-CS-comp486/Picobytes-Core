@@ -37,6 +37,7 @@ const Login = () => {
       }
 
       // Store user information in localStorage
+      console.log(data.uid)
       localStorage.setItem("uid", data.uid);
       localStorage.setItem("username", username);
 
@@ -46,7 +47,10 @@ const Login = () => {
       }
 
       // Navigate to homepage on successful login
-      navigate("/homepage");
+      if(data.uid != -1){
+        navigate("/homepage");
+      }
+      
     } catch (err: any) {
       setError(err.message);
     } finally {

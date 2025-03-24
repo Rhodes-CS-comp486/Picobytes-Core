@@ -63,7 +63,7 @@ const Homepage = ({ toggleDark }: Prop) => {
       });
 
     // Fetch topics from the database
-    fetch("http://localhost:5000/api/topics")
+    fetch("http://localhost:5000/api/topic_selection")
       .then((response) => response.json())
       .then((data) => {
         // Extract unique topics from the questions

@@ -60,5 +60,32 @@ class Streaks:
             conn.close()
             return streak
         except Exception as e:
-            print(f"Error saving response: {e}")
+            print(f"Error getting streak: {e}")
             return -1
+
+
+    def get_points(self, uid):
+        try:
+            print(f"Received uid: {uid}")
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""
+                       select upoints from users where uid=?
+                   """, (uid,))
+
+            points = cursor.fetchone()
+
+            conn.close()
+            return points
+        except Exception as e:
+            print(f"getting streak: {e}")
+            return -1
+
+
+
+    def get_stats(self, uid):
+        streak = self.get_streak(uid)
+        points = self.get_points(uid)
+        return (streak, points)
+
+

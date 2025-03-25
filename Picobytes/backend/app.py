@@ -240,11 +240,12 @@ def create_account():
     data = request.get_json()
     uname = data.get('uname')
     upassword = data.get('upassword')
+    uemail = data.get('uemail')
 
     if not uname or not upassword:
         return jsonify({'error': 'Missing username or password'}), 400
     hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
-    uid = user_service.add_user(uname, hashed_password, 0)
+    uid = user_service.add_user(uname, hashed_password, uemail, 0)
     if uid is None:
         return jsonify({'error': 'Error Creating Account. Please Try Again Later.'}), 401
     return jsonify({'uid': uid})

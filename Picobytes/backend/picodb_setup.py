@@ -202,6 +202,7 @@ def create_table():
                        CREATE TABLE IF NOT EXISTS users (
                        uid TEXT PRIMARY KEY,
                        uname TEXT NOT NULL,
+                       uemail TEXT NOT NULL,
                        upassword TEXT NOT NULL,
                        ustreak INTEGER NOT NULL,
                        ulastanswertime FLOAT NOT NULL,

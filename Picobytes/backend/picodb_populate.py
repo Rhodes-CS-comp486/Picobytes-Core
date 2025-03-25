@@ -395,11 +395,13 @@ def insert_sample_questions():
         user_service = UserFuncs()
         uname1 = 'Will'
         upass1 = 'testing'
+        uemail1 = '123@456.com'
         uadmin1 = 0
         hashed_password1 = hashlib.sha256(upass1.encode()).hexdigest()
 
         uname2 = 'Matt'
         upass2 = 'iliketheory'
+        uemail = 'abc@cdf.com'
         uadmin2 = 1
         hashed_password2 = hashlib.sha256(upass2.encode()).hexdigest()
 

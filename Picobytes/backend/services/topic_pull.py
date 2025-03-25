@@ -80,6 +80,18 @@ class Topic_Puller:
             print(f"Error fetching all questions: {e}")
             return []
 
+    def get_topic_list(self):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""SELECT qtopic FROM questions""")
+            topics = cursor.fetchall()
+            conn.close()
+            # Extract the first element from each tuple to return a list of strings
+            return [topic[0] for topic in topics]
+        except Exception as e:
+            print(f"Error fetching all topics: {e}")
+            return []
 
 if __name__ == '__main__':
     service = Topic_Puller()

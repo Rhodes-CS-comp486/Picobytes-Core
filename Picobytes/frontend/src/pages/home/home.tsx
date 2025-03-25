@@ -71,12 +71,14 @@ const Homepage = ({ toggleDark }: Prop) => {
         const topicProgressData: Record<string, number> = {};
 
         // Extract unique topics from the data
-        data.forEach((question) => {
-          if (question.qtopic && !topicsSet.has(question.qtopic)) {
-            topicsSet.add(question.qtopic);
-            topicProgressData[question.qtopic] = 0; // Initialize progress to 0
+        data.forEach((topic: string) => {
+          if (!topicsSet.has(topic)) {
+            topicsSet.add(topic);
+            topicProgressData[topic] = 0; // Initialize progress to 0
           }
         });
+
+        console.log(topicsSet)
 
         // If no topics are found, use fallback topics
         if (Object.keys(topicProgressData).length === 0) {

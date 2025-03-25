@@ -32,6 +32,7 @@ const Topic_Select = () => {
 
                 if (data.topics && data.topics.length > 0) {
                     setQuestions(data.topics); // Set the questions from the topics array
+                    console.log(data.topics);
                 } else {
                     setError("No questions found for this topic.");
                 }

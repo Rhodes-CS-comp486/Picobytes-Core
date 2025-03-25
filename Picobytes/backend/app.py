@@ -207,13 +207,13 @@ def topic_selection():
         for topic in topic_data:
             responses.append({
                 'question_id': topic[0],
-                'question_type': topic[1],
-                'question_text': topic[2],
+                'question_text': topic[1],
+                'option4': topic[2],
                 'option1': topic[3],
                 'option2': topic[4],
                 'option3': topic[5],
-                'option4': topic[6],
-                'answer': topic[7],
+                'answer': topic[6],
+                'question_type': topic[7],
                 'qlevel': topic[8],
             })
     elif qtype == "TF":
@@ -222,9 +222,9 @@ def topic_selection():
         for topic in topic_data:
             responses.append({
                 'question_id': topic[0],
-                'question_type': topic[1],
-                'question_text': topic[2],
-                'correct': topic[3],
+                'question_text': topic[1],
+                'correct': topic[2],
+                'question_type': topic[3],
                 'qlevel': topic[4],
             })
     else:

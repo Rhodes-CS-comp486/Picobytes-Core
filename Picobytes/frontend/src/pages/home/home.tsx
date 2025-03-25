@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
-import Leaderboard from "../leaderboard/leaderboard";
 
 interface Prop {
   toggleDark: () => void;
@@ -228,6 +227,10 @@ const Homepage = ({ toggleDark }: Prop) => {
             <span className="material-icon">📝</span>
             <span>Questions</span>
           </div>
+          <div className="nav-item" onClick={() => navigate('/leaderboard')}>
+            <span className="material-icon">🏆</span>
+            <span>Leaderboard</span>
+          </div>
           <div className="nav-item" onClick={() => goToTopicSelection()}>
             <span className="material-icon">📚</span>
             <span>Topics</span>
@@ -256,9 +259,7 @@ const Homepage = ({ toggleDark }: Prop) => {
             <span>Theme</span>
           </div>
 
-          
-          {/* Leaderboard Card*/}
-          <Leaderboard />
+
         </nav>
         
 

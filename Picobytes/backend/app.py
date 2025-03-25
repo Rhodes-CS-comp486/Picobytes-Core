@@ -17,6 +17,7 @@ import json
 from services.analytics_service import AnalyticsService
 from services.streak import Streaks
 from services.verification import Verification
+import sqlite3
 
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -32,7 +33,7 @@ app = Flask(__name__,
 # Update CORS configuration to explicitly allow requests from your frontend
 CORS(app, resources={
     r"/*": {
-        "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+        "origins": ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]
     }
@@ -257,12 +258,18 @@ def login():
     uname = data.get('uname')
     upassword = data.get('upassword')
 
+    print(f"Login attempt: User={uname}, Password length={len(upassword) if upassword else 0}")
+
     if not uname or not upassword:
+        print("Login failed: Missing username or password")
         return jsonify({'error': 'Missing username or password'}), 400
     hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
+    print(f"Generated hash: {hashed_password}")
     uid = user_service.get_user_by_credentials(uname, hashed_password)
     if uid is None:
+        print(f"Login failed: Invalid credentials for user {uname}")
         return jsonify({'error': 'Invalid username or password'}), 401
+    print(f"Login successful: User={uname}, UID={uid}")
     return jsonify({'uid': uid})
 
 
@@ -375,6 +382,29 @@ def submit_answer():
     except Exception as e:
         print(f"Error in submit_answer: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/check_user/<string:username>', methods=['GET'])
+def check_user(username):
+    """Debug endpoint to check if a user exists in the database."""
+    conn = sqlite3.connect(os.path.abspath(os.path.join(os.path.dirname(__file__), "pico.db")))
+    cursor = conn.cursor()
+    cursor.execute("SELECT uid, uname, upassword FROM users WHERE uname = ?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if user:
+        uid, uname, password_hash = user
+        return jsonify({
+            'exists': True,
+            'uid': uid,
+            'username': uname,
+            'password_hash': password_hash
+        })
+    else:
+        return jsonify({
+            'exists': False
+        }), 404
 
 
 if __name__ == '__main__':

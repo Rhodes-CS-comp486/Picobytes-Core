@@ -37,7 +37,7 @@ const Login = () => {
       }
 
       // Store user information in localStorage
-      console.log(data.uid)
+      console.log("Login successful, UID:", data.uid);
       localStorage.setItem("uid", data.uid);
       localStorage.setItem("username", username);
 
@@ -47,14 +47,10 @@ const Login = () => {
       }
 
       // Navigate to homepage on successful login
-      if(data.uid != -1){
-        navigate("/homepage");
-      }
-      else{
-        setError("Invalid username or password");
-      }
+      navigate("/homepage");
       
     } catch (err: any) {
+      console.error("Login error:", err);
       setError(err.message);
     } finally {
       setLoading(false);

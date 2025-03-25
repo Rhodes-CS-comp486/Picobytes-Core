@@ -53,10 +53,28 @@ class UserFuncs:
     def get_user_by_credentials(self, uname, hashed_password):
         conn = sqlite3.connect(self.db_path)  # Replace with your actual DB
         cursor = conn.cursor()
-        cursor.execute("SELECT uid FROM users WHERE uname = ? AND upassword = ?", (uname, hashed_password))
+        
+        # First check if the user exists
+        cursor.execute("SELECT uid, upassword FROM users WHERE uname = ?", (uname,))
         user = cursor.fetchone()
-        conn.close()
-        return user[0] if user else -1
+        
+        if not user:
+            print(f"User not found in database: {uname}")
+            conn.close()
+            return None
+            
+        db_uid, db_password = user
+        print(f"Database password hash: {db_password}")
+        print(f"Provided password hash: {hashed_password}")
+        
+        if db_password == hashed_password:
+            print(f"Password match: returning UID {db_uid}")
+            conn.close()
+            return db_uid
+        else:
+            print("Password mismatch")
+            conn.close()
+            return None
     
 
 
@@ -83,7 +101,7 @@ class UserFuncs:
             connection = sqlite3.connect(self.db_path)
             cursor = connection.cursor()
 
-            cursor.execute("UPDATE users SET upassword = ? WHERE uname = ?", (uname, hashed_password))
+            cursor.execute("UPDATE users SET upassword = ? WHERE uname = ?", (hashed_password, uname))
             cursor.execute("select uid from users where uname = ?", (uname,))
             uid = cursor.fetchone()
             connection.commit()

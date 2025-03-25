@@ -401,12 +401,12 @@ def insert_sample_questions():
 
         uname2 = 'Matt'
         upass2 = 'iliketheory'
-        uemail = 'abc@cdf.com'
+        uemail2 = 'abc@cdf.com'
         uadmin2 = 1
         hashed_password2 = hashlib.sha256(upass2.encode()).hexdigest()
 
-        user_service.add_user(uname1, hashed_password1, uadmin1)
-        user_service.add_user(uname2, hashed_password2, uadmin2)
+        user_service.add_user(uname1, hashed_password1, uemail1, uadmin1)
+        user_service.add_user(uname2, hashed_password2, uemail2, uadmin2)
 
         connection.commit()
 

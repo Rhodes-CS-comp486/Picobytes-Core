@@ -1,8 +1,8 @@
 import sqlite3
 import random
 import os
-from Picobytes.backend.services.streak import Streaks
-from Picobytes.backend.services.analytics_service import AnalyticsService
+from .streak import Streaks
+from .analytics_service import AnalyticsService
 import time
 from flask import jsonify
 

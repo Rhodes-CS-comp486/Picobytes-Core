@@ -4,7 +4,7 @@ import os
 
 class Topic_Puller:
 
-    def __init__(self, db_filename="qa.db"):
+    def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
         self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
 
@@ -80,6 +80,18 @@ class Topic_Puller:
             print(f"Error fetching all questions: {e}")
             return []
 
+    def get_topic_list(self):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""SELECT qtopic FROM questions""")
+            topics = cursor.fetchall()
+            conn.close()
+            # Extract the first element from each tuple to return a list of strings
+            return [topic[0] for topic in topics]
+        except Exception as e:
+            print(f"Error fetching all topics: {e}")
+            return []
 
 if __name__ == '__main__':
     service = Topic_Puller()

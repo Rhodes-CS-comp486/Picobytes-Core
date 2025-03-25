@@ -75,44 +75,71 @@ const AdminDashboard = () => {
   const [usageStats, setUsageStats] = useState(mockData.usageStats);
   const [activeUsersPeriod, setActiveUsersPeriod] = useState('24h');
 
-  // Fetch real metrics from the backend
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoading(true);
-      
-      try {
-        // Fetch performance metrics
-        const perfResponse = await fetch('http://localhost:5000/api/admin/dashboard/performance');
-        if (perfResponse.ok) {
-          const perfData = await perfResponse.json();
-          setPerformanceMetrics(perfData);
-        }
-        
-        // Fetch question stats
-        const questionsResponse = await fetch('http://localhost:5000/api/admin/dashboard/question-stats');
-        if (questionsResponse.ok) {
-          const questionsData = await questionsResponse.json();
-          setQuestionStats(questionsData);
-        }
-        
-        // Fetch usage stats
-        const usageResponse = await fetch('http://localhost:5000/api/admin/dashboard/usage-stats');
-        if (usageResponse.ok) {
-          const usageData = await usageResponse.json();
-          setUsageStats(usageData);
-        }
-        
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError('Failed to load dashboard data. Using fallback data.');
-        // Keep the mock data as fallback
-      } finally {
-        setLoading(false);
+  // Get the user ID from localStorage
+  const uid = localStorage.getItem('uid');
+
+  const fetchDashboardData = async () => {
+    try {
+      // Return to homepage if not admin
+      if (localStorage.getItem('isAdmin') !== 'true' || !uid) {
+        navigate('/homepage');
+        return;
       }
-    };
+
+      // Fetch performance metrics
+      const perfResponse = await fetch(`http://localhost:5000/api/admin/dashboard/performance?uid=${uid}`);
+      if (perfResponse.ok) {
+        const perfData = await perfResponse.json();
+        setPerformanceMetrics(perfData);
+      } else if (perfResponse.status === 403) {
+        // Unauthorized access, redirect to homepage
+        navigate('/homepage');
+        return;
+      }
+      
+      // Fetch question stats
+      const questionsResponse = await fetch(`http://localhost:5000/api/admin/dashboard/question-stats?uid=${uid}`);
+      if (questionsResponse.ok) {
+        const questionsData = await questionsResponse.json();
+        setQuestionStats(questionsData);
+      } else if (questionsResponse.status === 403) {
+        navigate('/homepage');
+        return;
+      }
+      
+      // Fetch usage stats
+      const usageResponse = await fetch(`http://localhost:5000/api/admin/dashboard/usage-stats?uid=${uid}`);
+      if (usageResponse.ok) {
+        const usageData = await usageResponse.json();
+        setUsageStats(usageData);
+      } else if (usageResponse.status === 403) {
+        navigate('/homepage');
+        return;
+      }
+      
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data. Using fallback data.');
+      // Keep the mock data as fallback
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    setLoading(true);
+    fetchDashboardData().finally(() => setLoading(false));
+  }, []);
+  
+  // Set up real-time polling for question stats
+  useEffect(() => {
+    // Refresh data every 5 seconds
+    const intervalId = setInterval(() => {
+      fetchDashboardData();
+    }, 5000);
     
-    fetchDashboardData();
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const handlePeriodChange = (period: string) => {

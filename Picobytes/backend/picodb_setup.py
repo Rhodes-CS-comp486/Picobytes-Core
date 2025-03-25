@@ -4,7 +4,7 @@ def create_table():
     try:
 
         #creating questions table
-        connection = sqlite3.connect("qa.db")
+        connection = sqlite3.connect("pico.db")
         cursor = connection.cursor()
 
         cursor.execute("""
@@ -126,7 +126,8 @@ def create_table():
                     CREATE TABLE IF NOT EXISTS user_free_response (
                         uid STRING NOT NULL,
                         qid INTEGER NOT NULL,
-                        answer STRING NOT NULL,
+                        uanswer STRING NOT NULL,
+                        profanswer STRING NOT NULL,
                         PRIMARY KEY (uid, qid)
                         );""")
 
@@ -141,7 +142,7 @@ def create_table():
             CREATE TABLE IF NOT EXISTS user_multiple_choice (
                 uid STRING NOT NULL,
                 qid INTEGER NOT NULL,
-                response STRING NOT NULL,
+                response INTEGER NOT NULL,
                 correct INTEGER CHECK (correct BETWEEN 1 AND 4),
                 PRIMARY KEY (uid, qid)
             );
@@ -188,16 +189,48 @@ def create_table():
                                     CREATE TABLE IF NOT EXISTS user_true_false (
                                         uid STRING NOT NULL,
                                         qid INTEGER NOT NULL,
-                                        response STRING NOT NULL,
+                                        response INTEGER NOT NULL,
                                         correct BOOLEAN NOT NULL,
                                         PRIMARY KEY (uid, qid)
                                         );""")
 
         connection.commit()
-        connection.close()
+
 
         print("user true false table created successfully")
 
+        cursor.execute("""
+                       CREATE TABLE IF NOT EXISTS users (
+                       uid TEXT PRIMARY KEY,
+                       uname TEXT NOT NULL,
+                       upassword TEXT NOT NULL,
+                       ustreak INTEGER NOT NULL,
+                       ulastanswertime FLOAT NOT NULL,
+                       uincorrect INTEGER NOT NULL,
+                       ucorrect INTEGER NOT NULL,
+                       upoints INTEGER NOT NULL,
+                       uadmin INTEGER CHECK (uadmin BETWEEN 0 AND 1)
+                   );""")
+
+        connection.commit()
+
+        print("users table created successfully")
+
+        cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS question_analytics (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        qid INTEGER NOT NULL,
+                        uid TEXT,
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        is_correct BOOLEAN NOT NULL
+                    );
+                """)
+
+        connection.commit()
+
+        print("question_analytics table created successfully")
+
+        connection.close()
 
 
 

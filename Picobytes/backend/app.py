@@ -89,6 +89,11 @@ def get_user_stats(uid):
         return jsonify({'error': 'User not found'}), 401
 
 
+@app.route('/api/get_top_10')
+def get_user_stats():
+        top_10 = streak_service.get_top_10()
+
+
 
 
 

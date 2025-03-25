@@ -8,7 +8,7 @@ import Question from "./pages/question";
 import AccountCreate from "./pages/createAccount";
 import Questions from "./pages/Questions"; //import new Questions component
 import AdminDashboard from "./pages/admin/AdminDashboard"; //import new AdminDashboard component
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 import Settings from "./pages/settings";
 
@@ -20,6 +20,21 @@ import ForgotPassword from "./pages/ForgotPassword";
 
 
 import Lesson_Progress from "./pages/lesson progress/lesson_progress";
+
+// Protected route component for admin routes
+interface AdminRouteProps {
+  children: React.ReactNode;
+}
+
+const AdminRoute = ({ children }: AdminRouteProps) => {
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  
+  if (!isAdmin) {
+    return <Navigate to="/homepage" replace />;
+  }
+  
+  return <>{children}</>;
+};
 
 function App() {
   const [dark, setDark] = useState(true);
@@ -57,7 +72,11 @@ function App() {
             <Route path="/question/:id" element={<Question />} />
             <Route path="topic_select" element={<Topic_Select />} />
             <Route path="/questions" element={<Questions />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/dashboard" element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            } />
             <Route path="/accountcreate" element={<AccountCreate />} />
             <Route
               path="/settings"

@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from datetime import datetime
+import time
 
 
 class Streaks:
@@ -17,7 +18,7 @@ class Streaks:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                       select ulastanswertime, streak from users where uid=?
+                       select ulastanswertime, ustreak from users where uid=?
                    """, (uid,))
 
             u = cursor.fetchone()
@@ -26,7 +27,7 @@ class Streaks:
 
             old_dt = datetime.fromtimestamp(last_time)
 
-            new_dt = datetime.fromtimestamp(time)
+            new_dt = datetime.fromtimestamp(time.time())
 
             difference = new_dt - old_dt
 
@@ -48,7 +49,7 @@ class Streaks:
 
     def get_streak(self, uid):
         try:
-            print(f"Received uid: {uid}")
+            # print(f"Received uid: {uid}")
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
@@ -63,6 +64,30 @@ class Streaks:
             print(f"Error getting streak: {e}")
             return -1
 
+    def get_days_since_last_login(self, uid):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""
+                       select ulastanswertime, ustreak from users where uid=?
+                   """, (uid,))
+
+            u = cursor.fetchone()
+
+            conn.close()
+
+            last_time, days = u
+
+            old_dt = datetime.fromtimestamp(last_time)
+
+            new_dt = datetime.fromtimestamp(time.time())
+
+            difference = new_dt - old_dt
+            
+            return difference.days
+        except Exception as e:
+            print(f"Error fetching days since last login {e}")
+            return -1
 
     def get_points(self, uid):
         try:
@@ -87,5 +112,4 @@ class Streaks:
         streak = self.get_streak(uid)
         points = self.get_points(uid)
         return (streak, points)
-
 

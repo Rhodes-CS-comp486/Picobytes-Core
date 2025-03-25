@@ -75,27 +75,46 @@ const AdminDashboard = () => {
   const [usageStats, setUsageStats] = useState(mockData.usageStats);
   const [activeUsersPeriod, setActiveUsersPeriod] = useState('24h');
 
+  // Get the user ID from localStorage
+  const uid = localStorage.getItem('uid');
+
   const fetchDashboardData = async () => {
     try {
+      // Return to homepage if not admin
+      if (localStorage.getItem('isAdmin') !== 'true' || !uid) {
+        navigate('/homepage');
+        return;
+      }
+
       // Fetch performance metrics
-      const perfResponse = await fetch('http://localhost:5000/api/admin/dashboard/performance');
+      const perfResponse = await fetch(`http://localhost:5000/api/admin/dashboard/performance?uid=${uid}`);
       if (perfResponse.ok) {
         const perfData = await perfResponse.json();
         setPerformanceMetrics(perfData);
+      } else if (perfResponse.status === 403) {
+        // Unauthorized access, redirect to homepage
+        navigate('/homepage');
+        return;
       }
       
       // Fetch question stats
-      const questionsResponse = await fetch('http://localhost:5000/api/admin/dashboard/question-stats');
+      const questionsResponse = await fetch(`http://localhost:5000/api/admin/dashboard/question-stats?uid=${uid}`);
       if (questionsResponse.ok) {
         const questionsData = await questionsResponse.json();
         setQuestionStats(questionsData);
+      } else if (questionsResponse.status === 403) {
+        navigate('/homepage');
+        return;
       }
       
       // Fetch usage stats
-      const usageResponse = await fetch('http://localhost:5000/api/admin/dashboard/usage-stats');
+      const usageResponse = await fetch(`http://localhost:5000/api/admin/dashboard/usage-stats?uid=${uid}`);
       if (usageResponse.ok) {
         const usageData = await usageResponse.json();
         setUsageStats(usageData);
+      } else if (usageResponse.status === 403) {
+        navigate('/homepage');
+        return;
       }
       
       setError(null);

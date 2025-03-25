@@ -133,7 +133,7 @@ class QuestionSave:
             cursor.execute('select qid from user_responses where uid = ? and qid = ?', (uid,qid))
             exists = cursor.fetchone()
 
-            if exists is None:
+            if exists is not None:
                 return jsonify({'error': 'user has already answered this question'})
 
             cursor.execute('insert into user_responses (uid, qid) values (?, ?)', (uid, qid))
@@ -145,34 +145,53 @@ class QuestionSave:
             if qtype == 'multiple_choice':
                 cursor.execute('select answer from multiple_choice where qid = ?', (qid,))
                 answer = cursor.fetchone()
-                if response == answer -1:
-                    is_correct = True
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                cursor.execute('insert into user_multiple_choice (uid, qid, response, correct_answer)', (uid, qid, response, answer))
+                
+                correct_answer_index = answer[0] - 1  # Convert from 1-based to 0-based index
+                
+                # Handle both array of booleans and single index formats
+                if isinstance(response, list):
+                    # If it's a boolean array (from submit_answer endpoint)
+                    is_correct = (len(response) > correct_answer_index and 
+                                 response[correct_answer_index] and 
+                                 response.count(True) == 1)
+                else:
+                    # If it's a direct index (legacy format)
+                    is_correct = (response == correct_answer_index)
+                
+                cursor.execute('insert into user_multiple_choice (uid, qid, response, correct_answer) VALUES (?, ?, ?, ?)', 
+                              (uid, qid, str(response), answer[0]))
                 conn.commit()
 
 
             elif qtype == 'true_false':
                 cursor.execute('select correct from true_false where qid = ?', (qid,))
                 answer = cursor.fetchone()
-                if response == answer:
-                    is_correct = True
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                cursor.execute('insert into user_true_false (uid, qid, response, correct)', (uid, qid, response, answer))
+                
+                correct_answer = answer[0]  # Get the boolean value
+                is_correct = (response == correct_answer)
+                
+                cursor.execute('insert into user_true_false (uid, qid, response, correct) VALUES (?, ?, ?, ?)', 
+                              (uid, qid, 1 if response else 0, 1 if correct_answer else 0))
                 conn.commit()
 
 
             elif qtype == 'code_blocks':
                 cursor.execute('select answer from code_blocks where qid = ?', (qid,))
                 answer = cursor.fetchone()
-                if response == answer:
-                    is_correct = True
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                cursor.execute('insert into user_code_blocks (uid, qid, submission, correct)',
-                               (uid, qid, response, answer))
+                
+                correct_answer = answer[0]
+                # For code blocks, we might need more sophisticated comparison
+                # For now, just do a simple equality check
+                is_correct = (response == correct_answer)
+                
+                cursor.execute('insert into user_code_blocks (uid, qid, submission, correct) VALUES (?, ?, ?, ?)',
+                               (uid, qid, str(response), str(correct_answer)))
                 conn.commit()
 
 
@@ -181,8 +200,12 @@ class QuestionSave:
                 answer = cursor.fetchone()
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                cursor.execute('insert into user_free_response (uid, qid, uanswer, profanswer)',
-                               (uid, qid, response, answer))
+                
+                # Free response questions can't be automatically validated
+                is_correct = None  # This will be reviewed by an instructor
+                
+                cursor.execute('insert into user_free_response (uid, qid, uanswer, profanswer) VALUES (?, ?, ?, ?)',
+                               (uid, qid, str(response), str(answer[0])))
                 conn.commit()
 
 
@@ -192,7 +215,7 @@ class QuestionSave:
             #Step 3: Update streak if answer is correct
             if is_correct:
                 streaks_service.update_streak(uid, currtime)
-            #Step 4: Update Points
+                #Step 4: Update Points
                 cursor.execute('UPDATE users SET uincorrect = 0 WHERE uid = ?', (uid,))
                 conn.commit()
                 cursor.execute('select ucorrect from users where uid = ?', (uid,))
@@ -200,9 +223,14 @@ class QuestionSave:
                 cursor.execute('update users set ucorrect = ? where uid = ?', (num_correct+1, uid,))
                 conn.commit()
                 new_points = 1*get_multiplier(num_correct)
+                
+                # Update user points
+                cursor.execute('select upoints from users where uid = ?', (uid,))
+                curr_points = cursor.fetchone()[0]
+                cursor.execute('update users set upoints = ? where uid = ?', (curr_points+new_points, uid,))
+                conn.commit()
 
-
-            else:
+            elif is_correct == False:  # Explicitly check for False, not None
                 cursor.execute('UPDATE users SET ucorrect = 0 WHERE uid = ?', (uid,))
                 conn.commit()
                 cursor.execute('select uincorrect from users where uid = ?', (uid,))
@@ -211,13 +239,15 @@ class QuestionSave:
                 new_points = -1*get_multiplier(num_wrong)
                 cursor.execute('update users set uincorrect = ? where uid = ?', (num_wrong + 1, uid,))
                 conn.commit()
-
-
-            cursor.execute('select upoints from users where uid = ?', (uid,))
-            curr_points = cursor.fetchone()
-            cursor.execute('update users set upoints = ? where uid = ?', (curr_points+new_points, uid,))
-
-
+                
+                # Update user points
+                cursor.execute('select upoints from users where uid = ?', (uid,))
+                curr_points = cursor.fetchone()[0]
+                cursor.execute('update users set upoints = ? where uid = ?', (curr_points+new_points, uid,))
+                conn.commit()
+            
+            # For free response or other questions where is_correct is None,
+            # we don't update points or streaks until manually graded
 
 
             #Step 5 Add to analytics

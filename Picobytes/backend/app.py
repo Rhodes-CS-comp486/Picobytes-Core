@@ -180,90 +180,104 @@ def update_user_status():
         return jsonify({'success': False, 'error': 'Failed to update user status'}), 500
 
 
-@app.route('/api/submit_question', methods=['POST'])
-def submit_question():
-    data = request.get_json()
-    uid = data.get('uid')
-    qid = data.get('qid')
-    response = data.get('response')
+@app.route('/api/submit_answer', methods=['POST'])
+def submit_answer():
+    try:
+        data = request.get_json()
+        question_id = data.get('question_id')
+        selected_answer = data.get('selected_answer')
+        uid = data.get('uid')  # Extract UID from request
 
-    if not uid:
-        return jsonify({"error": "Missing user id"}), 400
-    if not qid:
-        return jsonify({"error": "Missing question id"}), 400
-    if not response:
-        return jsonify({"error": "Missing response"}), 400
+        if not uid:
+            return jsonify({"error": "Missing user id"}), 400
+        if not question_id:
+            return jsonify({"error": "Missing question_id"}), 400
+        if selected_answer is None:
+            return jsonify({"error": "Missing selected_answer"}), 400
 
-    question_save_service.save_question(uid, qid, response)
-
-    return jsonify({'uid': uid})
-
-@app.route('/api/topics', methods=['GET'])
-def get_topics():
-    return  jsonify(topic_service.get_topic_list())
-
-@app.route('/api/topic_selection', methods=['GET'])
-def topic_selection():
-    qtype = request.args.get('qtype', 'ALL')  # Default to 'ALL' if not provided
-    topic = request.args.get('topic', '')  # Default to empty string if not provided
-
-    if qtype == "ALL":
-        topic_data = topic_service.get_all_questions_by_topic(topic)
-        responses = []
-        for topic in topic_data:
-            if topic[1] == 'true_false':
-                responses.append({
-                    'question_id': topic[0],
-                    'question_type': topic[1],
-                    'question_text': topic[2],
-                    'correct': topic[3],
-                    'qlevel': topic[4],
-                })
-            elif topic[1] == 'multiple_choice':
-                responses.append({
-                    'question_id': topic[0],
-                    'question_type': topic[1],
-                    'question_text': topic[2],
-                    'option1': topic[3],
-                    'option2': topic[4],
-                    'option3': topic[5],
-                    'option4': topic[6],
-                    'answer': topic[7],
-                    'qlevel': topic[8],
-                })
+        # Get the question to determine its type and verify the correct answer
+        question = question_fetcher_service.get_question(int(question_id))
+        if not question:
+            return jsonify({"error": "Question not found"}), 404
+            
+        question_type = question.get('question_type')
+        is_correct = False
+        correct_answer = None
+        
+        # Process based on question type
+        if question_type == 'multiple_choice':
+            # For MC questions, selected_answer should be an array of booleans
+            if isinstance(selected_answer, list):
+                correct_answer_index = question['answer'] - 1  # Convert from 1-based to 0-based index
+                is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
+                correct_answer = correct_answer_index
             else:
-                return jsonify({"error": "Topic not found"}), 404
-    elif qtype == "MC":
-        topic_data = topic_service.get_mc_by_topic(topic)
-        responses = []
-        for topic in topic_data:
-            responses.append({
-                'question_id': topic[0],
-                'question_text': topic[1],
-                'option4': topic[2],
-                'option1': topic[3],
-                'option2': topic[4],
-                'option3': topic[5],
-                'answer': topic[6],
-                'question_type': topic[7],
-                'qlevel': topic[8],
-            })
-    elif qtype == "TF":
-        topic_data = topic_service.get_tf_by_topic(topic)
-        responses = []
-        for topic in topic_data:
-            responses.append({
-                'question_id': topic[0],
-                'question_text': topic[1],
-                'correct': topic[2],
-                'question_type': topic[3],
-                'qlevel': topic[4],
-            })
-    else:
-        return jsonify({"error": "Topic not found"}), 404
+                return jsonify({"error": "Invalid answer format for multiple choice question"}), 400
+                
+        elif question_type == 'true_false':
+            # For TF questions, selected_answer should be a boolean
+            if isinstance(selected_answer, bool):
+                correct_tf_answer = question['correct']
+                is_correct = selected_answer == correct_tf_answer
+                correct_answer = correct_tf_answer
+            else:
+                return jsonify({"error": "Invalid answer format for true/false question"}), 400
+                
+        elif question_type == 'free_response':
+            # For FR questions, we don't validate automatically
+            is_correct = None  # Can't determine programmatically
+            
+        elif question_type == 'code_blocks':
+            # For code block questions, we don't validate automatically
+            is_correct = None  # Can't determine programmatically
+            
+        else:
+            return jsonify({"error": f"Unsupported question type: {question_type}"}), 400
 
-    # print(json.dumps({'topics': responses}, indent=4))
-    return jsonify({'topics': responses}), 200
+        # Save the user's response regardless of question type
+        question_save_service.save_question(uid, question_id, selected_answer)
+        
+        # Record this question attempt in analytics
+        if is_correct is not None:  # Only record attempts that can be automatically validated
+            analytics_service.record_question_attempt(int(question_id), is_correct, uid)
+
+        # Return appropriate response
+        response = {
+            'success': True,
+            'is_correct': is_correct
+        }
+        
+        if correct_answer is not None:
+            response['correct_answer'] = correct_answer
+            
+        return jsonify(response)
+
+    except Exception as e:
+        print(f"Error in submit_answer: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/check_user/<string:username>', methods=['GET'])
+def check_user(username):
+    """Debug endpoint to check if a user exists in the database."""
+    conn = sqlite3.connect(os.path.abspath(os.path.join(os.path.dirname(__file__), "pico.db")))
+    cursor = conn.cursor()
+    cursor.execute("SELECT uid, uname, upassword FROM users WHERE uname = ?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if user:
+        uid, uname, password_hash = user
+        return jsonify({
+            'exists': True,
+            'uid': uid,
+            'username': uname,
+            'password_hash': password_hash
+        })
+    else:
+        return jsonify({
+            'exists': False
+        }), 404
 
 
 ##########################################
@@ -325,7 +339,7 @@ def update_password():
 
 
 ##########################################
-##########      ADMIN SHIT      ##########
+##########      ADMIN ROUTES     ##########
 ##########################################
 
 @app.route('/api/admin/add_question', methods=['POST'])
@@ -394,65 +408,76 @@ def get_usage_stats():
     return jsonify(data)
 
 
-@app.route('/api/submit_answer', methods=['POST'])
-def submit_answer():
-    try:
-        data = request.get_json()
-        question_id = data.get('question_id')
-        selected_answer = data.get('selected_answer')
-        uid = data.get('uid')  # Extract UID from request
+##########################################
+##########      TOPIC ROUTES     ##########
+##########################################
 
-        if not question_id:
-            return jsonify({"error": "Missing question_id"}), 400
-        if selected_answer is None:
-            return jsonify({"error": "Missing selected_answer"}), 400
+@app.route('/api/topics', methods=['GET'])
+def get_topics():
+    return jsonify(topic_service.get_topic_list())
 
-        # Get the question to verify the correct answer
-        question_data = mc_question_service.get_question_by_id(int(question_id))
-        if not question_data:
-            return jsonify({"error": "Question not found"}), 404
+@app.route('/api/topic_selection', methods=['GET'])
+def topic_selection():
+    qtype = request.args.get('qtype', 'ALL')  # Default to 'ALL' if not provided
+    topic = request.args.get('topic', '')  # Default to empty string if not provided
 
-        correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
-        is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
-
-        # Record this question attempt in analytics with the UID if available
-        analytics_service.record_question_attempt(int(question_id), is_correct, uid)
-
-        # Here you would typically save the user's answer to your database
-        # For now, we'll just return whether it was correct or not
-
-        return jsonify({
-            'success': True,
-            'is_correct': is_correct,
-            'correct_answer_index': correct_answer_index
-        })
-
-    except Exception as e:
-        print(f"Error in submit_answer: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/check_user/<string:username>', methods=['GET'])
-def check_user(username):
-    """Debug endpoint to check if a user exists in the database."""
-    conn = sqlite3.connect(os.path.abspath(os.path.join(os.path.dirname(__file__), "pico.db")))
-    cursor = conn.cursor()
-    cursor.execute("SELECT uid, uname, upassword FROM users WHERE uname = ?", (username,))
-    user = cursor.fetchone()
-    conn.close()
-    
-    if user:
-        uid, uname, password_hash = user
-        return jsonify({
-            'exists': True,
-            'uid': uid,
-            'username': uname,
-            'password_hash': password_hash
-        })
+    if qtype == "ALL":
+        topic_data = topic_service.get_all_questions_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            if topic[1] == 'true_false':
+                responses.append({
+                    'question_id': topic[0],
+                    'question_type': topic[1],
+                    'question_text': topic[2],
+                    'correct': topic[3],
+                    'qlevel': topic[4],
+                })
+            elif topic[1] == 'multiple_choice':
+                responses.append({
+                    'question_id': topic[0],
+                    'question_type': topic[1],
+                    'question_text': topic[2],
+                    'option1': topic[3],
+                    'option2': topic[4],
+                    'option3': topic[5],
+                    'option4': topic[6],
+                    'answer': topic[7],
+                    'qlevel': topic[8],
+                })
+            else:
+                return jsonify({"error": "Topic not found"}), 404
+    elif qtype == "MC":
+        topic_data = topic_service.get_mc_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            responses.append({
+                'question_id': topic[0],
+                'question_text': topic[1],
+                'option4': topic[2],
+                'option1': topic[3],
+                'option2': topic[4],
+                'option3': topic[5],
+                'answer': topic[6],
+                'question_type': topic[7],
+                'qlevel': topic[8],
+            })
+    elif qtype == "TF":
+        topic_data = topic_service.get_tf_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            responses.append({
+                'question_id': topic[0],
+                'question_text': topic[1],
+                'correct': topic[2],
+                'question_type': topic[3],
+                'qlevel': topic[4],
+            })
     else:
-        return jsonify({
-            'exists': False
-        }), 404
+        return jsonify({"error": "Topic not found"}), 404
+
+    # print(json.dumps({'topics': responses}, indent=4))
+    return jsonify({'topics': responses}), 200
 
 
 if __name__ == '__main__':

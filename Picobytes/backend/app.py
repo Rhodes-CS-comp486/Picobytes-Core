@@ -90,7 +90,7 @@ def get_user_stats(uid):
 
 
 @app.route('/api/get_top_10')
-def get_user_stats():
+def getleaderboard():
         top_10 = streak_service.get_top_10()
 
 

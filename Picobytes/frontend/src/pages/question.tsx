@@ -79,7 +79,8 @@ const Question = () => {
           setCorrect(data.answer);
           setAnswer([false, false, false, false]);
         } else if (data.question_type === "true_false") {
-          setCorrect(data.answer === 1);
+          console.log(data);
+          setCorrect(data.correct_answer === 1);
           setAnswer(null); // Initialize as null so no option is selected by default
         }
       })
@@ -171,6 +172,8 @@ const Question = () => {
     } else if (questionType === "true_false") {
       // For true/false questions, we can check the answer client-side
       const isCorrect = answer === correct;
+
+      console.log(correct);
 
       if (isCorrect) {
         setFeedback("Correct!");

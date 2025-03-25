@@ -11,8 +11,15 @@ interface Prop {
     toggleDark: () => void;
 }
 
-interface PlayerStreaks {
-    [key: string]: number; // Map of UID to their streak
+
+interface PlayerStats {
+    streak: number;
+    points: number;
+}
+
+interface Player {
+    username: string;
+    uid: string;
 }
 
 
@@ -20,26 +27,21 @@ interface PlayerStreaks {
 const Leaderboard_All = ({toggleDark}: Prop) => {
     /// CONSTANTS ////////////////////////////////////////////////////////
     const navigate = useNavigate();
-
     const [showOverlay, setShowOverlay] = useState(false);
-    const [playerStreaks, setPlayerStreaks] = useState<PlayerStreaks>({});
-    const [players, setPlayers] = useState<{ username: string, uid: string }[]>([]);
+
+    const [playerStats, setPlayerStats] = useState<{ [key: string]: PlayerStats }>({});
+    const [players, setPlayers] = useState<Player[]>([]);
 
     const [progressValue, setProgressValue] = useState(0); // Initial value is 0
-
 
     
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
     };
 
-    // Get username from localStorage or set default
+    // Get username, uid from localStorage or set default
     const username = localStorage.getItem("username") || "Agent 41";
-    const uid = localStorage.getItem("uid") || "pvCYNLaP7Z"; //will correctly fetch uid from local storage except for Will and Matt users
-
-    // Players array
-    //const players = [username, 'Bob', 'Kugele', 'Player 4', 'Player 5', 'Player 6', 'Player 7', 'Player 8', 'Player 9', 'Player 10'];
-   
+    const uid = localStorage.getItem("uid") || "pvCYNLaP7Z";
 
 
     /// FUNCTIONS ////////////////////////////////////////////////////////
@@ -58,22 +60,7 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
     };
     
 
-    const getStreakDisplay = (streakDays: number) => {
-        if (!streakDays) return ''; // No streak to display
-        const streakDisplay = streakDays >= 365
-            ? `${Math.floor(streakDays / 365)} year${streakDays >= 730 ? 's' : ''}`
-            : streakDays >= 30
-            ? `${Math.floor(streakDays / 30)} month${streakDays >= 60 ? 's' : ''}`
-            : `${streakDays} day${streakDays > 1 ? 's' : ''}`;
-        
-        // Add the fire emoji if streakDays is >= 1
-        return streakDays >= 1 ? `🔥 ${streakDisplay}` : streakDisplay;
-    };
-
-
     useEffect(() => {
-        // Example list of player UIDs (You can replace it with actual data)
-        
         const playersList = [
             { username: username, uid: uid },
             { username: 'Bob', uid: 'pvCYNLaP7Z' },
@@ -84,38 +71,37 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
             { username: 'Player 7', uid: '5YAN6mAhvf' },
             { username: 'Player 8', uid: '5YAN6mAhvf' },
             { username: 'Player 9', uid: '5YAN6mAhvf' },
-            { username: 'Player 10', uid: '5YAN6mAhvf' }
+            { username: 'Player 10', uid: '5YAN6mAhvf' },
         ];
 
-        setPlayers(playersList); // Set player data
+        setPlayers(playersList);
 
-        // Fetch streaks for all players
-        const fetchStreaks = async () => {
-            const streaks: PlayerStreaks = {};
+        const fetchPlayerStats = async () => {
+            const stats: { [key: string]: PlayerStats } = {};
             for (const player of playersList) {
                 try {
-                    const response = await fetch(`http://localhost:5000/get_user_stats/${player.uid}`);
+                    const response = await fetch(`http://localhost:5000/api/get_user_stats/${player.uid}`);
                     const data = await response.json();
-                    if (response.status === 200 && data.streak !== undefined) {
-                        streaks[player.uid] = data.streak;
+                    if (response.status === 200 && data.streak !== undefined && data.points !== undefined) {
+                        stats[player.uid] = { streak: data.streak, points: data.points };
                     } else {
-                        streaks[player.uid] = 0; // If there's an error or no streak, set to 0
+                        stats[player.uid] = { streak: 0, points: 0 };
                     }
                 } catch (error) {
-                    console.error(`Error fetching streak for ${player.uid}:`, error);
-                    streaks[player.uid] = 0; // If there's an error fetching streak, set to 0
+                    console.error(`Error fetching stats for ${player.uid}:`, error);
+                    stats[player.uid] = { streak: 0, points: 0 };
                 }
             }
-            setPlayerStreaks(streaks); // Update the streaks in the state
+            setPlayerStats(stats);
         };
 
-        fetchStreaks();
+        fetchPlayerStats();
 
-        // Animate progress bar from 0 to target value (e.g., 30)
         setTimeout(() => {
-            setProgressValue(30); // Set your target value here
-        }, 500); // Delay animation slightly
-    }, []);
+            setProgressValue(30);
+        }, 500);
+    }, [uid, username]);
+
 
 
 
@@ -175,13 +161,12 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                 
                 <div id="ld-all-grid">
                     {players.map((player, index) => {
-                        const streak = playerStreaks[player.uid] || 0;
 
                         return (
                             <div id='ld-all-grid-item' key={index}
                                 className={player.username === username ? 'highlight-user' : ''} // Highlight if current user
                             >
-                                <div id="leaderboard-grid-hbox">
+                                <div id="ld-grid-hbox">
                                     <div id="ld-all-rank-icon">
                                         {getRankEmote(index)} 
                                     </div>
@@ -191,21 +176,11 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                                     </div>
 
                                     {/* PLAYER USERNAME & STREAKS */}
-                                    <div id="leaderboard-user-stats">
+                                    <div id="ld-user-stats">
                                         {player.username}
-                                        <div id="leaderboard-streak">
-                                            {getStreakDisplay(streak)}
-                                        </div>
+                                        
                                     </div>
 
-                                  
-
-                                    {/* DISPLAY CORRECTNESS PERCENTAGE */}
-                                    <div id="leaderboard-correctness">
-                                        ✅ 50%
-                                    </div>
-
-                                  
                                 </div>
                             </div>
                         );
@@ -231,7 +206,7 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                         <div className="stat-item">
                             <div className="stat-icon">👾</div>
                             <div className="stat-value">
-                                0
+                                {playerStats[uid]?.points || 0}
                             </div>
                             <div className="stat-label">Bytes</div>
                         </div>
@@ -240,7 +215,7 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                         <div className="stat-item">
                             <div className="stat-icon">🔥</div>
                             <div className="stat-value">
-                                0
+                                {playerStats[uid]?.streak || 0}
                             </div>
                             <div className="stat-label">Streaks</div>
                         </div>

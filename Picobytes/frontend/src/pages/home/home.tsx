@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
+import SideBar from "./side_bar";
 
 interface Prop {
   toggleDark: () => void;
@@ -205,8 +206,9 @@ const Homepage = ({ toggleDark }: Prop) => {
       <Home_Header toggleOverlay={toggleOverlay} />
       {showOverlay && <Home_Prof_Overlay />}
 
+      <SideBar toggleDark={toggleDark}></SideBar>
       {/* Left Sidebar */}
-      <div className="sidebar">
+      {/* <div className="sidebar">
         <div className="logo-container">
           <h1 className="logo-text">Picobytes</h1>
         </div>
@@ -238,9 +240,9 @@ const Homepage = ({ toggleDark }: Prop) => {
           <div className="nav-item" onClick={() => navigate("/settings")}>
             <span className="material-icon">⚙️</span>
             <span>Settings</span>
-          </div>
+          </div> */}
           {/* Admin section if user is admin */}
-          {localStorage.getItem("isAdmin") === "true" && (
+          {/* {localStorage.getItem("isAdmin") === "true" && (
             <div
               className="nav-item"
               onClick={() => navigate("/admin/dashboard")}
@@ -260,16 +262,16 @@ const Homepage = ({ toggleDark }: Prop) => {
           </div>
 
 
-        </nav>
+        </nav> */}
         
 
-        <div className="sidebar-footer">
+        {/* <div className="sidebar-footer">
           <div className="nav-item" onClick={handleLogout}>
             <span className="material-icon">🚪</span>
             <span>Logout</span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Content */}
       <div className="main-content">

@@ -60,13 +60,14 @@ def home():
 
 @app.route('/api/get_user_stats/<string:uid>')
 def get_user_stats(uid):
-    print(f"Received uid: {uid}") 
-    if verification_service.verify_user(uid) == True:
-        curr_streak = streak_service.get_streak(uid)
+    print(f"Received uid: {uid}")
+    if verification_service.verify_user(uid):
+        curr_streak, curr_points = streak_service.get_stats(uid)
         if curr_streak == -1:
             return jsonify({'error getting streak'}), 500
         response = {
             'streak': curr_streak,
+            'points': curr_points,
             'uid': uid
         }
         #return response

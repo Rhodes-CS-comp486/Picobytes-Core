@@ -37,6 +37,7 @@ class UserFuncs:
             # Insert the new user
             cursor.execute("INSERT INTO users (uid, uname, uemail, upassword, uadmin, ustreak, ulastanswertime, upoints) VALUES (?, ?, ?, ?, ?, 1, ?, 0)",
                            (uid, uname, uemail, hashed_password, uadmin, currtime))
+
             connection.commit()
             print(f"User {uname} added successfully with UID: {uid}")
             connection.close()

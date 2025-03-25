@@ -25,7 +25,7 @@ class UserFuncs:
             if not cursor.fetchone():
                 return uid
 
-    def add_user(self, uname, hashed_password, uadmin):
+    def add_user(self, uname, hashed_password, uemail, uadmin):
         try:
             connection = sqlite3.connect(self.db_path)
             cursor = connection.cursor()
@@ -35,8 +35,9 @@ class UserFuncs:
             currtime = time.time()
 
             # Insert the new user
-            cursor.execute("INSERT INTO users (uid, uname, upassword, uadmin, ustreak, ulastanswertime, ucorrect, uincorrect, upoints) VALUES (?, ?, ?, ?, 1, ?, 0, 0, 0)",
-                           (uid, uname, hashed_password, uadmin, currtime))
+            cursor.execute("INSERT INTO users (uid, uname, uemail, upassword, uadmin, ustreak, ulastanswertime, upoints) VALUES (?, ?, ?, ?, ?, 1, ?, 0)",
+                           (uid, uname, uemail, hashed_password, uadmin, currtime))
+
             connection.commit()
             print(f"User {uname} added successfully with UID: {uid}")
             connection.close()

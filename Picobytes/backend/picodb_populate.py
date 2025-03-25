@@ -395,16 +395,18 @@ def insert_sample_questions():
         user_service = UserFuncs()
         uname1 = 'Will'
         upass1 = 'testing'
+        uemail1 = '123@456.com'
         uadmin1 = 0
         hashed_password1 = hashlib.sha256(upass1.encode()).hexdigest()
 
         uname2 = 'Matt'
         upass2 = 'iliketheory'
+        uemail2 = 'abc@cdf.com'
         uadmin2 = 1
         hashed_password2 = hashlib.sha256(upass2.encode()).hexdigest()
 
-        user_service.add_user(uname1, hashed_password1, uadmin1)
-        user_service.add_user(uname2, hashed_password2, uadmin2)
+        user_service.add_user(uname1, hashed_password1, uemail1, uadmin1)
+        user_service.add_user(uname2, hashed_password2, uemail2, uadmin2)
 
         connection.commit()
 

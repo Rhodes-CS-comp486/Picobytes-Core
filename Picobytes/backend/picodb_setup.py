@@ -126,7 +126,8 @@ def create_table():
                     CREATE TABLE IF NOT EXISTS user_free_response (
                         uid STRING NOT NULL,
                         qid INTEGER NOT NULL,
-                        answer STRING NOT NULL,
+                        uanswer STRING NOT NULL,
+                        profanswer STRING NOT NULL,
                         PRIMARY KEY (uid, qid)
                         );""")
 
@@ -141,7 +142,7 @@ def create_table():
             CREATE TABLE IF NOT EXISTS user_multiple_choice (
                 uid STRING NOT NULL,
                 qid INTEGER NOT NULL,
-                response STRING NOT NULL,
+                response INTEGER NOT NULL,
                 correct INTEGER CHECK (correct BETWEEN 1 AND 4),
                 PRIMARY KEY (uid, qid)
             );
@@ -188,7 +189,7 @@ def create_table():
                                     CREATE TABLE IF NOT EXISTS user_true_false (
                                         uid STRING NOT NULL,
                                         qid INTEGER NOT NULL,
-                                        response STRING NOT NULL,
+                                        response INTEGER NOT NULL,
                                         correct BOOLEAN NOT NULL,
                                         PRIMARY KEY (uid, qid)
                                         );""")
@@ -205,6 +206,8 @@ def create_table():
                        upassword TEXT NOT NULL,
                        ustreak INTEGER NOT NULL,
                        ulastanswertime FLOAT NOT NULL,
+                       uincorrect INTEGER NOT NULL,
+                       ucorrect INTEGER NOT NULL,
                        upoints INTEGER NOT NULL,
                        uadmin INTEGER CHECK (uadmin BETWEEN 0 AND 1)
                    );""")

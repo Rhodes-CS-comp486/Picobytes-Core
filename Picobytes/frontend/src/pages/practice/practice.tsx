@@ -26,6 +26,8 @@ const Practice_Page = ({ toggleDark }: Prop) => {
         setShowOverlay(!showOverlay);
     };
 
+     
+
     // Dummy topics and question types (initially used)
     const dummyTopics = [
         { name: 'C Basics', types: ['ALL','MC','TF'] },
@@ -48,6 +50,28 @@ const Practice_Page = ({ toggleDark }: Prop) => {
 
     useEffect(() => {
         // Set dummy topics or fetch real topics from API
+        try{
+            // Fetch topics from the database
+            fetch("http://localhost:5000/api/topics")
+            .then((response) => response.json())
+            .then((data) => {
+            // Extract unique topics from the questions
+            const topicsSet = new Set();
+            const topicProgressData: Record<string, number> = {};
+
+            // Extract unique topics from the data
+            data.forEach((topic: string) => {
+                if (!topicsSet.has(topic)) {
+                topicsSet.add(topic);
+                topicProgressData[topic] = 0; // Initialize progress to 0
+                }
+            });
+                console.log(topicsSet);  
+            })
+        }
+        catch(err){
+            console.error("Fetch error:", err);
+        }
         setTopics(dummyTopics);
         setLoading(false); // Set loading to false once topics are set
     }, []);

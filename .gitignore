@@ -1,6 +1,7 @@
 #databases
 qa.db
 users.db
+pico.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

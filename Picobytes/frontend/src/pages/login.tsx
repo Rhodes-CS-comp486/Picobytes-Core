@@ -22,7 +22,7 @@ const Login = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch("http://127.0.0.1:5000/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,7 +37,7 @@ const Login = () => {
       }
 
       // Store user information in localStorage
-      console.log(data.uid)
+      console.log("Login successful, UID:", data.uid);
       localStorage.setItem("uid", data.uid);
       localStorage.setItem("username", username);
 
@@ -47,14 +47,10 @@ const Login = () => {
       }
 
       // Navigate to homepage on successful login
-      if(data.uid != -1){
-        navigate("/homepage");
-      }
-      else{
-        setError("Invalid username or password");
-      }
+      navigate("/homepage");
       
     } catch (err: any) {
+      console.error("Login error:", err);
       setError(err.message);
     } finally {
       setLoading(false);

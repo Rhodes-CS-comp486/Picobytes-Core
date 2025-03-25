@@ -166,6 +166,9 @@ def submit_question():
 
     return jsonify({'uid': uid})
 
+@app.route('/api/topics', methods=['GET'])
+def get_topics():
+    return  jsonify(topic_service.get_topic_list())
 
 @app.route('/api/topic_selection', methods=['GET'])
 def topic_selection():

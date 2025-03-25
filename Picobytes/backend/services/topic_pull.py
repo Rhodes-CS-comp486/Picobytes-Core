@@ -80,6 +80,15 @@ class Topic_Puller:
             print(f"Error fetching all questions: {e}")
             return []
 
+    def get_topic_list(self):
+        conn = self._connect()
+        cursor = conn.cursor()
+        cursor.execute(
+            """SELECT qtopic from questions"""
+        )
+        topics = cursor.fetchall()
+        conn.close()
+        return topics
 
 if __name__ == '__main__':
     service = Topic_Puller()

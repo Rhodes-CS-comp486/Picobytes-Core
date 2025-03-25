@@ -22,6 +22,9 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingUser, setUpdatingUser] = useState<string | number | null>(null);
+  
+  // Get the user ID from localStorage
+  const uid = localStorage.getItem('uid');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -31,7 +34,7 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
       setError(null);
       
       try {
-        const response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users-list?period=${period}`);
+        const response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users-list?period=${period}&uid=${uid}`);
         
         if (!response.ok) {
           throw new Error(`Error fetching users: ${response.status}`);
@@ -56,7 +59,7 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
     };
 
     fetchUsers();
-  }, [isOpen, period]);
+  }, [isOpen, period, uid]);
 
   // Handle toggling a user's admin status
   const handleToggleAdmin = async (user: User) => {
@@ -69,7 +72,8 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          uid: user.uid,
+          uid: uid, // The current admin user's UID
+          uid_to_update: user.uid, // The UID of the user to update
           is_admin: !user.is_admin,  // Toggle the current status
         }),
       });

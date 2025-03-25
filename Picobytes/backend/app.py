@@ -95,9 +95,18 @@ def question(qid):
 
 
 
+# Helper function to validate admin access
+def validate_admin_access(uid):
+    if not uid:
+        return False
+    return user_service.is_admin(uid)
+
 @app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
 def get_active_users_list():
-    # In a production environment, you should add admin authentication here
+    uid = request.args.get('uid')
+    if not validate_admin_access(uid):
+        return jsonify({'error': 'Unauthorized access'}), 403
+        
     period = request.args.get('period', '24h')
     users = admin_service.get_active_users_list(period)
     return jsonify(users)
@@ -134,15 +143,20 @@ def api_get_questions():
 
 @app.route('/api/admin/update-user-status', methods=['POST'])
 def update_user_status():
-    # In a production environment, you should add admin authentication here
     data = request.get_json()
     uid = data.get('uid')
+    
+    # Check if the requesting user is an admin
+    if not validate_admin_access(uid):
+        return jsonify({'success': False, 'error': 'Unauthorized access'}), 403
+        
+    uid_to_update = data.get('uid_to_update')
     is_admin = data.get('is_admin')
 
-    if uid is None or is_admin is None:
+    if uid_to_update is None or is_admin is None:
         return jsonify({'success': False, 'error': 'Missing required parameters'}), 400
 
-    success = admin_service.update_user_admin_status(uid, is_admin)
+    success = admin_service.update_user_admin_status(uid_to_update, is_admin)
 
     if success:
         return jsonify({'success': True})
@@ -269,8 +283,12 @@ def login():
     if uid is None:
         print(f"Login failed: Invalid credentials for user {uname}")
         return jsonify({'error': 'Invalid username or password'}), 401
-    print(f"Login successful: User={uname}, UID={uid}")
-    return jsonify({'uid': uid})
+        
+    # Check if the user is an admin
+    is_admin = user_service.is_admin(uid)
+    
+    print(f"Login successful: User={uname}, UID={uid}, Admin={is_admin}")
+    return jsonify({'uid': uid, 'is_admin': is_admin})
 
 
 @app.route('/api/update_password', methods=['POST'])
@@ -310,8 +328,6 @@ def add_question():
 
 @app.route('/api/admin/check', methods=['GET'])
 def check_admin():
-    # This is a simple verification that would need to be replaced with
-    # proper authentication in a production environment
     uid = request.args.get('uid')
     is_admin = user_service.is_admin(uid)
     return jsonify({'is_admin': is_admin})
@@ -319,7 +335,10 @@ def check_admin():
 
 @app.route('/api/admin/dashboard/active-users', methods=['GET'])
 def get_active_users():
-    # In a production environment, you should add admin authentication here
+    uid = request.args.get('uid')
+    if not validate_admin_access(uid):
+        return jsonify({'error': 'Unauthorized access'}), 403
+        
     period = request.args.get('period', '24h')
     data = admin_service.get_active_users(period)
     return jsonify(data)
@@ -327,21 +346,30 @@ def get_active_users():
 
 @app.route('/api/admin/dashboard/performance', methods=['GET'])
 def get_performance_metrics():
-    # In a production environment, you should add admin authentication here
+    uid = request.args.get('uid')
+    if not validate_admin_access(uid):
+        return jsonify({'error': 'Unauthorized access'}), 403
+        
     data = admin_service.get_performance_metrics()
     return jsonify(data)
 
 
 @app.route('/api/admin/dashboard/question-stats', methods=['GET'])
 def get_question_stats():
-    # In a production environment, you should add admin authentication here
+    uid = request.args.get('uid')
+    if not validate_admin_access(uid):
+        return jsonify({'error': 'Unauthorized access'}), 403
+        
     data = admin_service.get_question_stats()
     return jsonify(data)
 
 
 @app.route('/api/admin/dashboard/usage-stats', methods=['GET'])
 def get_usage_stats():
-    # In a production environment, you should add admin authentication here
+    uid = request.args.get('uid')
+    if not validate_admin_access(uid):
+        return jsonify({'error': 'Unauthorized access'}), 403
+        
     data = admin_service.get_usage_stats()
     return jsonify(data)
 

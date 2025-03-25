@@ -51,7 +51,7 @@ class UserFuncs:
             connection = sqlite3.connect(self.db_path)
             cursor = connection.cursor()
 
-            cursor.execute("SELECT uid, uname FROM users")
+            cursor.execute("SELECT uid, uname, uemail FROM users")
 
             names = cursor.fetchall()
             connection.close

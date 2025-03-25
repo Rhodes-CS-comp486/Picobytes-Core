@@ -1,7 +1,7 @@
 /* Lesson Progress Page */
 /* Will hold all lessons and their progress bars */
 /* Similar to topic_select */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import Home_Header from '../home/home_header';
 import Home_Prof_Overlay from '../home/home_prof_overlay';
@@ -30,6 +30,8 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
         setShowOverlay(!showOverlay);
     };
 
+    const [progressValues, setProgressValues] = useState<number[]>([]); // Store progress values for each lesson
+
     // Set a lesson number as no way to fetch lesson amount from DB yet.
     // Set to 3 for now
     
@@ -45,6 +47,39 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
         // Store both lesson number and answered questions in the URL query parameters
         navigate(`/homepage?lesson=${lessonNumber}&answered=${answeredQuestions}`);
     }
+
+    /// PROGRESS ANIMATION ////////////////////////////////////
+    useEffect(() => {
+        // Initialize progress values for each lesson to 0
+        const initialProgressValues = lessons.map(() => 0);
+        setProgressValues(initialProgressValues);
+    
+        // Animate progress bars for each lesson
+        const intervals = lessons.map((lesson, index) => {
+            let currentProgress = 0;
+            const interval = setInterval(() => {
+                if (currentProgress < lesson.progress) {
+                    currentProgress += 1;  // Gradually increase progress value
+                    setProgressValues((prevValues) => {
+                        // Create a copy of the previous state
+                        const updatedValues = [...prevValues];
+                        updatedValues[index] = currentProgress; // Update specific lesson's progress
+                        return updatedValues;
+                    });
+                } else {
+                    clearInterval(interval);  // Stop the interval when we reach the desired value
+                }
+            }, 20); // Change progress every 20ms for smooth animation
+    
+            return interval;
+        });
+    
+        // Cleanup the intervals when the component unmounts
+        return () => {
+            intervals.forEach(clearInterval);
+        };
+    }, []);
+    
     
 
 
@@ -110,7 +145,7 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
                             <div key={index} className='topic-item' onClick={() => goToLesson(index + 1, lesson.answeredQuestions)}>
                                 <div className='topic-name'>{lesson.name}</div>
                                 <div id='lesson-prog-info'>
-                                    <progress max='100' value={lesson.progress} id='lesson-prog-bar'></progress>
+                                    <progress max='100' value={progressValues[index]} id='lesson-prog-bar'></progress>
                                     <span>{lesson.answeredQuestions}/{lesson.totalQuestions} Questions</span>
                                 </div>
                             </div>

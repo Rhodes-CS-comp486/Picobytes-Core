@@ -44,6 +44,21 @@ class UserFuncs:
 
         except Exception as e:
             print(f"Error adding user: {e}")
+    
+    def get_users(self):
+        try:
+            connection = sqlite3.connect(self.db_path)
+            cursor = connection.cursor()
+
+            cursor.execute("SELECT uid, uname FROM users")
+
+            names = cursor.fetchall()
+            connection.close
+
+            return names
+
+        except Exception as e:
+            print(f"Error fetching list of users: {e}")
 
 
     ##################################################

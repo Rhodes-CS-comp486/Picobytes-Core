@@ -19,12 +19,23 @@ from services.streak import Streaks
 from services.verification import Verification
 import sqlite3
 
+from apscheduler.schedulers.background import BackgroundScheduler
+from email_notifications.handle_emails import handle_emails
+
+
+
 # get absolute path of current file's directory
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 # configure paths relative to the base directory
 frontend_dir = os.path.join(base_dir, 'frontend')
 public_dir = os.path.join(base_dir, 'public')
+
+#Scheduling stuff for email notifications
+
+sched = BackgroundScheduler(daemon=True)
+sched.add_job(handle_emails, 'interval', hours=24)
+sched.start()
 
 app = Flask(__name__,
             template_folder=frontend_dir,
@@ -441,5 +452,5 @@ def check_user(username):
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))
-    #print(question(1,"pvCYNLaP7Z"))
-    app.run(debug=True)
+    #print(get_user_stats("pvCYNLaP7Z"))
+    app.run(use_reloader = False, debug=True)

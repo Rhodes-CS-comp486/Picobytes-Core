@@ -39,7 +39,7 @@ class GetQuestions:
             conn.close()
             
             if type is None:
-                return jsonify("Question not found")
+                return None
                 
             q_type = type
             print(q_type)
@@ -59,10 +59,8 @@ class GetQuestions:
                     'question_type': question_data['qtype'],
                     'question_level': question_data['qlevel'],
                     'question_topic': question_data['qtopic'],
-                    #'uid': uid
                 }
-                return jsonify(response)
-                #return response
+                return response
 
             elif q_type[0] == 'true_false':
                 question_data = tf_question_service.get_question_by_id(qid)
@@ -73,9 +71,8 @@ class GetQuestions:
                     'question_type': question_data['qtype'],
                     'question_level': question_data['qlevel'],
                     'question_topic': question_data['qtopic'],
-                    #'uid': uid
                 }
-                return jsonify(response)
+                return response
 
             elif q_type[0] == 'free_response':
                 question_data = fr_question_service.get_question_by_id(qid)
@@ -86,9 +83,8 @@ class GetQuestions:
                     'question_topic': question_data['qtopic'],
                     'question_level': question_data['qlevel'],
                     'professor_answer': question_data['prof_answer'],
-                    #'uid': uid
                 }
-                return jsonify(response)
+                return response
 
             elif q_type[0] == 'code_blocks':
                 question_data = cb_question_service.get_question_by_id(qid)
@@ -109,13 +105,12 @@ class GetQuestions:
                     'block9': question_data['block9'],
                     'block10': question_data['block10'],
                     'answer': question_data['answer'],
-                    #'uid': uid
                 }
-                return jsonify(response)
+                return response
 
             else:
-                return jsonify("Server Error. Please try again later.")
+                return {"error": "Unknown question type"}
 
         except Exception as e:
             print(f"Error fetching questions: {e}")
-            return jsonify({"error": str(e)}), 500
+            return {"error": str(e)}

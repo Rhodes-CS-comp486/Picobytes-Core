@@ -60,7 +60,21 @@ const Question = () => {
     fetch(`http://127.0.0.1:5000/api/question/${questionId}`, {
       method: "GET",
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            try {
+              // Try to parse as JSON
+              const errorData = JSON.parse(text);
+              throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+            } catch (e) {
+              // If it's not valid JSON, use the raw text
+              throw new Error(`HTTP error! status: ${response.status}, details: ${text}`);
+            }
+          });
+        }
+        return response.json();
+      })
       .then((data) => {
         if (data.error != null) throw data.error;
 
@@ -133,11 +147,21 @@ const Question = () => {
         body: JSON.stringify({
           question_id: id,
           selected_answer: answer,
+          uid: localStorage.getItem('uid'),
         }),
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            return response.text().then(text => {
+              try {
+                // Try to parse as JSON
+                const errorData = JSON.parse(text);
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || 'Unknown error'}`);
+              } catch (e) {
+                // If it's not valid JSON, use the raw text
+                throw new Error(`HTTP error! status: ${response.status}, details: ${text}`);
+              }
+            });
           }
           return response.json();
         })
@@ -174,6 +198,21 @@ const Question = () => {
       const isCorrect = answer === correct;
 
       console.log(correct);
+
+      // Also send to server for tracking/analytics
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          selected_answer: answer,
+          uid: localStorage.getItem('uid'),
+        }),
+      }).catch(error => {
+        console.error("Error submitting true/false answer to server:", error);
+      });
 
       if (isCorrect) {
         setFeedback("Correct!");

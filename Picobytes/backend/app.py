@@ -102,8 +102,10 @@ def getleaderboard():
 def question(qid):
     """API endpoint to fetch a question by ID."""
     #if verification_service.verify_user(uid):
-    response = question_fetcher_service.get_question(qid)
-    return response
+    question_data = question_fetcher_service.get_question(qid)
+    if question_data is None:
+        return jsonify({"error": "Question not found"}), 404
+    return jsonify(question_data)
     #else:
       #  return jsonify({'error': 'User not found'}), 401
 
@@ -188,6 +190,8 @@ def submit_answer():
         selected_answer = data.get('selected_answer')
         uid = data.get('uid')  # Extract UID from request
 
+        print(f"Received answer submission: uid={uid}, question_id={question_id}, selected_answer={selected_answer}")
+
         if not uid:
             return jsonify({"error": "Missing user id"}), 400
         if not question_id:
@@ -197,10 +201,23 @@ def submit_answer():
 
         # Get the question to determine its type and verify the correct answer
         question = question_fetcher_service.get_question(int(question_id))
+        print(f"Retrieved question: {question}")
+        
         if not question:
             return jsonify({"error": "Question not found"}), 404
             
-        question_type = question.get('question_type')
+        # Check if question is a dictionary or a Response object
+        if hasattr(question, 'get'):
+            question_type = question.get('question_type')
+        else:
+            # If it's a Response, we need to get the JSON data
+            try:
+                # Convert question to a dictionary if it's not one already
+                question_type = question.json.get('question_type')
+                question = question.json
+            except:
+                return jsonify({"error": "Invalid question format"}), 500
+        
         is_correct = False
         correct_answer = None
         
@@ -211,34 +228,45 @@ def submit_answer():
                 correct_answer_index = question['answer'] - 1  # Convert from 1-based to 0-based index
                 is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
                 correct_answer = correct_answer_index
+                print(f"MC answer processed: correct_index={correct_answer_index}, is_correct={is_correct}")
             else:
                 return jsonify({"error": "Invalid answer format for multiple choice question"}), 400
                 
         elif question_type == 'true_false':
             # For TF questions, selected_answer should be a boolean
             if isinstance(selected_answer, bool):
-                correct_tf_answer = question['correct']
+                correct_tf_answer = question.get('correct_answer')
+                # If not found, try the alternative key
+                if correct_tf_answer is None:
+                    correct_tf_answer = question.get('correct')
+                print(f"TF question data: {question}")
+                print(f"TF answer is: {selected_answer}, correct answer is: {correct_tf_answer}")
                 is_correct = selected_answer == correct_tf_answer
                 correct_answer = correct_tf_answer
+                print(f"TF answer processed: correct_answer={correct_tf_answer}, is_correct={is_correct}")
             else:
                 return jsonify({"error": "Invalid answer format for true/false question"}), 400
                 
         elif question_type == 'free_response':
             # For FR questions, we don't validate automatically
             is_correct = None  # Can't determine programmatically
+            print("FR answer received - not validating automatically")
             
         elif question_type == 'code_blocks':
             # For code block questions, we don't validate automatically
             is_correct = None  # Can't determine programmatically
+            print("Code block answer received - not validating automatically")
             
         else:
             return jsonify({"error": f"Unsupported question type: {question_type}"}), 400
 
         # Save the user's response regardless of question type
+        print(f"Saving answer to database: uid={uid}, question_id={question_id}")
         question_save_service.save_question(uid, question_id, selected_answer)
         
         # Record this question attempt in analytics
         if is_correct is not None:  # Only record attempts that can be automatically validated
+            print(f"Recording in analytics: qid={question_id}, is_correct={is_correct}")
             analytics_service.record_question_attempt(int(question_id), is_correct, uid)
 
         # Return appropriate response
@@ -253,8 +281,11 @@ def submit_answer():
         return jsonify(response)
 
     except Exception as e:
+        import traceback
+        error_traceback = traceback.format_exc()
         print(f"Error in submit_answer: {e}")
-        return jsonify({'error': str(e)}), 500
+        print(f"Traceback: {error_traceback}")
+        return jsonify({'error': str(e), 'traceback': error_traceback}), 500
 
 
 @app.route('/api/check_user/<string:username>', methods=['GET'])

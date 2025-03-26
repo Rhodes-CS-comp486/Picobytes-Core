@@ -17,7 +17,7 @@ class Topic_Puller:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute(
-                "select qid, qtext, profanswer, qtype, qlevel"
+                "select qid, qtext, prof_answer, qtype, qlevel"
                 " from free_response natural join questions where qactive = 1 and qtopic = ?",
                 (topic,))
             questions = cursor.fetchall()

@@ -259,6 +259,17 @@ def topic_selection():
                 'question_type': topic[3],
                 'qlevel': topic[4],
             })
+    elif qtype == "FR":
+        topic_data = topic_service.get_fr_by_topic(topic)
+        responses = []
+        for topic in topic_data:
+            responses.append({
+                'question_id': topic[0],
+                'question_text': topic[1],
+                'prof_answer': topic[2],
+                'question_type': topic[3],
+                'qlevel': topic[4],
+            })
     else:
         return jsonify({"error": "Topic not found"}), 404
 

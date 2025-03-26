@@ -35,8 +35,8 @@ class UserFuncs:
             currtime = time.time()
 
             # Insert the new user
-            cursor.execute("INSERT INTO users (uid, uname, uemail, upassword, uadmin, ustreak, ulastanswertime, upoints) VALUES (?, ?, ?, ?, ?, 1, ?, 0)",
-                           (uid, uname, uemail, hashed_password, uadmin, currtime))
+            cursor.execute("INSERT INTO users (uid, uname, uemail, upassword, ustreak, ulastanswertime, uincorrect, ucorrect, upoints, uadmin) VALUES (?, ?, ?, ?, 1, ?, 0, 0, 0, ?)",
+                           (uid, uname, uemail, hashed_password, currtime, uadmin))
 
             connection.commit()
             print(f"User {uname} added successfully with UID: {uid}")

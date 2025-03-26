@@ -2,6 +2,11 @@
 qa.db
 users.db
 
+picobytes/backend/pico.db
+
+pico.db
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

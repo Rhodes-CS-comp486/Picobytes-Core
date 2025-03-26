@@ -2,6 +2,7 @@ import os
 import sqlite3
 from datetime import datetime
 import time
+from flask import jsonify
 
 
 class Streaks:
@@ -112,4 +113,17 @@ class Streaks:
         streak = self.get_streak(uid)
         points = self.get_points(uid)
         return (streak, points)
+
+    def get_top_10(self):
+        conn = self._connect()
+        cursor = conn.cursor()
+        cursor.execute("""
+                    SELECT uname FROM users ORDER BY points DESC LIMIT 10;
+                           """)
+
+        top10 = cursor.fetchall()
+
+        if top10 is None:
+            return jsonify({'error': 'error fetching top 10 users'})
+        return jsonify({'top10': top10})
 

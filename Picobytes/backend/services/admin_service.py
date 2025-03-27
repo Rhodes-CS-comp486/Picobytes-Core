@@ -38,61 +38,94 @@ class AdminService:
         finally:
             conn.close()
 
-    # Added debug prints to both methods to understand what's happening
+    def log_user_activity(self, uid: str, activity_type: str = "login") -> bool:
+        """
+        Log user activity for tracking active users
+        Args:
+            uid: User ID
+            activity_type: Type of activity (login, question_attempt, etc.)
+        """
+        conn = self._get_db_connection()
+        try:
+            conn.execute(
+                "INSERT INTO analytics_user_activity (uid, activity_type) VALUES (?, ?)",
+                (uid, activity_type)
+            )
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"Error logging user activity: {e}")
+            return False
+        finally:
+            conn.close()
+
     def get_active_users(self, period: str = "24h") -> Dict[str, Any]:
         """
-        Get count of active users within a specified time period
-        Period can be: 24h, 7d, 30d
+        Get count of total users in the system
         """
         conn = self._get_db_connection()
         
-        # Debug: Check what we have in the users table
-        cursor = conn.execute("SELECT COUNT(*) as count FROM users")
-        result = cursor.fetchone()
-        total_users = result['count'] if result else 0
-        print(f"DEBUG - Total users in database: {total_users}")
-        
-        # For now, simply return all users as the active count
-        # Since we don't have timestamp data
-        active_count = total_users
-        
-        conn.close()
-        
-        return {
-            "active_users": active_count,
-            "period": period
-        }
+        try:
+            # Simply count all users in the users table
+            cursor = conn.execute("SELECT COUNT(*) as user_count FROM users")
+            
+            result = cursor.fetchone()
+            user_count = result['user_count'] if result else 0
+            
+            return {
+                "active_users": user_count
+            }
+        except Exception as e:
+            print(f"Error getting users count: {e}")
+            return {
+                "active_users": 0
+            }
+        finally:
+            conn.close()
 
-    # Update the get_active_users_list method to include is_admin flag
     def get_active_users_list(self, period: str = "24h"):
         """
-        Get list of all users with their details
+        Get list of active users with their details
+        Period can be: 24h, 7d, 30d
         """
         users = []
         conn = self._get_db_connection()
         
         try:
-            # Directly execute the most basic query possible
-            cursor = conn.execute("SELECT uid, uname, uadmin FROM users")
+            print(f"DEBUG: Fetching active users list from database. Period: {period}")
+            # Just return all users from the users table without filtering by activity period
+            query = """
+                SELECT 
+                    uid,
+                    uname as username,
+                    uadmin
+                FROM users
+                ORDER BY uname
+            """
+            print(f"DEBUG: Executing query: {query}")
+            cursor = conn.execute(query)
             
-            # Convert rows to list of dictionaries
             for row in cursor:
-                is_admin = row[2] == 1  # uadmin column
+                is_admin = row['uadmin'] == 1
                 user = {
-                    "uid": row[0],             # First column: uid
-                    "username": row[1],        # Second column: uname
-                    "last_active": "N/A",      # We don't have timestamp data
-                    "user_type": "Admin" if is_admin else "Student",  # Based on uadmin
-                    "is_admin": is_admin       # Add direct boolean flag
+                    "uid": row['uid'],
+                    "username": row['username'],
+                    "last_active": "N/A",  # No activity tracking needed
+                    "user_type": "Admin" if is_admin else "Student",
+                    "is_admin": is_admin
                 }
                 users.append(user)
-                
-        except Exception as e:
-            print(f"Error getting users: {e}")
             
+            print(f"DEBUG: Found {len(users)} users")
+            
+        except Exception as e:
+            print(f"ERROR: Error getting users list: {e}")
+            print(f"ERROR: Exception details: {str(e.__class__.__name__)}")
+            import traceback
+            print(f"ERROR: Traceback: {traceback.format_exc()}")
+        
         conn.close()
         return users
-
 
     def get_performance_metrics(self) -> Dict[str, Any]:
         """

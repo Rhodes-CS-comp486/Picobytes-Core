@@ -4,49 +4,63 @@ import UserListModal from './UserListModal';
 
 interface ActiveUsersData {
   active_users: number;
-  period: string;
+  users?: Array<any>; // Store detailed user data if available
 }
 
 interface ActiveUsersProps {
-  onPeriodChange: (period: string) => void;
-  data?: ActiveUsersData; // Make data optional as we'll fetch it directly
+  onPeriodChange?: (period: string) => void;
+  data?: ActiveUsersData; 
 }
 
 const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propData }) => {
   const [data, setData] = useState<ActiveUsersData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [period, setPeriod] = useState<string>(propData?.period || '24h');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   
   // Get the user ID from localStorage
   const uid = localStorage.getItem('uid');
 
-  // Fetch active users data from the backend
-  const fetchActiveUsers = async (selectedPeriod: string) => {
+  // Fetch users count from the backend
+  const fetchUserCount = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users?period=${selectedPeriod}&uid=${uid}`);
+      // Get the user count from users table
+      const response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users?uid=${uid}`);
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch active users: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`Error response: ${errorText}`);
+        throw new Error(`Failed to fetch users: ${response.status}`);
       }
       
       const result = await response.json();
+      console.log('Users data:', result);
+      
+      // Also fetch detailed user data
+      try {
+        const detailsResponse = await fetch(`http://localhost:5000/api/debug/active-users-list`);
+        if (detailsResponse.ok) {
+          const detailsData = await detailsResponse.json();
+          console.log('Detailed users data:', detailsData);
+          result.users = detailsData;
+        }
+      } catch (detailsErr) {
+        console.error('Error fetching detailed user data:', detailsErr);
+      }
+      
       setData(result);
-    } catch (err) {
-      console.error('Error fetching active users:', err);
-      setError('Failed to load active user data');
-      // Fall back to prop data if available
+    } catch (err: any) {
+      console.error('Error fetching users:', err);
+      setError('Failed to access user data. Please check server connection.');
+      // Fall back to prop data or zero
       if (propData) {
         setData(propData);
       } else {
-        // If no prop data, create mock data
         setData({
-          active_users: Math.floor(Math.random() * 50) + 100,
-          period: selectedPeriod
+          active_users: 0
         });
       }
     } finally {
@@ -54,26 +68,27 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
     }
   };
   
-  // Initial fetch on component mount and when period changes
+  // Initial fetch on component mount
   useEffect(() => {
-    fetchActiveUsers(period);
-  }, [period]);
-  
-  // Handle period change
-  const handlePeriodChange = (newPeriod: string) => {
-    setPeriod(newPeriod);
-    onPeriodChange(newPeriod);
-  };
+    fetchUserCount();
+  }, []);
 
-  // Open modal when clicking on the active users count
+  // Open modal when clicking on the users count
   const handleOpenModal = () => {
     setIsModalOpen(true);
+  };
+
+  // Refresh data
+  const handleRefresh = () => {
+    fetchUserCount();
   };
 
   if (loading && !data) {
     return (
       <div>
-        <h2 className="card-title">Active Users</h2>
+        <div className="card-header">
+          <h2 className="card-title">Users</h2>
+        </div>
         <div className="metric-card loading">
           <div className="loading-spinner"></div>
         </div>
@@ -82,14 +97,24 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
   }
 
   // Use fetched data or fall back to prop data
-  const displayData = data || propData || { active_users: 0, period: period };
+  const displayData = data || propData || { active_users: 0 };
 
   return (
     <div>
-      <h2 className="card-title">Active Users</h2>
+      <div className="card-header">
+        <h2 className="card-title">Users</h2>
+        <button 
+          onClick={handleRefresh} 
+          className="refresh-icon" 
+          title="Refresh data"
+          disabled={loading}
+        >
+          <span role="img" aria-label="refresh">🔄</span>
+        </button>
+      </div>
       
       <div 
-        className="metric-card clickable" 
+        className={`metric-card clickable ${loading ? 'refreshing' : ''}`}
         onClick={handleOpenModal}
         title="Click to view user list"
       >
@@ -105,57 +130,18 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
         )}
       </div>
       
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
-        <button 
-          className={`tab-button ${period === '24h' ? 'active' : ''}`} 
-          onClick={() => handlePeriodChange('24h')}
-        >
-          Last 24 Hours
-        </button>
-        <button 
-          className={`tab-button ${period === '7d' ? 'active' : ''}`} 
-          onClick={() => handlePeriodChange('7d')}
-        >
-          Last 7 Days
-        </button>
-        <button 
-          className={`tab-button ${period === '30d' ? 'active' : ''}`} 
-          onClick={() => handlePeriodChange('30d')}
-        >
-          Last 30 Days
-        </button>
-      </div>
-      
       {loading && (
         <div className="refresh-indicator">
           <small>Refreshing data...</small>
         </div>
       )}
 
-      {/* Period context information */}
-      <div style={{ 
-        marginTop: '16px',
-        backgroundColor: '#2d3748',
-        padding: '12px',
-        borderRadius: '12px',
-        fontSize: '14px',
-        color: '#a0aec0'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>📊</span>
-          <span>
-            {period === '24h' ? 'Showing users active in the last 24 hours' :
-             period === '7d' ? 'Showing users active in the last 7 days' :
-             'Showing users active in the last 30 days'}
-          </span>
-        </div>
-      </div>
-
-      {/* Modal for displaying user list */}
+      {/* Modal for displaying user list - pass users data if available */}
       <UserListModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        period={period}
+        onClose={() => setIsModalOpen(false)}
+        period=""
+        initialUserData={displayData.users}
       />
     </div>
   );

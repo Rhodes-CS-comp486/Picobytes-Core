@@ -76,9 +76,10 @@
   border-top: 1px solid #374151;
   padding: 16px 24px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   background-color: #111827;
   border-radius: 0 0 16px 16px;
+  gap: 12px;
 }
 
 .user-list-modal-footer button {
@@ -308,4 +309,34 @@
   .user-list-modal-footer {
     padding: 12px 20px;
   }
+}
+
+/* Refresh button styling */
+.refresh-button {
+  background-color: #4b5563 !important;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 0 #374151 !important;
+  transition: all 0.2s ease;
+}
+
+.refresh-button:hover {
+  background-color: #6b7280 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #374151 !important;
+}
+
+.refresh-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #374151 !important;
+}
+
+.user-list-empty .refresh-button {
+  margin-top: 16px;
 }

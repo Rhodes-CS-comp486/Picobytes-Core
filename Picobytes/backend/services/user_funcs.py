@@ -99,25 +99,36 @@ class UserFuncs:
     ##################################################
     def is_admin(self, uid):
         """Check if a user is an admin"""
+        print(f"DEBUG: is_admin called with UID: {uid}")
         if not uid:
+            print(f"DEBUG: UID is None or empty, returning False")
             return False
         
         try:
             connection = sqlite3.connect(self.db_path)
+            print(f"DEBUG: Connected to database at {self.db_path}")
             cursor = connection.cursor()
             
             # Using the correct column name uadmin instead of is_admin
-            cursor.execute("SELECT uadmin FROM users WHERE uid = ?", (uid,))
+            query = "SELECT uadmin FROM users WHERE uid = ?"
+            print(f"DEBUG: Executing query: {query} with param: {uid}")
+            cursor.execute(query, (uid,))
             result = cursor.fetchone()
+            
+            print(f"DEBUG: Query result: {result}")
             
             # Check if there's a result and if uadmin is 1
             is_admin = bool(result and result[0] == 1)
             
             connection.close()
+            print(f"DEBUG: User {uid} is_admin result: {is_admin}")
             return is_admin
             
         except Exception as e:
-            print(f"Error checking admin status: {e}")
+            print(f"ERROR: Error checking admin status: {e}")
+            print(f"ERROR: Exception details: {str(e.__class__.__name__)}")
+            import traceback
+            print(f"ERROR: Traceback: {traceback.format_exc()}")
             return False
 
     def change_password(self, uname, hashed_password):

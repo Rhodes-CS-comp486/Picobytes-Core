@@ -231,6 +231,20 @@ def create_table():
 
         print("question_analytics table created successfully")
 
+        # Create table to track user activity for admin dashboard
+        cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS analytics_user_activity (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        uid TEXT NOT NULL,
+                        activity_type TEXT NOT NULL,
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );
+                """)
+
+        connection.commit()
+
+        print("analytics_user_activity table created successfully")
+
         connection.close()
 
 

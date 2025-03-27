@@ -73,7 +73,6 @@ const AdminDashboard = () => {
   const [performanceMetrics, setPerformanceMetrics] = useState(mockData.performanceMetrics);
   const [questionStats, setQuestionStats] = useState(mockData.questionStats);
   const [usageStats, setUsageStats] = useState(mockData.usageStats);
-  const [activeUsersPeriod, setActiveUsersPeriod] = useState('24h');
 
   // Get the user ID from localStorage
   const uid = localStorage.getItem('uid');
@@ -141,10 +140,6 @@ const AdminDashboard = () => {
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
-
-  const handlePeriodChange = (period: string) => {
-    setActiveUsersPeriod(period);
-  };
 
   const handleQuestionAdded = () => {
     // Refresh question stats data
@@ -214,7 +209,7 @@ const AdminDashboard = () => {
       {activeTab === 'dashboard' ? (
         <div className="dashboard-grid">
           <div className="dashboard-card">
-            <ActiveUsers onPeriodChange={handlePeriodChange} />
+            <ActiveUsers />
           </div>
           
           <div className="dashboard-card">

@@ -350,3 +350,40 @@ html, body, #root {
     justify-content: space-between;
   }
 }
+
+/* Add styles for card header with refresh button */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.refresh-icon {
+  background: none;
+  border: none;
+  color: #a0aec0;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-icon:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  transform: rotate(30deg);
+}
+
+.refresh-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.metric-card.refreshing {
+  opacity: 0.8;
+}

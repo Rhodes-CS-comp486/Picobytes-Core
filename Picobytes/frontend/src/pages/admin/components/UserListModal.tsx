@@ -2,22 +2,24 @@
 import React, { useEffect, useState } from 'react';
 import './UserListModal.css';
 
-// Update the User interface to include admin status
+// Update the User interface to include more details from debug logs
 interface User {
   uid: string | number;
   username: string;
   last_active?: string;
   user_type: string;
-  is_admin: boolean;  // Add this to track the admin status directly
+  is_admin: boolean;
+  // Add any additional fields that appear in the debug logs
 }
 
 interface UserListModalProps {
   isOpen: boolean;
   onClose: () => void;
-  period: string;
+  period?: string; // Make this optional since we're no longer using periods
+  initialUserData?: User[]; // Add this to accept user data from parent
 }
 
-const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }) => {
+const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period, initialUserData }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,15 +31,35 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
   useEffect(() => {
     if (!isOpen) return;
 
+    // If initial user data is provided, use it
+    if (initialUserData && initialUserData.length > 0) {
+      console.log("Using provided initial user data:", initialUserData);
+      setUsers(initialUserData);
+      setLoading(false);
+      return;
+    }
+
     const fetchUsers = async () => {
       setLoading(true);
       setError(null);
       
       try {
-        const response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users-list?period=${period}&uid=${uid}`);
+        console.log("Fetching active users list with UID:", uid);
+        
+        // First try to get the detailed data from the debug endpoint
+        let response = await fetch(`http://localhost:5000/api/debug/active-users-list`);
+        
+        // If that fails, fall back to the regular endpoint
+        if (!response.ok) {
+          console.log("Debug endpoint failed, falling back to regular endpoint");
+          response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users-list?uid=${uid}`);
+        }
         
         if (!response.ok) {
-          throw new Error(`Error fetching users: ${response.status}`);
+          const errorText = await response.text();
+          console.error(`Error response: ${errorText}`);
+          console.error(`Status code: ${response.status}, Status text: ${response.statusText}`);
+          throw new Error(`Error fetching users: ${response.status} - ${errorText}`);
         }
         
         const data = await response.json();
@@ -46,20 +68,26 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
         // Check if data is an array
         if (Array.isArray(data)) {
           setUsers(data);
+          if (data.length === 0) {
+            console.log("No users found");
+          } else {
+            console.log(`Found ${data.length} users`);
+          }
         } else {
-          console.error("Expected array but got:", typeof data);
+          console.error("Expected array but got:", typeof data, data);
           setError("Received unexpected data format");
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching users:', err);
-        setError('Failed to load user data. Please try again.');
+        console.error('Error details:', err.stack);
+        setError(`Failed to load user data: ${err.message || 'Unknown error'}. Please try again or check server connection.`);
       } finally {
         setLoading(false);
       }
     };
 
     fetchUsers();
-  }, [isOpen, period, uid]);
+  }, [isOpen, uid, initialUserData]);
 
   // Handle toggling a user's admin status
   const handleToggleAdmin = async (user: User) => {
@@ -79,7 +107,8 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to update user status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Failed to update user status: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
@@ -97,9 +126,9 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
       } else {
         throw new Error(data.error || 'Failed to update user status');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error updating user status:', err);
-      setError('Failed to update user status. Please try again.');
+      setError(`Failed to update user status: ${err.message || 'Unknown error'}`);
     } finally {
       setUpdatingUser(null);
     }
@@ -134,7 +163,7 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
     <div className="user-list-modal-backdrop" onClick={handleBackdropClick}>
       <div className="user-list-modal">
         <div className="user-list-modal-header">
-          <h2>Active Users ({period})</h2>
+          <h2>User List</h2>
           <button className="close-button" onClick={onClose}>&times;</button>
         </div>
         
@@ -150,7 +179,13 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
             </div>
           ) : users.length === 0 ? (
             <div className="user-list-empty">
-              <p>No active users found in this time period.</p>
+              <p>No users found.</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="refresh-button"
+              >
+                Refresh Data
+              </button>
             </div>
           ) : (
             <div className="user-list-table-container">
@@ -200,6 +235,14 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
         
         <div className="user-list-modal-footer">
           <button onClick={onClose}>Close</button>
+          {!loading && users.length > 0 && (
+            <button 
+              onClick={() => window.location.reload()} 
+              className="refresh-button"
+            >
+              Refresh Data
+            </button>
+          )}
         </div>
       </div>
     </div>

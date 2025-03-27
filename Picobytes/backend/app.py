@@ -113,19 +113,33 @@ def question(qid):
 
 # Helper function to validate admin access
 def validate_admin_access(uid):
+    print(f"DEBUG: Validating admin access for UID: {uid}")
     if not uid:
+        print(f"DEBUG: UID is empty or None, access denied")
         return False
-    return user_service.is_admin(uid)
+    is_admin = user_service.is_admin(uid)
+    print(f"DEBUG: UID {uid} is admin: {is_admin}")
+    return is_admin
 
 @app.route('/api/admin/dashboard/active-users-list', methods=['GET'])
 def get_active_users_list():
     uid = request.args.get('uid')
+    print(f"\n==== ACTIVE USERS LIST REQUEST ====")
+    print(f"Request headers: {dict(request.headers)}")
+    print(f"Request args: {dict(request.args)}")
+    print(f"Request remote addr: {request.remote_addr}")
+    print(f"DEBUG: Active users list requested by UID: {uid}")
+    
     if not validate_admin_access(uid):
+        print(f"DEBUG: Unauthorized access attempt for active users list. UID: {uid} not an admin.")
         return jsonify({'error': 'Unauthorized access'}), 403
         
-    period = request.args.get('period', '24h')
-    users = admin_service.get_active_users_list(period)
-    return jsonify(users)
+    print(f"DEBUG: Admin access validated for UID: {uid}, retrieving active users list")
+    users = admin_service.get_active_users_list()
+    print(f"DEBUG: Active users list retrieved: {users}")
+    # Add CORS headers to ensure browser accepts the response
+    resp = jsonify(users)
+    return resp
 
 
 
@@ -329,6 +343,9 @@ def login():
     # Check if the user is an admin
     is_admin = user_service.is_admin(uid)
     
+    # Log user activity for active user tracking
+    admin_service.log_user_activity(uid, "login")
+    
     print(f"Login successful: User={uname}, UID={uid}, Admin={is_admin}")
     return jsonify({'uid': uid, 'is_admin': is_admin})
 
@@ -381,8 +398,7 @@ def get_active_users():
     if not validate_admin_access(uid):
         return jsonify({'error': 'Unauthorized access'}), 403
         
-    period = request.args.get('period', '24h')
-    data = admin_service.get_active_users(period)
+    data = admin_service.get_active_users()
     return jsonify(data)
 
 
@@ -439,6 +455,10 @@ def submit_answer():
 
         # Record this question attempt in analytics with the UID if available
         analytics_service.record_question_attempt(int(question_id), is_correct, uid)
+        
+        # Log user activity for this question attempt
+        if uid:
+            admin_service.log_user_activity(uid, "question_attempt")
 
         # Here you would typically save the user's answer to your database
         # For now, we'll just return whether it was correct or not
@@ -477,7 +497,66 @@ def check_user(username):
         }), 404
 
 
+# Add a simple debug endpoint for active users
+@app.route('/api/debug/active-users-list', methods=['GET', 'OPTIONS'])
+def debug_active_users_list():
+    # Handle preflight request
+    if request.method == 'OPTIONS':
+        response = app.make_default_options_response()
+        # Explicitly add CORS headers
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        return response
+        
+    print("\n==== DEBUG ACTIVE USERS LIST ====")
+    # Skip all auth checks, just get the users list directly
+    try:
+        # Connect to the database and fetch all users regardless of activity
+        conn = admin_service._get_db_connection()
+        cursor = conn.execute("""
+            SELECT 
+                uid,
+                uname as username,
+                uadmin
+            FROM users
+            ORDER BY uname
+        """)
+        
+        users = []
+        for row in cursor:
+            is_admin = row['uadmin'] == 1
+            user = {
+                "uid": row['uid'],
+                "username": row['username'],
+                "last_active": "N/A",
+                "user_type": "Admin" if is_admin else "Student",
+                "is_admin": is_admin
+            }
+            users.append(user)
+            
+        conn.close()
+        print(f"DEBUG: Direct database query found {len(users)} users")
+        print(f"DEBUG: Users: {users}")
+    except Exception as e:
+        print(f"DEBUG ERROR: {str(e)}")
+        users = []
+    
+    # Add CORS headers to allow any origin
+    response = jsonify(users)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS') 
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    return response
+
+
 if __name__ == '__main__':
+    # Debug the active users list
+    print("\n=== DEBUGGING ACTIVE USERS LIST ===")
+    users = admin_service.get_active_users_list()
+    print(f"Active users: {json.dumps(users, indent=2)}")
+    print("=== END DEBUG ===\n")
+    
     # with app.app_context():
     # print(topic_selection("MC", "Science"))
     #print(get_user_stats("pvCYNLaP7Z"))

@@ -7,6 +7,8 @@ interface QuestionData {
   questions: {
     tf: [number, string, string, number][];
     mc: [number, string, string, string, string, string, number, string][];
+    fr: [number, string, string, string][];
+    cb: [number, string, string, string][];
   };
   total_questions: number;
 }
@@ -116,6 +118,42 @@ const Questions = () => {
                     <span className="option-number">4.</span> {question[5]}
                   </button>
                 </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        
+        <h2>Free Response Questions</h2>
+        <ul>
+          {data.questions.fr && data.questions.fr.map((question) => (
+            <li 
+              key={question[0]} 
+              className="question-item"
+              onClick={() => goToQuestion(question[0])}
+              style={{ cursor: 'pointer' }}
+            >
+              <strong>Question {question[0]}:</strong> {question[1]}
+              <div className="level">{question[3]}</div>
+              <div className="answer">
+                <strong>Example Answer:</strong> {question[2]}
+              </div>
+            </li>
+          ))}
+        </ul>
+        
+        <h2>Code Blocks Questions</h2>
+        <ul>
+          {data.questions.cb && data.questions.cb.map((question) => (
+            <li 
+              key={question[0]} 
+              className="question-item"
+              onClick={() => goToQuestion(question[0])}
+              style={{ cursor: 'pointer' }}
+            >
+              <strong>Question {question[0]}:</strong> {question[1]}
+              <div className="level">{question[3]}</div>
+              <div className="answer">
+                <strong>Answer Pattern:</strong> {question[2]}
               </div>
             </li>
           ))}

@@ -14,21 +14,21 @@ class CB_QuestionFetcher:
 
 
     def get_all_cd_questions(self):
-        """Fetch all questions from the multiple_choice table."""
+        """Fetch all questions from the code_blocks table."""
         try:
             conn = self._connect()
-            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer
-                FROM questions q NATURAL JOIN code_blocks c
+                SELECT q.qid, q.qtext, c.answer, q.qlevel 
+                FROM questions q 
+                JOIN code_blocks c ON q.qid = c.qid 
                 WHERE q.qtype = 'code_blocks' AND q.qactive = 1
             """)
             all_questions = cursor.fetchall()
             conn.close()
             return all_questions
         except Exception as e:
-            print(f"Error fetching MC questions: {e}")
+            print(f"Error fetching CB questions: {e}")
             return []
 
     def get_question_by_id(self, question_id):

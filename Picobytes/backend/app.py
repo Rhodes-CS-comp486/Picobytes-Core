@@ -134,19 +134,26 @@ def get_active_users_list():
 def api_get_questions():
     try:
         tf_questions = tf_question_service.pull_questions()
-        mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
+        mc_questions = mc_question_service.get_all_mc_questions()
+        # Add free response and code blocks questions
+        fr_questions = fr_question_service.get_all_fr_questions()
+        cb_questions = cb_question_service.get_all_cd_questions()
 
         print(f"TF Questions: {tf_questions}")
         print(f"MC Questions: {mc_questions}")
+        print(f"FR Questions: {fr_questions}")
+        print(f"CB Questions: {cb_questions}")
 
         questions = {
             'tf': tf_questions,
-            'mc': mc_questions
+            'mc': mc_questions,
+            'fr': fr_questions,
+            'cb': cb_questions
         }
 
         response = {
             'questions': questions,
-            'total_questions': len(tf_questions) + len(mc_questions)
+            'total_questions': len(tf_questions) + len(mc_questions) + len(fr_questions) + len(cb_questions)
         }
 
         print(f"Sending response: {response}")  # Debug log

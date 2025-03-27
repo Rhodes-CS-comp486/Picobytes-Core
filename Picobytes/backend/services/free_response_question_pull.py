@@ -14,21 +14,21 @@ class FR_QuestionFetcher:
 
 
     def get_all_fr_questions(self):
-        """Fetch all questions from the multiple_choice table."""
+        """Fetch all questions from the free_response table."""
         try:
             conn = self._connect()
-            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT q.qid, q.qtext, q.topic, q.qlevel 
+                SELECT q.qid, q.qtext, fr.prof_answer, q.qlevel 
                 FROM questions q 
-                WHERE q.qtype = 'multiple_choice' AND q.qactive = 1
+                JOIN free_response fr ON q.qid = fr.qid 
+                WHERE q.qtype = 'free_response' AND q.qactive = 1
             """)
             all_questions = cursor.fetchall()
             conn.close()
             return all_questions
         except Exception as e:
-            print(f"Error fetching MC questions: {e}")
+            print(f"Error fetching FR questions: {e}")
             return []
 
     def get_question_by_id(self, question_id):

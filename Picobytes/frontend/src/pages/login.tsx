@@ -44,11 +44,11 @@ const Login = () => {
       // Check if user is admin and set in localStorage if needed
       if (data.is_admin) {
         localStorage.setItem("isAdmin", "true");
+        navigate("/admin/dashboard");
+      } else {
+        // Navigate to homepage on successful login
+        navigate("/homepage");
       }
-
-      // Navigate to homepage on successful login
-      navigate("/homepage");
-      
     } catch (err: any) {
       console.error("Login error:", err);
       setError(err.message);

@@ -26,6 +26,8 @@ const Practice_Page = ({ toggleDark }: Prop) => {
         setShowOverlay(!showOverlay);
     };
 
+     
+
     // Dummy topics and question types (initially used)
     const dummyTopics = [
         { name: 'C Basics', types: ['ALL','MC','TF'] },
@@ -34,6 +36,7 @@ const Practice_Page = ({ toggleDark }: Prop) => {
         { name: 'Linux', types: ['ALL','MC','TF'] },
         { name: 'Programming', types: ['ALL','MC','TF'] },
     ];
+    const realTopics: Topic[] = [];
 
     // Function to handle fetching data on topic and type selection
     const handleTopicClick = async (topicName: string, questionType: string) => {
@@ -47,9 +50,32 @@ const Practice_Page = ({ toggleDark }: Prop) => {
     };
 
     useEffect(() => {
-        // Set dummy topics or fetch real topics from API
-        setTopics(dummyTopics);
-        setLoading(false); // Set loading to false once topics are set
+        // Fetch topics from the database
+        fetch("http://localhost:5000/api/topics")
+            .then((response) => response.json())
+            .then((data) => {
+                // Extract unique topics from the questions
+                const topicsSet = new Set<string>();
+                const topicProgressData: Record<string, number> = {};
+                const updatedTopics: Topic[] = []; // Temporary array to store topics
+    
+                // Extract unique topics from the data
+                data.forEach((topic: string) => {
+                    if (!topicsSet.has(topic)) {
+                        topicsSet.add(topic);
+                        topicProgressData[topic]=0;
+                        updatedTopics.push({ name: topic, types: ['ALL', 'MC', 'TF','FR','CB'] });
+                    }
+                });
+                setTopics(updatedTopics);
+            })
+            .catch((err) => {
+                console.error("Fetch error:", err);
+                setTopics(dummyTopics); // Fallback to dummy topics on error
+            })
+            .finally(() => {
+                setLoading(false); // Set loading to false once topics are set
+            });
     }, []);
 
     // Filter the topics based on the search term

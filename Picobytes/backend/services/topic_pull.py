@@ -12,6 +12,36 @@ class Topic_Puller:
         """Establish and return a database connection."""
         return sqlite3.connect(self.db_path)
 
+    def get_fr_by_topic(self, topic):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "select qid, qtext, prof_answer, qtype, qlevel"
+                " from free_response natural join questions where qactive = 1 and qtopic = ?",
+                (topic,))
+            questions = cursor.fetchall()
+            conn.close()
+            return questions
+        except Exception as e:
+            print(f"Error fetching FR questions: {e}")
+            return []
+
+    def get_cb_by_topic(self, topic):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "select qid, qtext, answer, qtype, qlevel"
+                " from code_blocks natural join questions where qactive = 1 and qtopic = ?",
+                (topic,))
+            question = cursor.fetchall()
+            conn.close()
+            return question
+        except Exception as e:
+            print(f"Error fetching CB questions: {e}")
+            return []
+
     def get_mc_by_topic(self, topic):
         try:
             conn = self._connect()

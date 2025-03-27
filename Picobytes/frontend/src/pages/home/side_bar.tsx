@@ -1,12 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+/// INTERFACE ///////////////////////////////////////
 
 interface Prop {
   toggleDark: () => void;
 }
 
+
+/// MAIN CONTENT /////////////////////////////////////
 const SideBar = ({ toggleDark }: Prop) => {
+  /// CONSTANTS /////////////////////////////////////
   const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(true);
+
+  const toggleSidebar = () => {
+    setIsVisible(!isVisible); // Toggle visibility on Picobytes click
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("uid");
@@ -14,12 +24,16 @@ const SideBar = ({ toggleDark }: Prop) => {
     navigate("/");
   };
 
+
+
+  /// MAIN CONTENT /////////////////////////////////////
   return (
-    <div className="sidebar">
-      <div className="logo-container">
+    <div className={`sidebar ${isVisible ? "expanded" : "collapsed"}`}>
+      <div className="logo-container" onClick={toggleSidebar}>
         <h1 className="logo-text">Picobytes</h1>
       </div>
 
+      
       <nav className="sidebar-nav">
         <div
           className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`}

@@ -22,7 +22,7 @@ const SideBar = ({ toggleDark }: Prop) => {
 
       <nav className="sidebar-nav">
         <div
-          className="nav-item active"
+          className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`}
           onClick={() => {
             const lastLesson = localStorage.getItem("selectedLesson");
             if (lastLesson) {
@@ -35,26 +35,26 @@ const SideBar = ({ toggleDark }: Prop) => {
           <span className="material-icon">🏠</span>
           <span>Home</span>
         </div>
-        <div className="nav-item" onClick={() => navigate("/questions")}>
+        <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => navigate("/questions")}>
           <span className="material-icon">📝</span>
           <span>Questions</span>
         </div>
-        <div className="nav-item" onClick={() => navigate("/leaderboard")}>
+        <div className={`nav-item ${window.location.pathname === '/leaderboard' ? 'active' : ''}`} onClick={() => navigate("/leaderboard")}>
           <span className="material-icon">🏆</span>
           <span>Leaderboard</span>
         </div>
-        <div className="nav-item" onClick={() => navigate("/practice")}>
+        <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => navigate("/practice")}>
           <span className="material-icon">📚</span>
           <span>Topics</span>
         </div>
-        <div className="nav-item" onClick={() => navigate("/settings")}>
+        <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate("/settings")}>
           <span className="material-icon">⚙️</span>
           <span>Settings</span>
         </div>
         {/* Admin section if user is admin */}
         {localStorage.getItem("isAdmin") === "true" && (
           <div
-            className="nav-item"
+            className={`nav-item ${window.location.pathname === '/admnin/dashboard' ? 'active' : ''}`}
             onClick={() => navigate("/admin/dashboard")}
           >
             <span className="material-icon">👑</span>

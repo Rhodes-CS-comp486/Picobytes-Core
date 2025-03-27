@@ -15,10 +15,10 @@ class QuestionService:
             conn = self._connect()
             c = conn.cursor()
             c.execute('''
-                SELECT q.qid, q.qtext, q.qlevel, tf.correct 
+                SELECT q.qid, q.qtext, q.qlevel, tf.correct, q.qtopic 
                 FROM questions q 
                 JOIN true_false tf ON q.qid = tf.qid 
-                WHERE q.qtype = 'tf' AND q.qactive = 1
+                WHERE q.qtype = 'true_false' AND q.qactive = 1
             ''')
             questions = c.fetchall()
             conn.close()

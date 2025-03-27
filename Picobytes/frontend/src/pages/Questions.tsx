@@ -5,7 +5,7 @@ import './questions.css';
 
 interface QuestionData {
   questions: {
-    tf: [number, string, string, number][];
+    tf: [number, string, string, number, string][];
     mc: [number, string, string, string, string, string, number, string][];
     fr: [number, string, string, string][];
     cb: [number, string, string, string][];
@@ -75,7 +75,7 @@ const Questions = () => {
         
         <h2>True/False Questions</h2>
         <ul>
-          {data.questions.tf.map((question) => (
+          {data.questions.tf && data.questions.tf.map((question) => (
             <li 
               key={question[0]} 
               className="question-item"
@@ -84,6 +84,7 @@ const Questions = () => {
             >
               <strong>Question {question[0]}:</strong> {question[1]}
               <div className="level">{question[2]}</div>
+              <div className="topic">{question[4]}</div>
               <div className="answer">
                 <strong>Answer:</strong> <span className={question[3] ? 'correct' : 'incorrect'}>{question[3] ? 'True' : 'False'}</span>
               </div>

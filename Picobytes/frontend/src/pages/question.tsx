@@ -82,6 +82,9 @@ const Question = () => {
           console.log(data);
           setCorrect(data.correct_answer === 1);
           setAnswer(null); // Initialize as null so no option is selected by default
+        } else if (data.question_type === "free_response") {
+          setCorrect(data.professor_answer);
+          setAnswer("")
         }
       })
       .catch((error) => {
@@ -186,6 +189,18 @@ const Question = () => {
 
       // Enable proceeding to next question
       setIsSubmitting(true);
+    } else if (questionType === "free_response") {
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          selected_answer: answer,
+        }),
+      })
+      setFeedback("Placeholder")
     }
   };
 
@@ -232,7 +247,9 @@ const Question = () => {
           {/* Progress bar */}
           <div className="question-progress">
             <div className="progress-info">
-              <span>Question {id} of {totalQuestions}</span>
+              <span>
+                Question {id} of {totalQuestions}
+              </span>
               <span>{Math.round(progressPercentage)}% Complete</span>
             </div>
             <div className="progress-bar">
@@ -240,29 +257,33 @@ const Question = () => {
                 className="progress-filled"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
-              {totalQuestions > 0 && Array.from({ length: Math.min(totalQuestions, 20) }, (_, index) => {
-                const questionPosition = ((index + 1) / totalQuestions) * 100;
-                const isCurrentQuestion = parseInt(id!) === index + 1;
-                const isCompletedQuestion = parseInt(id!) > index + 1;
-                return (
-                  <div
-                    key={index}
-                    className={`progress-marker ${isCurrentQuestion ? 'current' : ''} ${isCompletedQuestion ? 'completed' : ''}`}
-                    style={{ left: `${questionPosition}%` }}
-                    title={`Question ${index + 1}`}
-                    onClick={() => navToQuestion(index + 1)}
-                  />
-                );
-              })}
+              {totalQuestions > 0 &&
+                Array.from(
+                  { length: Math.min(totalQuestions, 20) },
+                  (_, index) => {
+                    const questionPosition =
+                      ((index + 1) / totalQuestions) * 100;
+                    const isCurrentQuestion = parseInt(id!) === index + 1;
+                    const isCompletedQuestion = parseInt(id!) > index + 1;
+                    return (
+                      <div
+                        key={index}
+                        className={`progress-marker ${
+                          isCurrentQuestion ? "current" : ""
+                        } ${isCompletedQuestion ? "completed" : ""}`}
+                        style={{ left: `${questionPosition}%` }}
+                        title={`Question ${index + 1}`}
+                        onClick={() => navToQuestion(index + 1)}
+                      />
+                    );
+                  }
+                )}
             </div>
           </div>
 
           {/* Home button at top */}
           <div className="top-nav">
-            <button
-              className="home-button"
-              onClick={goToHomepage}
-            >
+            <button className="home-button" onClick={goToHomepage}>
               Home
             </button>
           </div>
@@ -324,7 +345,6 @@ const Question = () => {
                   onChange={(e) => setAnswer(e.target.value)}
                   rows={10}
                   placeholder="type your short response here"
-                  // style={{height : "max-content%"}}
                 ></textarea>
               ) : (
                 // Multiple choice options
@@ -355,10 +375,15 @@ const Question = () => {
                 </div>
               )}
             </div>
+            {feedback && questionType == "free_response" && (
+              <div className="feedback-message">
+                <b>Correct Answer:</b> {correct}
+              </div>
+            )}
           </div>
 
           {/* Feedback area */}
-          {feedback && (
+          {(feedback && questionType != "free_response") && (
             <div
               className={`feedback-container ${
                 feedback.includes("Correct")
@@ -394,7 +419,8 @@ const Question = () => {
                 disabled={
                   (questionType === "multiple_choice" &&
                     !(answer as boolean[]).includes(true)) ||
-                  (questionType === "true_false" && answer === null)
+                  (questionType === "true_false" && answer === null) ||
+                  (questionType === "free_response" && answer === "")
                 }
               >
                 Check

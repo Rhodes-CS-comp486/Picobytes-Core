@@ -214,10 +214,17 @@
     font-size: 18px;
   }
   
+  .light-mode .option-text {
+    color: black;
+  }
+
+  .dark-mode .option-text {
+    color: white;
+  }
+
   .option-text {
     font-size: 18px;
     font-weight: 600;
-    color: black;
     flex-grow: 1;
   }
   

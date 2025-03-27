@@ -118,7 +118,7 @@ class Streaks:
         conn = self._connect()
         cursor = conn.cursor()
         cursor.execute("""
-                    SELECT uname FROM users ORDER BY points DESC LIMIT 10;
+                    SELECT uname, points FROM users ORDER BY points DESC LIMIT 10;
                            """)
 
         top10 = cursor.fetchall()

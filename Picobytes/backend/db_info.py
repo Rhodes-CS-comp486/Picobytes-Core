@@ -1,0 +1,2 @@
+DBUSER = "pico"
+DBPASS = "pico"

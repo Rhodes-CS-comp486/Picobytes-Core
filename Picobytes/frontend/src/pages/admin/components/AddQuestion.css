@@ -67,7 +67,7 @@
   border-radius: 12px;
   padding: 20px;
   margin-top: 8px;
-  background-color: #2d3748;
+  background-color: var(--third-bg-color);
 }
 
 .options-container h3,

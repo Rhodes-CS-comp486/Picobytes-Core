@@ -116,7 +116,7 @@ input {
 
   --grid-bg: #242424;
   --grid-button-text-color: #FFF;
-  --border-color: #4c4c4c;
+  --border-color: #374151;
 
   --card-color: #2d3748;
 
@@ -136,5 +136,5 @@ input {
 
 
   --question-button-hover: #374151;
-  --question-text-title: #a0aec0;
+  --question-text-title: --subtitle-color;
 }

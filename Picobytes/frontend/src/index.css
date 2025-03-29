@@ -100,7 +100,10 @@ input {
 
   --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.1);
 
+
   --question-button-hover: #d8dde4;
+  --question-text-title: #525e6e;
+  
 }
 
 .dark-mode {
@@ -131,5 +134,7 @@ input {
 
   --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.1);
 
+
   --question-button-hover: #374151;
+  --question-text-title: #a0aec0;
 }

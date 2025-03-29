@@ -61,24 +61,36 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
     
 
     useEffect(() => {
-        const playersList = [
-            { username: username, uid: uid },
-            { username: 'Bob', uid: 'pvCYNLaP7Z' },
-            { username: 'Kugele', uid: '5YAN6mAhvf' },
-            { username: 'Player 4', uid: '5YAN6mAhvf' },
-            { username: 'Player 5', uid: '5YAN6mAhvf' },
-            { username: 'Player 6', uid: '5YAN6mAhvf' },
-            { username: 'Player 7', uid: '5YAN6mAhvf' },
-            { username: 'Player 8', uid: '5YAN6mAhvf' },
-            { username: 'Player 9', uid: '5YAN6mAhvf' },
-            { username: 'Player 10', uid: '5YAN6mAhvf' },
-        ];
 
-        setPlayers(playersList);
+        const top10players: Player[] = [];
+    
+
+        const fetchTop10 = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/get_top_10');
+                const data = await response.json();
+                if (response.ok) {
+                    console.log(data);
+                    // Map the array to a more readable format
+                    const formattedPlayers = data.top10.map((player: any) => ({
+                        username: player[0], // First element is the username
+                        uid: player[1],      // Second element is the uid
+                        points: player[2],   // Third element is the points
+                    }));
+                    setPlayers(formattedPlayers || []); // Update state with formatted players
+                } else {
+                    console.error("Error fetching top 10 players:", data.error);
+                }
+            } catch (error) {
+                console.error("Error fetching top 10 players:", error);
+            }
+        };
+        fetchTop10();
 
         const fetchPlayerStats = async () => {
             const stats: { [key: string]: PlayerStats } = {};
-            for (const player of playersList) {
+            for (const player of top10players) {
+                console.log(player.uid);
                 try {
                     const response = await fetch(`http://localhost:5000/api/get_user_stats/${player.uid}`);
                     const data = await response.json();

@@ -91,10 +91,11 @@ def get_user_stats(uid):
 
 @app.route('/api/get_top_10')
 def getleaderboard():
+    try:
         top_10 = streak_service.get_top_10()
-
-
-
+        return top_10, 200;
+    except Exception as e:
+        return jsonify({'error!': str(e)}), 500
 
 
 ####UPDATED#####

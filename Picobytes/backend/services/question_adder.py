@@ -1,8 +1,15 @@
-import sqlite3
+import psycopg
+from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 
 class QuestionAdder:
-    def __init__(self):
-        self.db_path = "pico.db"
+    def __init__(self, db_filename="pico.db"):
+        """Initialize the connection to the SQLite database located one directory above."""
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+
+    def _connect(self):
+        """Establish and return a database connection."""
+        return psycopg.connect(self.db_url, row_factory=dict_row)
     
     def add_question(self, question_data):
         """Add a new question to the database."""
@@ -24,17 +31,17 @@ class QuestionAdder:
                 return {"error": "Invalid question type. Must be 'multiple_choice' or 'true_false'"}, 400
             
             # Connect to the database
-            connection = sqlite3.connect(self.db_path)
+            connection = self._connect()
             cursor = connection.cursor()
             
             # Insert into questions table - use the full form qtype values directly
             cursor.execute("""
                 INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s) RETURNING qid
             """, (qtext, qtype, qlevel, qtopic, qactive))
             
             # Get the new question ID
-            qid = cursor.lastrowid
+            qid = cursor.fetchone()[0]
             
             # Insert type-specific data
             if qtype == 'multiple_choice':
@@ -54,7 +61,7 @@ class QuestionAdder:
                 # Insert into multiple_choice table
                 cursor.execute("""
                     INSERT INTO multiple_choice (qid, option1, option2, option3, option4, answer)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                 """, (qid, option1, option2, option3, option4, answer))
                 
             elif qtype == 'true_false':
@@ -70,7 +77,7 @@ class QuestionAdder:
                 # Insert into true_false table
                 cursor.execute("""
                     INSERT INTO true_false (qid, correct)
-                    VALUES (?, ?)
+                    VALUES (%s, %s)
                 """, (qid, 1 if correct else 0))
             
             # Commit the transaction

@@ -1,7 +1,9 @@
 from flask import jsonify
 
 import os
-import sqlite3
+import psycopg
+from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 
 # Change absolute imports to relative imports
 from services.code_blocks_question_pull import CB_QuestionFetcher
@@ -19,11 +21,11 @@ class GetQuestions:
 
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
-        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
 
     def _connect(self):
         """Establish and return a database connection."""
-        return sqlite3.connect(self.db_path)
+        return psycopg.connect(self.db_url, row_factory=dict_row)
 
     def get_question(self, qid):
         try:
@@ -32,7 +34,7 @@ class GetQuestions:
             cursor.execute("""
                 SELECT qtype 
                 FROM questions
-                WHERE qid = ?""",
+                WHERE qid = %s""",
                 (qid,)
             )
             type = cursor.fetchone()

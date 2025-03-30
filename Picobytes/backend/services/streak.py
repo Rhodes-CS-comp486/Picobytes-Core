@@ -3,23 +3,26 @@ import sqlite3
 from datetime import datetime
 import time
 from flask import jsonify
+import psycopg
+from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 
 
 class Streaks:
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
-        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
 
     def _connect(self):
         """Establish and return a database connection."""
-        return sqlite3.connect(self.db_path)
+        return psycopg.connect(self.db_url, row_factory=dict_row)
 
     def update_streak(self, uid, time):
         try:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                       select ulastanswertime, ustreak from users where uid=?
+                       select ulastanswertime, ustreak from users where uid=%s
                    """, (uid,))
 
             u = cursor.fetchone()
@@ -39,7 +42,7 @@ class Streaks:
             elif difference.days > 1:
                 days = 0
 
-            cursor.execute("""UPDATE users SET ulastanswertime = ?, ustreak = ? WHERE id = ?""", (time, days, uid,))
+            cursor.execute("""UPDATE users SET ulastanswertime = %s, ustreak = %s WHERE id = ?""", (time, days, uid,))
             conn.commit()
             conn.close()
             return 1
@@ -54,7 +57,7 @@ class Streaks:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                       select ustreak from users where uid=?
+                       select ustreak from users where uid=%s
                    """, (uid,))
 
             streak = cursor.fetchone()
@@ -70,7 +73,7 @@ class Streaks:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                       select ulastanswertime, ustreak from users where uid=?
+                       select ulastanswertime, ustreak from users where uid=%s
                    """, (uid,))
 
             u = cursor.fetchone()
@@ -96,7 +99,7 @@ class Streaks:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                       select upoints from users where uid=?
+                       select upoints from users where uid=%s
                    """, (uid,))
 
             points = cursor.fetchone()

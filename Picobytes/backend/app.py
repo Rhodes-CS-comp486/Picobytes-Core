@@ -21,6 +21,13 @@ import sqlite3
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from email_notifications.handle_emails import handle_emails
+import psycopg
+from psycopg.rows import dict_row
+from db_info import *
+
+
+# Connect to an existing database
+conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=practice user={DBUSER} password={DBPASS}")
 
 
 

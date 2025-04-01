@@ -50,6 +50,8 @@ button {
 button:hover {
   border-color: #646cff;
 }
+
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -103,6 +105,9 @@ input {
 
   --question-button-hover: #d8dde4;
   --question-text-title: #525e6e;
+
+  --inactive-button-bg: #a1acb9;
+  --inactive-button-hover: #bfccdc;
   
 }
 
@@ -137,4 +142,7 @@ input {
 
   --question-button-hover: #374151;
   --question-text-title: --subtitle-color;
+
+  --inactive-button-bg: #a1acb9;
+  --inactive-button-hover: #bfccdc;
 }

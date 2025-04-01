@@ -11,6 +11,37 @@
   color: white;
 }
 
+#difficulty-filter {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+#difficulty-filter button {
+  padding: 10px 15px;
+  border: none;
+  background-color: var(--inactive-button-bg);
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  transition: 0.3s;
+  
+}
+
+#difficulty-filter button:not(.active):hover {
+  background-color: var(--inactive-button-hover);
+}
+
+#difficulty-filter .active {
+  background-color: var(--primary-theme-color);
+  color: white;
+}
+
+#difficulty-filter .active:hover {
+  background-color: var(--primary-shadow-color);
+}
+
 .questions-layout {
   display: flex;
   flex-direction: column;

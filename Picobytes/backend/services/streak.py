@@ -118,15 +118,16 @@ class Streaks:
         return (streak, points)
 
     def get_top_10(self):
-        conn = self._connect()
-        cursor = conn.cursor()
-        cursor.execute("""
-                    SELECT uname, points FROM users ORDER BY points DESC LIMIT 10;
-                           """)
-
-        top10 = cursor.fetchall()
-
-        if top10 is None:
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""
+                        SELECT uname, uid, upoints FROM users WHERE uadmin = 0 ORDER BY upoints DESC LIMIT 10;
+                               """)
+            top10 = cursor.fetchall()
+            return jsonify({'top10': top10})
+        except Exception as e:
+            print(f"Error getting top 10: {e}")
             return jsonify({'error': 'error fetching top 10 users'})
-        return jsonify({'top10': top10})
+
 

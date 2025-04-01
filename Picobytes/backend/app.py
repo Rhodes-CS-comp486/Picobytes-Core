@@ -98,10 +98,11 @@ def get_user_stats(uid):
 
 @app.route('/api/get_top_10')
 def getleaderboard():
+    try:
         top_10 = streak_service.get_top_10()
-
-
-
+        return top_10, 200;
+    except Exception as e:
+        return jsonify({'error!': str(e)}), 500
 
 
 ####UPDATED#####
@@ -217,76 +218,90 @@ def topic_selection():
     if qtype == "ALL":
         topic_data = topic_service.get_all_questions_by_topic(topic)
         responses = []
-        for topic in topic_data:
-            if topic[1] == 'true_false':
+        for item in topic_data:
+            if item[1] == 'true_false':
                 responses.append({
-                    'question_id': topic[0],
-                    'question_type': topic[1],
-                    'question_text': topic[2],
-                    'correct': topic[3],
-                    'qlevel': topic[4],
+                    'question_id': item[0],
+                    'question_type': item[1],
+                    'question_text': item[2],
+                    'correct': item[3],
+                    'qlevel': item[4],
                 })
-            elif topic[1] == 'multiple_choice':
+            elif item[1] == 'multiple_choice':
                 responses.append({
-                    'question_id': topic[0],
-                    'question_type': topic[1],
-                    'question_text': topic[2],
-                    'option1': topic[3],
-                    'option2': topic[4],
-                    'option3': topic[5],
-                    'option4': topic[6],
-                    'answer': topic[7],
-                    'qlevel': topic[8],
+                    'question_id': item[0],
+                    'question_type': item[1],
+                    'question_text': item[2],
+                    'option1': item[3],
+                    'option2': item[4],
+                    'option3': item[5],
+                    'option4': item[6],
+                    'answer': item[7],
+                    'qlevel': item[8],
                 })
-            else:
-                return jsonify({"error": "Topic not found"}), 404
+            elif item[1] == 'free_response':
+                responses.append({
+                'question_id': item[0],
+                'question_text': item[2],
+                'prof_answer': item[3],
+                'question_type': item[1],
+                'qlevel': item[4],
+                })
+            elif item[1] == 'code_blocks':
+                responses.append({
+                'question_id': item[0],
+                'question_text': item[2],
+                'answer': item[3],
+                'question_type': item[1], # answer
+                'qlevel': item[4],
+                })
     elif qtype == "MC":
         topic_data = topic_service.get_mc_by_topic(topic)
         responses = []
-        for topic in topic_data:
+        for item in topic_data:
             responses.append({
-                'question_id': topic[0],
-                'question_text': topic[1],
-                'option4': topic[2],
-                'option1': topic[3],
-                'option2': topic[4],
-                'option3': topic[5],
-                'answer': topic[6],
-                'question_type': topic[7],
-                'qlevel': topic[8],
+                'question_id': item[0],
+                'question_text': item[1],
+                'option4': item[2],
+                'option1': item[3],
+                'option2': item[4],
+                'option3': item[5],
+                'answer': item[6],
+                'question_type': item[7],
+                'qlevel': item[8],
             })
     elif qtype == "TF":
         topic_data = topic_service.get_tf_by_topic(topic)
         responses = []
-        for topic in topic_data:
+        for item in topic_data:
             responses.append({
-                'question_id': topic[0],
-                'question_text': topic[1],
-                'correct': topic[2],
-                'question_type': topic[3],
-                'qlevel': topic[4],
+                'question_id': item[0],
+                'question_text': item[1],
+                'correct': item[2],
+                'question_type': item[3],
+                'qlevel': item[4],
             })
     elif qtype == "FR":
         topic_data = topic_service.get_fr_by_topic(topic)
         responses = []
-        for topic in topic_data:
+        for item in topic_data:
             responses.append({
-                'question_id': topic[0],
-                'question_text': topic[1],
-                'prof_answer': topic[2],
-                'question_type': topic[3],
-                'qlevel': topic[4],
+                'question_id': item[0],
+                'question_text': item[1],
+                'prof_answer': item[2],
+                'question_type': item[3],
+                'qlevel': item[4],
             })
     elif qtype == "CB":
         topic_data = topic_service.get_cb_by_topic(topic)
         responses = []
-        for topic in topic_data:
+        for item in topic_data:
             responses.append({
-                'question_id': topic[0],
-                'question_text': topic[1],
-                'answer': topic[2],
-                'question_type': topic[3],
-                'qlevel': topic[4],
+                'question_id': item[0],
+                'question_text': item[1],
+                'answer': item[2],
+                'question_type': item[3],
+                'qlevel': item[4],
             })
     else:
         return jsonify({"error": "Topic not found"}), 404

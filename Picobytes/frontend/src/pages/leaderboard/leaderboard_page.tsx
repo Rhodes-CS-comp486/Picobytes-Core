@@ -5,6 +5,7 @@ import Home_Header from '../home/home_header';
 import Home_Prof_Overlay from '../home/home_prof_overlay';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import SideBar from '../home/side_bar';
 
 /// INTERFACES /////////////////////////////////////////////////////////////
 interface Prop {
@@ -61,24 +62,36 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
     
 
     useEffect(() => {
-        const playersList = [
-            { username: username, uid: uid },
-            { username: 'Bob', uid: 'pvCYNLaP7Z' },
-            { username: 'Kugele', uid: '5YAN6mAhvf' },
-            { username: 'Player 4', uid: '5YAN6mAhvf' },
-            { username: 'Player 5', uid: '5YAN6mAhvf' },
-            { username: 'Player 6', uid: '5YAN6mAhvf' },
-            { username: 'Player 7', uid: '5YAN6mAhvf' },
-            { username: 'Player 8', uid: '5YAN6mAhvf' },
-            { username: 'Player 9', uid: '5YAN6mAhvf' },
-            { username: 'Player 10', uid: '5YAN6mAhvf' },
-        ];
 
-        setPlayers(playersList);
+        const top10players: Player[] = [];
+    
+
+        const fetchTop10 = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/get_top_10');
+                const data = await response.json();
+                if (response.ok) {
+                    console.log(data);
+                    // Map the array to a more readable format
+                    const formattedPlayers = data.top10.map((player: any) => ({
+                        username: player[0], // First element is the username
+                        uid: player[1],      // Second element is the uid
+                        points: player[2],   // Third element is the points
+                    }));
+                    setPlayers(formattedPlayers || []); // Update state with formatted players
+                } else {
+                    console.error("Error fetching top 10 players:", data.error);
+                }
+            } catch (error) {
+                console.error("Error fetching top 10 players:", error);
+            }
+        };
+        fetchTop10();
 
         const fetchPlayerStats = async () => {
             const stats: { [key: string]: PlayerStats } = {};
-            for (const player of playersList) {
+            for (const player of top10players) {
+                console.log(player.uid);
                 try {
                     const response = await fetch(`http://localhost:5000/api/get_user_stats/${player.uid}`);
                     const data = await response.json();
@@ -114,42 +127,7 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
             {showOverlay && <Home_Prof_Overlay />}
 
             {/* Left Sidebar */}
-            <div className="sidebar">
-                <div className="logo-container">
-                    <h1 className="logo-text">Picobytes</h1>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={() => navigate('/homepage')}>
-                        <span className="material-icon">🏠</span>
-                        <span>Home</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => navigate("questions")}>
-                        <span className="material-icon">📝</span>
-                        <span>Questions</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => navigate("/practice")}>
-                        <span className="material-icon">📚</span>
-                        <span>Topics</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>
-                        <span className="material-icon">⚙️</span>
-                        <span>Settings</span>
-                    </div>
-                    {/* Admin section if user is admin */}
-                    {localStorage.getItem("isAdmin") === "true" && (
-                        <div className="nav-item" onClick={() => navigate('/admin/dashboard')}>
-                            <span className="material-icon">👑</span>
-                            <span>Admin</span>
-                        </div>
-                    )}
-
-                    <div className="nav-item" onClick={() => toggleDark()}>
-                        <span className="material-icon">☾</span>
-                        <span>Theme</span>
-                    </div>
-                </nav>
-            </div>
+            <SideBar toggleDark={toggleDark}></SideBar>
 
             {/* MAIN CONTENT */}
             

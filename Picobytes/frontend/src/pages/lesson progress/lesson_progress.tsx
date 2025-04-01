@@ -7,6 +7,7 @@ import Home_Header from '../home/home_header';
 import Home_Prof_Overlay from '../home/home_prof_overlay';
 import './lesson_progress.css'
 import '../practice/practice.css'
+import SideBar from '../home/side_bar';
 
 
 /// DEFINES ///////////////////////////
@@ -92,49 +93,7 @@ const Lesson_Progress = ({ toggleDark }: Prop) => {
             {showOverlay && <Home_Prof_Overlay />}
 
             {/* Left Sidebar */}
-            <div className="sidebar">
-                <div className="logo-container">
-                    <h1 className="logo-text">Picobytes</h1>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={() => {
-                        const lastLesson = localStorage.getItem('selectedLesson');
-                        if (lastLesson) {
-                            navigate(`/homepage?lesson=${lastLesson}`);
-                        } else {
-                            navigate('/homepage'); // Default homepage if no lesson was selected
-                        }
-                    }}>
-                        <span className="material-icon">🏠</span>
-                        <span>Home</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => navigate('/questions')}>
-                        <span className="material-icon">📝</span>
-                        <span>Questions</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => navigate('/practice')}>
-                        <span className="material-icon">📚</span>
-                        <span>Topics</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>
-                        <span className="material-icon">⚙️</span>
-                        <span>Settings</span>
-                    </div>
-                    {/* Admin section if user is admin */}
-                    {localStorage.getItem("isAdmin") === "true" && (
-                        <div className="nav-item" onClick={() => navigate('/admin/dashboard')}>
-                            <span className="material-icon">👑</span>
-                            <span>Admin</span>
-                        </div>
-                    )}
-
-                    <div className="nav-item" onClick={() => toggleDark()}>
-                        <span className="material-icon">☾</span>
-                        <span>Theme</span>
-                    </div>
-                </nav>
-            </div>
+            <SideBar toggleDark={toggleDark}></SideBar>
 
 
             {/* MAIN LESSON CONTENT */}

@@ -97,8 +97,21 @@ class Topic_Puller:
             )
             tf_questions = cursor.fetchall()
 
+            cursor.execute(
+                "select qid, qtype, qtext, answer, qlevel"
+                " from code_blocks natural join questions where qactive = 1 and qtopic = ?",
+                (topic,))
+            cb_questions = cursor.fetchall()
+
+            cursor.execute(
+                "select qid, qtype, qtext, prof_answer, qlevel"
+                " from free_response natural join questions where qactive = 1 and qtopic = ?",
+                (topic,))
+            fr_questions = cursor.fetchall()
+
+
             # Combine both lists
-            all_questions = mc_questions + tf_questions
+            all_questions = mc_questions + tf_questions + fr_questions + cb_questions
 
             # Optional: Sort questions by qid or any other order you need
             all_questions = sorted(all_questions, key=lambda x: x[0])  # Sorting by qid

@@ -27,7 +27,6 @@ interface Player {
 
 const Leaderboard_All = ({toggleDark}: Prop) => {
     /// CONSTANTS ////////////////////////////////////////////////////////
-    const navigate = useNavigate();
     const [showOverlay, setShowOverlay] = useState(false);
 
     const [playerStats, setPlayerStats] = useState<{ [key: string]: PlayerStats }>({});
@@ -78,6 +77,8 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                         uid: player[1],      // Second element is the uid
                         points: player[2],   // Third element is the points
                     }));
+
+                    
                     setPlayers(formattedPlayers || []); // Update state with formatted players
                 } else {
                     console.error("Error fetching top 10 players:", data.error);
@@ -153,10 +154,9 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                                         {player.username.charAt(0).toUpperCase()}
                                     </div>
 
-                                    {/* PLAYER USERNAME & STREAKS */}
+                                    {/* PLAYER USERNAME*/}
                                     <div id="ld-user-stats">
                                         {player.username}
-                                        
                                     </div>
 
                                 </div>

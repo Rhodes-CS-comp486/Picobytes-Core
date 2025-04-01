@@ -78,6 +78,7 @@ input {
   button {
     background-color: var(--primary-theme-color);
   }
+  
   --grid-bg: #FFF;
   --grid-text-color: #242424;
   --border-color: #999999;
@@ -97,7 +98,12 @@ input {
   --second-bg-color: #ecf0f5;
   --third-bg-color: #ffffff;
 
- 
+  --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+
+  --question-button-hover: #d8dde4;
+  --question-text-title: #525e6e;
+  
 }
 
 .dark-mode {
@@ -110,7 +116,7 @@ input {
 
   --grid-bg: #242424;
   --grid-button-text-color: #FFF;
-  --border-color: #4c4c4c;
+  --border-color: #374151;
 
   --card-color: #2d3748;
 
@@ -125,4 +131,10 @@ input {
   --first-bg-color: #111827;
   --second-bg-color: #1f2937;
   --third-bg-color: #2d3748;
+
+  --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+
+  --question-button-hover: #374151;
+  --question-text-title: --subtitle-color;
 }

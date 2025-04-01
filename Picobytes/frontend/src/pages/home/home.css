@@ -284,11 +284,11 @@
 }
 
 .dark-mode .progress-bar {
-  background-color: #4b5563;
+  background-color: var(--second-bg-color);
 }
 
 .light-mode .progress-bar {
-  background-color: #e2e8f0;
+  background-color: var(--second-bg-color);
 }
 
 .progress-filled {

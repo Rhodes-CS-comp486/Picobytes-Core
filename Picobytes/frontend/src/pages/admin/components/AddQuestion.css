@@ -29,7 +29,7 @@
 
 .form-group label {
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--subtitle-color);
   font-size: 14px;
 }
 
@@ -37,12 +37,12 @@
 .form-group select,
 .form-group textarea {
   padding: 12px;
-  border: 2px solid #374151;
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 14px;
   transition: all 0.2s ease;
   color: #e2e8f0;
-  background-color: #2d3748;
+  background-color: var(--card-color);
   font-family: 'Nunito', sans-serif;
 }
 
@@ -67,7 +67,7 @@
   border-radius: 12px;
   padding: 20px;
   margin-top: 8px;
-  background-color: #2d3748;
+  background-color: var(--third-bg-color);
 }
 
 .options-container h3,

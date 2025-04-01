@@ -19,18 +19,22 @@ const Homepage = ({ toggleDark }: Prop) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const [lessonNumber, setLessonNumber] = useState<string | null>(null);
-  const [answeredQuestions, setAnsweredQuestions] = useState<string | null>(null);
+  const [answeredQuestions, setAnsweredQuestions] = useState<string | null>(
+    null
+  );
+  const [streak, setStreak] = useState(-1);
+  const [points, setPoints] = useState(-1);
 
   useEffect(() => {
-      const lessonFromURL = queryParams.get('lesson');
-      const answeredFromURL = queryParams.get('answered');
-      
-      if (lessonFromURL) {
-          setLessonNumber(lessonFromURL);
-      }
-      if (answeredFromURL) {
-          setAnsweredQuestions(answeredFromURL);
-      }
+    const lessonFromURL = queryParams.get("lesson");
+    const answeredFromURL = queryParams.get("answered");
+
+    if (lessonFromURL) {
+      setLessonNumber(lessonFromURL);
+    }
+    if (answeredFromURL) {
+      setAnsweredQuestions(answeredFromURL);
+    }
   }, [location]);
 
   const navigate = useNavigate();
@@ -40,11 +44,28 @@ const Homepage = ({ toggleDark }: Prop) => {
     completedQuestions: 0,
   });
   // Initialize with empty object, will be populated from API
-  const [topicProgress, setTopicProgress] = useState<Record<string, number>>({});
+  const [topicProgress, setTopicProgress] = useState<Record<string, number>>(
+    {}
+  );
   const [isTopicsLoading, setIsTopicsLoading] = useState(true);
 
   // Get username from localStorage with fallback
   const username = localStorage.getItem("username") || "Agent 41";
+
+  // Get user information
+  useEffect(() => {
+    fetch(
+      "http://localhost:5000/api/get_user_stats/" + localStorage.getItem("uid")
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setStreak(data.streak);
+        setPoints(data.points);
+      })
+      .catch((error) => {
+        console.error("Error getting user stats:", error);
+      });
+  }, []);
 
   // Fetch both questions and topics data
   useEffect(() => {
@@ -78,7 +99,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           }
         });
 
-        console.log(topicsSet)
+        console.log(topicsSet);
 
         // If no topics are found, use fallback topics
         if (Object.keys(topicProgressData).length === 0) {
@@ -86,8 +107,8 @@ const Homepage = ({ toggleDark }: Prop) => {
             "C Basics": 60,
             "C Functions": 45,
             "C Memory Management": 30,
-            "Linux": 20,
-            "Programming": 10,
+            Linux: 20,
+            Programming: 10,
           });
         } else {
           // Assign some random progress for now (this would normally come from user data)
@@ -106,8 +127,8 @@ const Homepage = ({ toggleDark }: Prop) => {
           "C Basics": 60,
           "C Functions": 45,
           "C Memory Management": 30,
-          "Linux": 20,
-          "Programming": 10,
+          Linux: 20,
+          Programming: 10,
         });
         setIsTopicsLoading(false);
       });
@@ -122,11 +143,11 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   const goToTopicSelection = () => {
-    navigate('/practice');
+    navigate("/practice");
   };
 
   const goToLessonProgress = () => {
-    navigate('/lessons');
+    navigate("/lessons");
   };
 
   const goToAllQuestions = () => {
@@ -183,9 +204,10 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   // Calculate overall progress percentage
-  const overallProgress = lessonNumber && answeredQuestions
-    ? Math.round(Number(answeredQuestions)  * 10)
-    : 0;
+  const overallProgress =
+    lessonNumber && answeredQuestions
+      ? Math.round(Number(answeredQuestions) * 10)
+      : 0;
 
   // Get topic icon or character for display
   const getTopicIcon = (topic) => {
@@ -195,7 +217,7 @@ const Homepage = ({ toggleDark }: Prop) => {
     if (topic.includes("C Memory")) return "M";
     if (topic.toLowerCase() === "linux") return "L";
     if (topic.toLowerCase() === "programming") return "P";
-    
+
     // For other topics, use first letter
     return topic.charAt(0).toUpperCase();
   };
@@ -248,11 +270,11 @@ const Homepage = ({ toggleDark }: Prop) => {
               <span className="streak-flame">🔥</span>
               Daily Streak
             </div>
-            <div className="streak-days">5 days</div>
+            <div className="streak-days">{streak} days</div>
           </div>
 
           {isTopicsLoading ? (
-            <div style={{ textAlign: 'center', margin: '30px 0' }}>
+            <div style={{ textAlign: "center", margin: "30px 0" }}>
               Loading topics...
             </div>
           ) : (
@@ -346,15 +368,13 @@ const Homepage = ({ toggleDark }: Prop) => {
           <div className="user-stats-container">
             <div className="stat-item">
               <div className="stat-icon">🏆</div>
-              <div className="stat-value">
-                {questionStats.completedQuestions || 1}
-              </div>
+              <div className="stat-value">{points}</div>
               <div className="stat-label">Points</div>
             </div>
 
             <div className="stat-item">
               <div className="stat-icon">🔥</div>
-              <div className="stat-value">5</div>
+              <div className="stat-value">{streak}</div>
               <div className="stat-label">Day Streak</div>
             </div>
 
@@ -366,12 +386,12 @@ const Homepage = ({ toggleDark }: Prop) => {
                     (topic) => topicProgress[topic] >= 100
                   ).length
                 }
+                {/* {questionStats.completedQuestions || -1} */}
               </div>
               <div className="stat-label">Completed</div>
             </div>
           </div>
         </div>
-
 
         {/* Overall Progress Section */}
         <div className="progress-section">
@@ -392,8 +412,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           </div>
 
           <div className="progress-label">
-            {answeredQuestions} of 10{" "}
-            questions completed
+            {answeredQuestions} of 10 questions completed
           </div>
         </div>
 
@@ -407,7 +426,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           </div>
 
           {isTopicsLoading ? (
-            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <div style={{ textAlign: "center", padding: "20px 0" }}>
               Loading topics...
             </div>
           ) : (

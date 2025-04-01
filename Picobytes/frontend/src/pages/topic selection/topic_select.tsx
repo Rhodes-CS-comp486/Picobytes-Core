@@ -15,10 +15,12 @@ interface Question {
 }
 
 const Topic_Select = () => {
+    /// CONSTANTS ////////////////////////////////////////
     const { topicName, questionType } = useParams();
     const [questions, setQuestions] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null)
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -56,9 +58,15 @@ const Topic_Select = () => {
         navigate(`/question/${qid}`);
     };
 
-    const goToHomepage = () => {
-        navigate('/homepage');
+    const goToTopicSelect = () => {
+        navigate('/practice');
     };
+
+    // Filter questions based on selected difficulty
+    const filteredQuestions = selectedDifficulty
+        ? questions.filter((q) => q.qlevel.toLowerCase() === selectedDifficulty.toLowerCase())
+        : questions;
+
 
     if (loading) return (
         <div className="questions-layout">
@@ -74,6 +82,8 @@ const Topic_Select = () => {
         </div>
     );
 
+
+    /// MAIN CONTENT ////////////////////////////////////////////////
     return (
         <div className="questions-layout">
             <Home_Header toggleOverlay={() => {}} />
@@ -82,9 +92,38 @@ const Topic_Select = () => {
                 <h1>{topicName} - {questionType} Questions</h1>
             </div>
 
+            {/* DIFFICULTY FILTERS */}
+            <div id="difficulty-filter">
+                <button 
+                    className={selectedDifficulty === null ? "active" : ""} 
+                    onClick={() => setSelectedDifficulty(null)}
+                >
+                    All
+                </button>
+                <button 
+                    className={selectedDifficulty === "easy" ? "active" : ""} 
+                    onClick={() => setSelectedDifficulty("easy")}
+                >
+                    Easy
+                </button>
+                <button 
+                    className={selectedDifficulty === "medium" ? "active" : ""} 
+                    onClick={() => setSelectedDifficulty("medium")}
+                >
+                    Medium
+                </button>
+                <button 
+                    className={selectedDifficulty === "hard" ? "active" : ""} 
+                    onClick={() => setSelectedDifficulty("hard")}
+                >
+                    Hard
+                </button>
+            </div>
+
+
             <div className="questions-list">
-                {questions.length > 0 ? (
-                    questions.map((question) => (
+                {filteredQuestions.length > 0 ? (
+                    filteredQuestions.map((question) => (
                         <div 
                             key={question.question_id} 
                             className="question-item"
@@ -150,8 +189,8 @@ const Topic_Select = () => {
                     <div>No questions found for this topic.</div>
                 )}
                 
-                <button className="back-button" onClick={goToHomepage}>
-                    Back to Home
+                <button className="back-button" onClick={goToTopicSelect}>
+                    Back to Topics
                 </button>
             </div>
         </div>

@@ -21,6 +21,14 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
   // For true/false questions
   const [correctTFAnswer, setCorrectTFAnswer] = useState<boolean>(true);
   
+  // For code blocks questions
+  const [codeBlocks, setCodeBlocks] = useState<{[key: string]: string}>({
+    block1: '', block2: '', block3: '', block4: '', block5: '',
+    block6: '', block7: '', block8: '', block9: '', block10: ''
+  });
+  const [codeAnswer, setCodeAnswer] = useState<string>('');
+  const [numCodeBlocks, setNumCodeBlocks] = useState<number>(3);
+  
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -34,6 +42,12 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
     setOption4('');
     setCorrectMCAnswer(1);
     setCorrectTFAnswer(true);
+    setCodeBlocks({
+      block1: '', block2: '', block3: '', block4: '', block5: '',
+      block6: '', block7: '', block8: '', block9: '', block10: ''
+    });
+    setCodeAnswer('');
+    setNumCodeBlocks(3);
     setFeedback(null);
   };
 
@@ -62,9 +76,36 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
         });
         return false;
       }
+    } else if (questionType === 'code_blocks') {
+      // Validate required code blocks
+      for (let i = 1; i <= numCodeBlocks; i++) {
+        const blockKey = `block${i}` as keyof typeof codeBlocks;
+        if (!codeBlocks[blockKey].trim()) {
+          setFeedback({
+            message: `Code block ${i} is required`,
+            type: 'error'
+          });
+          return false;
+        }
+      }
+      
+      if (!codeAnswer.trim()) {
+        setFeedback({
+          message: 'Answer is required for code questions',
+          type: 'error'
+        });
+        return false;
+      }
     }
 
     return true;
+  };
+
+  const handleCodeBlockChange = (blockNumber: number, value: string) => {
+    setCodeBlocks(prev => ({
+      ...prev,
+      [`block${blockNumber}`]: value
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,25 +119,41 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
     setFeedback(null);
     
     try {
-      const questionData = {
-        qtext: questionText,
-        qtype: questionType,
-        qlevel: questionLevel,
-        qtopic: questionTopic,
-        qactive: true,
-        ...(questionType === 'multiple_choice' 
-          ? { 
-              option1, 
-              option2, 
-              option3, 
-              option4, 
-              answer: correctMCAnswer 
-            } 
-          : { 
-              correct: correctTFAnswer 
-            }
-        )
-      };
+      let questionData;
+      
+      if (questionType === 'multiple_choice') {
+        questionData = {
+          qtext: questionText,
+          qtype: questionType,
+          qlevel: questionLevel,
+          qtopic: questionTopic,
+          qactive: true,
+          option1, 
+          option2, 
+          option3, 
+          option4, 
+          answer: correctMCAnswer
+        };
+      } else if (questionType === 'true_false') {
+        questionData = {
+          qtext: questionText,
+          qtype: questionType,
+          qlevel: questionLevel,
+          qtopic: questionTopic,
+          qactive: true,
+          correct: correctTFAnswer
+        };
+      } else if (questionType === 'code_blocks') {
+        questionData = {
+          qtext: questionText,
+          qtype: questionType,
+          qlevel: questionLevel,
+          qtopic: questionTopic,
+          qactive: true,
+          ...codeBlocks,
+          answer: codeAnswer
+        };
+      }
       
       const response = await fetch('http://127.0.0.1:5000/api/admin/add_question', {
         method: 'POST',
@@ -150,6 +207,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
           >
             <option value="multiple_choice">Multiple Choice</option>
             <option value="true_false">True/False</option>
+            <option value="code_blocks">Fill in Code</option>
           </select>
         </div>
         
@@ -195,7 +253,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
           </div>
         </div>
         
-        {questionType === 'multiple_choice' ? (
+        {questionType === 'multiple_choice' && (
           <div className="options-container">
             <h3>Multiple Choice Options</h3>
             
@@ -266,53 +324,96 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ onQuestionAdded }) => {
               </select>
             </div>
           </div>
-        ) : (
-          <div className="true-false-container">
-            <h3>True/False Answer</h3>
+        )}
+        
+        {questionType === 'true_false' && (
+          <div className="options-container">
+            <h3>True/False Question</h3>
             
-            <div className="form-group radio-group">
-              <label>Correct Answer</label>
-              <div className="radio-options">
-                <label>
-                  <input 
-                    type="radio" 
-                    name="correctTFAnswer" 
-                    checked={correctTFAnswer === true} 
-                    onChange={() => setCorrectTFAnswer(true)}
-                    disabled={isSubmitting}
-                  /> 
-                  True
+            <div className="form-group">
+              <label htmlFor="correctTFAnswer">Correct Answer</label>
+              <select 
+                id="correctTFAnswer" 
+                value={correctTFAnswer.toString()} 
+                onChange={(e) => setCorrectTFAnswer(e.target.value === 'true')}
+                disabled={isSubmitting}
+              >
+                <option value="true">True</option>
+                <option value="false">False</option>
+              </select>
+            </div>
+          </div>
+        )}
+        
+        {questionType === 'code_blocks' && (
+          <div className="options-container">
+            <h3>Fill in Code Question</h3>
+            
+            <div className="form-group">
+              <label htmlFor="numCodeBlocks">Number of Code Blocks</label>
+              <select 
+                id="numCodeBlocks" 
+                value={numCodeBlocks} 
+                onChange={(e) => setNumCodeBlocks(parseInt(e.target.value))}
+                disabled={isSubmitting}
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                  <option key={num} value={num}>{num}</option>
+                ))}
+              </select>
+            </div>
+            
+            {Array.from({ length: numCodeBlocks }).map((_, index) => (
+              <div className="form-group" key={`block-${index + 1}`}>
+                <label htmlFor={`codeBlock${index + 1}`}>
+                  {(index + 1).toString() === codeAnswer ? 'Code Block ' + (index + 1) + ' (Answer)' : 'Code Block ' + (index + 1)}
                 </label>
-                <label>
-                  <input 
-                    type="radio" 
-                    name="correctTFAnswer" 
-                    checked={correctTFAnswer === false} 
-                    onChange={() => setCorrectTFAnswer(false)}
-                    disabled={isSubmitting}
-                  /> 
-                  False
-                </label>
+                <textarea 
+                  id={`codeBlock${index + 1}`}
+                  value={codeBlocks[`block${index + 1}` as keyof typeof codeBlocks]}
+                  onChange={(e) => handleCodeBlockChange(index + 1, e.target.value)}
+                  placeholder={`Enter code for block ${index + 1}`}
+                  rows={4}
+                  disabled={isSubmitting}
+                  required
+                  className="code-block-textarea"
+                />
               </div>
+            ))}
+            
+            <div className="form-group">
+              <label htmlFor="codeAnswer">Correct Answer Block Number</label>
+              <select 
+                id="codeAnswer" 
+                value={codeAnswer} 
+                onChange={(e) => setCodeAnswer(e.target.value)}
+                disabled={isSubmitting}
+              >
+                <option value="">-- Select correct block --</option>
+                {Array.from({ length: numCodeBlocks }).map((_, index) => (
+                  <option key={index + 1} value={index + 1}>Block {index + 1}</option>
+                ))}
+              </select>
             </div>
           </div>
         )}
         
         <div className="form-actions">
           <button 
-            type="button" 
-            onClick={resetForm} 
-            className="reset-button"
-            disabled={isSubmitting}
-          >
-            Reset
-          </button>
-          <button 
             type="submit" 
-            className="submit-button"
             disabled={isSubmitting}
+            className="submit-button"
           >
-            {isSubmitting ? 'Adding...' : 'Add Question'}
+            {isSubmitting ? 'Adding Question...' : 'Add Question'}
+          </button>
+          
+          <button 
+            type="button" 
+            onClick={resetForm}
+            disabled={isSubmitting}
+            className="reset-button"
+          >
+            Reset Form
           </button>
         </div>
       </form>

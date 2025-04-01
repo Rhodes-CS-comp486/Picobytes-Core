@@ -9,6 +9,7 @@ import AddQuestion from './components/AddQuestion';
 import UserManagement from './components/UserManagement';
 import EnhancedQuestionStats from './components/EnhancedQuestionStats';
 import UserActivitySummary from './components/UserActivitySummary';
+import QuestionManagement from './components/QuestionManagement';
 import Home_Header from '../home/home_header';
 import './AdminDashboard.css';
 
@@ -258,11 +259,16 @@ const AdminDashboard = () => {
       )}
       
       {activeTab === 'questions' && (
-        <div className="questions-management">
-          <AddQuestion onQuestionAdded={handleQuestionAdded} />
-          
-          <div className="dashboard-card wide" style={{ marginTop: '30px' }}>
-            <QuestionStats data={questionStats} />
+        <div className="admin-content">
+          <div className="questions-content">
+            <div className="question-actions-container">
+              <h2>Add New Question</h2>
+              <AddQuestion onQuestionAdded={handleQuestionAdded} />
+            </div>
+            
+            <div className="question-management-container">
+              <QuestionManagement />
+            </div>
           </div>
         </div>
       )}

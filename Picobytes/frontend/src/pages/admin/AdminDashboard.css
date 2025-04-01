@@ -891,3 +891,48 @@ html, body, #root {
     height: 200px;
   }
 }
+
+/* Questions tab styling */
+.questions-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+@media (min-width: 1200px) {
+  .questions-content {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  
+  .question-actions-container {
+    flex: 0 0 35%;
+    position: sticky;
+    top: 1rem;
+  }
+  
+  .question-management-container {
+    flex: 1;
+  }
+}
+
+.question-actions-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.question-actions-container h2 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #2d3748;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+}
+
+.question-management-container {
+  width: 100%;
+}

@@ -492,6 +492,17 @@ def check_user(username):
         }), 404
 
 
+@app.route('/api/admin/dashboard/activity-summary', methods=['GET'])
+def get_activity_summary():
+    uid = request.args.get('uid')
+    if not validate_admin_access(uid):
+        return jsonify({'error': 'Unauthorized access'}), 403
+        
+    time_range = request.args.get('range', '30d')
+    data = admin_service.get_activity_summary(time_range)
+    return jsonify(data)
+
+
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))

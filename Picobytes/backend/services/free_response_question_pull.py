@@ -23,7 +23,7 @@ class FR_QuestionFetcher:
             cursor.execute("""
                 SELECT q.qid, q.qtext, q.topic, q.qlevel 
                 FROM questions q 
-                WHERE q.qtype = 'free_response' AND q.qactive = 1
+                WHERE q.qtype = 'free_response' AND q.qactive = True
             """)
             all_questions = cursor.fetchall()
             conn.close()
@@ -36,7 +36,7 @@ class FR_QuestionFetcher:
         """Fetch a specific question by its ID."""
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.execute("select qid, qtext, qtype, qtopic, qlevel, prof_answer from questions natural join free_response where qactive = 1 and qid = %s", (question_id,))
+        cursor.execute("select qid, qtext, qtype, qtopic, qlevel, prof_answer from questions natural join free_response where qactive = True and qid = %s", (question_id,))
         question = cursor.fetchone()
         conn.close()
         return question

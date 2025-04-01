@@ -5,6 +5,7 @@ import random
 import time
 import psycopg
 from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 
 
 
@@ -12,7 +13,8 @@ class UserFuncs:
 
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
-        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+
 
     ########################################
     ########## CREATING NEW USERS ##########
@@ -113,7 +115,7 @@ class UserFuncs:
             result = cursor.fetchone()
             
             # Check if there's a result and if uadmin is 1
-            is_admin = bool(result and result[0] == 1)
+            is_admin = result[0]
             
             connection.close()
             return is_admin

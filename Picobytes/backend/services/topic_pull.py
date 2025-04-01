@@ -1,16 +1,19 @@
 import sqlite3
 import random
 import os
+import psycopg
+from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 
 class Topic_Puller:
-
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
-        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
 
     def _connect(self):
         """Establish and return a database connection."""
-        return sqlite3.connect(self.db_path)
+        return psycopg.connect(self.db_url, row_factory=dict_row)
+
 
     def get_fr_by_topic(self, topic):
         try:
@@ -18,7 +21,7 @@ class Topic_Puller:
             cursor = conn.cursor()
             cursor.execute(
                 "select qid, qtext, prof_answer, qtype, qlevel"
-                " from free_response natural join questions where qactive = 1 and qtopic = ?",
+                " from free_response natural join questions where qactive = 1 and qtopic = %s",
                 (topic,))
             questions = cursor.fetchall()
             conn.close()
@@ -33,7 +36,7 @@ class Topic_Puller:
             cursor = conn.cursor()
             cursor.execute(
                 "select qid, qtext, answer, qtype, qlevel"
-                " from code_blocks natural join questions where qactive = 1 and qtopic = ?",
+                " from code_blocks natural join questions where qactive = 1 and qtopic = %s",
                 (topic,))
             question = cursor.fetchall()
             conn.close()
@@ -48,7 +51,7 @@ class Topic_Puller:
             cursor = conn.cursor()
             cursor.execute(
                 "select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel"
-                " from multiple_choice natural join questions where qactive = 1 and qtopic = ?",
+                " from multiple_choice natural join questions where qactive = 1 and qtopic = %s",
                 (topic,))
             question = cursor.fetchall()
             conn.close()
@@ -63,7 +66,7 @@ class Topic_Puller:
             cursor = conn.cursor()
             cursor.execute(
                 "select qid, qtext, correct, qtype, qlevel"
-                " from true_false natural join questions where qactive = 1 and qtopic = ?",
+                " from true_false natural join questions where qactive = 1 and qtopic = %s",
                 (topic,))
             question = cursor.fetchall()
             conn.close()
@@ -82,7 +85,7 @@ class Topic_Puller:
                 """SELECT qid, qtype, qtext, option1, option2, option3, option4, answer, qlevel 
                    FROM multiple_choice 
                    NATURAL JOIN questions 
-                   WHERE qactive = 1 AND qtopic = ?""",
+                   WHERE qactive = 1 AND qtopic = %s""",
                 (topic,)
             )
             mc_questions = cursor.fetchall()
@@ -92,7 +95,7 @@ class Topic_Puller:
                 """SELECT qid, qtype, qtext, correct, qlevel 
                    FROM true_false 
                    NATURAL JOIN questions 
-                   WHERE qactive = 1 AND qtopic = ?""",
+                   WHERE qactive = 1 AND qtopic = %s""",
                 (topic,)
             )
             tf_questions = cursor.fetchall()

@@ -25,7 +25,7 @@ class CB_QuestionFetcher:
             cursor.execute("""
                 SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer
                 FROM questions q NATURAL JOIN code_blocks c
-                WHERE q.qtype = 'code_blocks' AND q.qactive = 1
+                WHERE q.qtype = 'code_blocks' AND q.qactive = True
             """)
             all_questions = cursor.fetchall()
             conn.close()
@@ -38,7 +38,7 @@ class CB_QuestionFetcher:
         """Fetch a specific question by its ID."""
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.execute("SELECT q.qid, q.qtext, q.qtype, q.qtopic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer FROM questions q NATURAL JOIN code_blocks c where q.qactive = 1 and q.qid = %s", (question_id,))
+        cursor.execute("SELECT q.qid, q.qtext, q.qtype, q.qtopic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer FROM questions q NATURAL JOIN code_blocks c where q.qactive = True and q.qid = %s", (question_id,))
         question = cursor.fetchone()
         conn.close()
         return question

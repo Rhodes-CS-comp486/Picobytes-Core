@@ -13,6 +13,7 @@ from services.question_saver import QuestionSave
 from services.question_adder import QuestionAdder  # Import the new service
 from services.get_question import GetQuestions
 from services.code_blocks_question_pull import CB_QuestionFetcher
+from services.code_execution_service import CodeExecutionService  # Import the new service
 import json
 from services.analytics_service import AnalyticsService
 from services.streak import Streaks
@@ -63,6 +64,7 @@ cb_question_service = CB_QuestionFetcher()
 analytics_service = AnalyticsService()
 streak_service = Streaks()
 verification_service = Verification()
+code_execution_service = CodeExecutionService()  # Initialize the code execution service
 
 
 @app.route('/')
@@ -729,6 +731,108 @@ def delete_question():
     except Exception as e:
         print(f"Error in delete_question endpoint: {e}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
+@app.route('/api/coding/question/<int:qid>', methods=['GET'])
+def get_coding_question(qid):
+    """API endpoint to fetch a coding question by ID."""
+    response = code_execution_service.get_coding_question(qid)
+    return jsonify(response)
+
+@app.route('/api/coding/submit', methods=['POST'])
+def submit_coding_solution():
+    """API endpoint to save a user's code submission."""
+    data = request.get_json()
+    uid = data.get('uid')
+    qid = data.get('qid')
+    code = data.get('code')
+    
+    if not uid:
+        return jsonify({"error": "Missing user ID"}), 400
+    if not qid:
+        return jsonify({"error": "Missing question ID"}), 400
+    if not code:
+        return jsonify({"error": "Missing code submission"}), 400
+    
+    # Verify user
+    if not verification_service.verify_user(uid):
+        return jsonify({"error": "Invalid user ID"}), 401
+    
+    # Save the user's code submission
+    save_result = code_execution_service.save_user_code(uid, qid, code)
+    
+    if save_result.get('error'):
+        return jsonify(save_result), 500
+    
+    return jsonify(save_result)
+
+@app.route('/api/coding/execute', methods=['POST'])
+def execute_code():
+    """API endpoint to execute a user's code against test cases."""
+    data = request.get_json()
+    qid = data.get('qid')
+    code = data.get('code')
+    
+    if not qid:
+        return jsonify({"error": "Missing question ID"}), 400
+    if not code:
+        return jsonify({"error": "Missing code submission"}), 400
+    
+    # Execute the code
+    execution_result = code_execution_service.execute_code(qid, code)
+    
+    if execution_result.get('error'):
+        return jsonify(execution_result), 500
+    
+    return jsonify(execution_result)
+
+@app.route('/api/admin/add_coding_question', methods=['POST'])
+def add_coding_question():
+    """API endpoint to add a new coding question."""
+    data = request.get_json()
+    uid = data.get('uid')
+    
+    # Verify admin access
+    if not validate_admin_access(uid):
+        return jsonify({"error": "Unauthorized access"}), 403
+    
+    question_text = data.get('question_text')
+    topic = data.get('topic')
+    level = data.get('level')
+    starter_code = data.get('starter_code')
+    test_cases = data.get('test_cases')
+    header_files = data.get('header_files', '')
+    
+    if not question_text or not topic or not level or not starter_code or not test_cases:
+        return jsonify({"error": "Missing required fields"}), 400
+    
+    try:
+        conn = sqlite3.connect("pico.db")
+        cursor = conn.cursor()
+        
+        # Insert into questions table
+        cursor.execute("""
+            INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
+            VALUES (?, ?, ?, ?, ?)
+        """, (question_text, 'coding', level, topic, True))
+        
+        # Get the ID of the inserted question
+        qid = cursor.lastrowid
+        
+        # Insert into coding table
+        cursor.execute("""
+            INSERT INTO coding (qid, starter, test_cases, header_files)
+            VALUES (?, ?, ?, ?)
+        """, (qid, starter_code, test_cases, header_files))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"success": True, "message": "Coding question added successfully", "qid": qid})
+        
+    except Exception as e:
+        print(f"Error adding coding question: {e}")
+        return jsonify({"error": f"Error adding coding question: {e}"}), 500
 
 
 if __name__ == '__main__':

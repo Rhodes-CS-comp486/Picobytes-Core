@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Homepage from "./pages/home/home";
 import Login from "./pages/login";
 import Question from "./pages/question";
+import CodingQuestion from "./pages/coding_question"; // Import the new CodingQuestion component
 import AccountCreate from "./pages/createAccount";
 import Questions from "./pages/Questions"; //import new Questions component
 import AdminDashboard from "./pages/admin/AdminDashboard"; //import new AdminDashboard component
@@ -72,6 +73,7 @@ function App() {
             <Route path="/" element={<Login />} />
             <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
             <Route path="/question/:id" element={<Question />} />
+            <Route path="/coding-question/:id" element={<CodingQuestion />} />
             <Route path="topic_select" element={<Topic_Select />} />
             <Route path="/questions" element={<Questions />} />
             <Route path="/admin/dashboard" element={

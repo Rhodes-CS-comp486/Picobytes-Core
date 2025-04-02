@@ -92,16 +92,19 @@ def create_table():
 
 
 
-        # User response to multiple_choice
+        # Creating coding table with test cases
         cursor.execute("""
                                           CREATE TABLE IF NOT EXISTS coding (
                                               qid INTEGER PRIMARY KEY,
                                               starter STRING NOT NULL,
+                                              test_cases TEXT NOT NULL,
+                                              header_files TEXT,
                                               FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
                                               );""")
 
         connection.commit()
 
+        print("coding table created successfully")
 
 
 ##############################################
@@ -153,12 +156,13 @@ def create_table():
 
 
 
-        # User response to multiple_choice
+        # User response to coding
         cursor.execute("""
                                     CREATE TABLE IF NOT EXISTS user_coding (
                                         uid STRING NOT NULL,
                                         qid INTEGER NOT NULL,
                                         code STRING NOT NULL,
+                                        execution_results TEXT,
                                         PRIMARY KEY (uid, qid)
                                         );""")
 

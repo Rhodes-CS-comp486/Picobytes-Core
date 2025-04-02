@@ -5,11 +5,9 @@ import ActiveUsers from './components/ActiveUsers';
 import PerformanceMetrics from './components/PerformanceMetrics';
 import QuestionStats from './components/QuestionStats';
 import UsageStats from './components/UsageStats';
-import AddQuestion from './components/AddQuestion';
 import UserManagement from './components/UserManagement';
 import EnhancedQuestionStats from './components/EnhancedQuestionStats';
 import UserActivitySummary from './components/UserActivitySummary';
-import QuestionManagement from './components/QuestionManagement';
 import Home_Header from '../home/home_header';
 import './AdminDashboard.css';
 
@@ -70,7 +68,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'questions' | 'users' | 'analytics' | 'activity'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'analytics' | 'activity'>('dashboard');
   const [showOverlay, setShowOverlay] = useState(false);
   
   // Keeping state for components
@@ -150,21 +148,6 @@ const AdminDashboard = () => {
     setActiveUsersPeriod(period);
   };
 
-  const handleQuestionAdded = () => {
-    // Refresh question stats data
-    fetch(`http://localhost:5000/api/admin/dashboard/question-stats?uid=${uid}`)
-      .then(response => {
-        if (response.ok) return response.json();
-        throw new Error('Failed to refresh question stats');
-      })
-      .then(data => {
-        setQuestionStats(data);
-      })
-      .catch(err => {
-        console.error('Error refreshing question stats:', err);
-      });
-  };
-
   const handleUserStatusChange = () => {
     // You could implement additional logic here if needed
     console.log("User status has been updated");
@@ -209,10 +192,16 @@ const AdminDashboard = () => {
             Dashboard
           </button>
           <button 
-            className={`tab-button ${activeTab === 'questions' ? 'active' : ''}`}
-            onClick={() => setActiveTab('questions')}
+            className="tab-button"
+            onClick={() => navigate('/admin/manage-questions')}
           >
             Manage Questions
+          </button>
+          <button 
+            className="tab-button"
+            onClick={() => navigate('/admin/add-question')}
+          >
+            Add New Question
           </button>
           <button 
             className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
@@ -254,21 +243,6 @@ const AdminDashboard = () => {
           
           <div className="dashboard-card wide">
             <UsageStats data={usageStats} />
-          </div>
-        </div>
-      )}
-      
-      {activeTab === 'questions' && (
-        <div className="admin-content">
-          <div className="questions-content">
-            <div className="question-actions-container">
-              <h2>Add New Question</h2>
-              <AddQuestion onQuestionAdded={handleQuestionAdded} />
-            </div>
-            
-            <div className="question-management-container">
-              <QuestionManagement />
-            </div>
           </div>
         </div>
       )}

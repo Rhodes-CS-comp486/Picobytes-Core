@@ -1,5 +1,17 @@
 /* Duolingo-inspired Admin Dashboard */
 /* Full screen settings */
+:root {
+  --background-primary: #1e2235;
+  --background-secondary: #2a2f45;
+  --background-accent: #3a4a63;
+  --text-primary: #e2e8f0;
+  --text-secondary: #a0aec0;
+  --border-color: #3a4a63;
+  --input-background: #1e2235;
+  --accent-green: #4CAF50;
+  --accent-blue: #3182ce;
+}
+
 html, body, #root {
   margin: 0;
   padding: 0;
@@ -9,21 +21,22 @@ html, body, #root {
 }
 
 .admin-dashboard {
-  padding: 30px;
-  width: 100%;
+  padding: 20px 0;
+  width: 100vw;
   margin: 0;
   font-family: 'Nunito', sans-serif;
   background-color: #1e2235;
   color: #e2e8f0;
   min-height: 100vh;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .admin-header {
   display: flex;
   flex-direction: column;
-  margin-bottom: 30px;
-  padding-bottom: 25px;
+  margin-bottom: 20px;
+  padding: 0 20px 20px 20px;
   border-bottom: 1px solid #2d3748;
   width: 100%;
 }
@@ -918,7 +931,7 @@ html, body, #root {
 }
 
 .question-actions-container {
-  background-color: #fff;
+  background-color: var(--background-secondary);
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   padding: 1.5rem;
@@ -928,11 +941,62 @@ html, body, #root {
   font-size: 1.5rem;
   margin-top: 0;
   margin-bottom: 1.5rem;
-  color: #2d3748;
-  border-bottom: 2px solid #e2e8f0;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
   padding-bottom: 0.75rem;
 }
 
 .question-management-container {
   width: 100%;
+}
+
+/* New full-container styles for separated pages */
+.question-management-full-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  background-color: var(--background-secondary);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.add-question-full-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+  box-sizing: border-box;
+  background-color: var(--background-secondary);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-question-full-container h2 {
+  margin-bottom: 30px;
+  color: var(--text-primary);
+  text-align: center;
+  font-size: 1.8rem;
+}
+
+/* Adjust the question management container to use full width */
+.question-management {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+}
+
+/* Improve the admin content container for better spacing */
+.admin-content {
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 50px;
 }

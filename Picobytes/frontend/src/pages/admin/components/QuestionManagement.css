@@ -1,8 +1,11 @@
 .question-management {
-  padding: 1.5rem;
+  padding: 0;
   background-color: #f7f9fc;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .question-management-header {
@@ -10,11 +13,12 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  padding: 1rem 1.5rem;
 }
 
 .question-management-header h2 {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   color: #2d3748;
 }
 
@@ -25,29 +29,30 @@
 
 .search-filter {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .search-filter input {
-  min-width: 250px;
-  padding: 0.5rem 1rem;
+  min-width: 300px;
+  padding: 0.75rem 1rem;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .search-filter select {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
   background-color: white;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  min-width: 150px;
 }
 
 .bulk-actions {
   background-color: #f0f6ff;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  margin: 0 1.5rem 1.5rem 1.5rem;
   border-radius: 6px;
   border-left: 4px solid #3182ce;
 }
@@ -55,22 +60,22 @@
 .bulk-actions h3 {
   margin-top: 0;
   margin-bottom: 1rem;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #2c5282;
 }
 
 .bulk-category-action {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
 .bulk-category-action input {
   flex: 1;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   border: 1px solid #cbd5e0;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .bulk-category-action button,
@@ -79,9 +84,9 @@
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
   transition: background-color 0.2s;
 }
@@ -105,86 +110,103 @@
   background-color: #4a5568;
 }
 
+/* Table styles */
 .questions-list {
   overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
 }
 
 .questions-list table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
   table-layout: fixed;
+  border: 1px solid #e2e8f0;
+  min-width: 100%;
 }
 
-/* Column width distribution */
-.questions-list th:nth-child(1), 
+/* Column widths - properly sized */
+.questions-list th:nth-child(1),
 .questions-list td:nth-child(1) {
-  width: 5%;
+  width: 3%;
+  text-align: center;
+  padding: 1rem 0.5rem;
 }
 
-.questions-list th:nth-child(2), 
+.questions-list th:nth-child(2),
 .questions-list td:nth-child(2) {
-  width: 5%;
+  width: 3%;
+  text-align: center;
+  padding: 1rem 0.5rem;
 }
 
-.questions-list th:nth-child(3), 
+.questions-list th:nth-child(3),
 .questions-list td:nth-child(3) {
-  width: 35%;
+  width: 42%;
+  padding: 1rem;
 }
 
-.questions-list th:nth-child(4), 
+.questions-list th:nth-child(4),
 .questions-list td:nth-child(4) {
   width: 10%;
+  padding: 1rem;
 }
 
-.questions-list th:nth-child(5), 
+.questions-list th:nth-child(5),
 .questions-list td:nth-child(5) {
-  width: 10%;
-}
-
-.questions-list th:nth-child(6), 
-.questions-list td:nth-child(6) {
-  width: 15%;
-}
-
-.questions-list th:nth-child(7), 
-.questions-list td:nth-child(7) {
   width: 8%;
+  padding: 1rem;
 }
 
-.questions-list th:nth-child(8), 
+.questions-list th:nth-child(6),
+.questions-list td:nth-child(6) {
+  width: 14%;
+  padding: 1rem;
+}
+
+.questions-list th:nth-child(7),
+.questions-list td:nth-child(7) {
+  width: 9%;
+  padding: 1rem;
+}
+
+.questions-list th:nth-child(8),
 .questions-list td:nth-child(8) {
-  width: 12%;
+  width: 11%;
+  padding: 1rem;
 }
 
 .questions-list th {
-  text-align: left;
-  padding: 0.75rem 1rem;
-  background-color: #e2e8f0;
+  padding: 1rem;
+  background-color: #edf2f7;
   font-weight: 600;
   color: #2d3748;
+  text-align: left;
   border-bottom: 2px solid #cbd5e0;
+  white-space: nowrap;
 }
 
 .questions-list td {
-  padding: 0.75rem 1rem;
+  padding: 1rem;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
   color: #1a202c;
+  word-break: break-word;
 }
 
-/* Add new styles for question text column */
-.questions-list td:nth-child(3), 
 .question-text-cell {
-  max-width: 300px;
-  white-space: normal;
+  max-width: 100%;
   word-wrap: break-word;
-  line-height: 1.4;
+  white-space: normal;
+  line-height: 1.5;
   font-weight: 500;
-  padding: 0.85rem 1rem;
-  color: #1a202c;
   background-color: rgba(247, 250, 252, 0.7);
   border-left: 3px solid #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .questions-list tr:hover {
@@ -199,22 +221,33 @@
   color: #4a5568;
 }
 
-/* Make sure inactive questions still have readable text */
-.questions-list tr.inactive .question-text-cell,
-.questions-list tr.inactive td:nth-child(3) {
-  color: #4a5568;
-  background-color: #f7f7f7;
-  border-left: 3px solid #e2e8f0;
+/* Make checkboxes more visible */
+.questions-list input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Style select dropdown in the table */
+.questions-list select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
 }
 
 .status-toggle {
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 9999px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%;
+  text-align: center;
 }
 
 .status-toggle.active {
@@ -229,16 +262,18 @@
 
 .actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .actions button {
-  padding: 0.35rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   border: none;
   border-radius: 4px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  white-space: nowrap;
 }
 
 .actions button:first-child {
@@ -257,6 +292,15 @@
 
 .actions button:last-child:hover {
   background-color: #feb2b2;
+}
+
+/* Alternating row colors for better readability */
+.questions-list tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.questions-list tr:nth-child(odd) {
+  background-color: #ffffff;
 }
 
 .question-preview-overlay {
@@ -350,13 +394,4 @@
   text-align: center;
   color: #718096;
   font-style: italic;
-}
-
-/* Add alternating row colors for better readability */
-.questions-list tr:nth-child(even) {
-  background-color: #f8fafc;
-}
-
-.questions-list tr:nth-child(odd) {
-  background-color: #ffffff;
 } 

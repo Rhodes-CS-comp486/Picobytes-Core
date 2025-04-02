@@ -216,7 +216,7 @@ const QuestionManagement = () => {
   }
 
   return (
-    <div className="question-management">
+    <div className="question-management" style={{ width: '100%', maxWidth: '100%', padding: 0 }}>
       <div className="question-management-header">
         <h2>Question Management</h2>
         <div className="question-management-actions">
@@ -262,18 +262,18 @@ const QuestionManagement = () => {
         </div>
       )}
 
-      <div className="questions-list">
-        <table>
+      <div className="questions-list" style={{ width: '100%', maxWidth: '100%' }}>
+        <table style={{ width: '100%', tableLayout: 'fixed' }}>
           <thead>
             <tr>
-              <th>Select</th>
-              <th>ID</th>
-              <th>Question Text</th>
-              <th>Type</th>
-              <th>Difficulty</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th style={{ width: '3%' }}>Select</th>
+              <th style={{ width: '3%' }}>ID</th>
+              <th style={{ width: '42%' }}>Question Text</th>
+              <th style={{ width: '10%' }}>Type</th>
+              <th style={{ width: '8%' }}>Difficulty</th>
+              <th style={{ width: '14%' }}>Category</th>
+              <th style={{ width: '9%' }}>Status</th>
+              <th style={{ width: '11%' }}>Actions</th>
             </tr>
           </thead>
           <tbody>

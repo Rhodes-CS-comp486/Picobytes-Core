@@ -15,11 +15,43 @@ interface Topic {
   progress: number;
 }
 
+interface PlayerStats {
+  streak: number;
+  points: number;
+}
+
+interface Player {
+  username: string;
+  uid: string;
+}
+
+/// MAIN CONTENT ////////////////////////////////////
+
 const Homepage = ({ toggleDark }: Prop) => {
+  /// CONSTANTS ///////////////////////////////////////
+  const [playerStats, setPlayerStats] = useState<{ [key: string]: PlayerStats }>({});
+  const [players, setPlayers] = useState<Player[]>([]);
+
+  // Get username from localStorage with fallback
+  const username = localStorage.getItem("username") || "Agent 41";
+  const uid = localStorage.getItem("uid") || "pvCYNLaP7Z";
+
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const [lessonNumber, setLessonNumber] = useState<string | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [questionStats, setQuestionStats] = useState({
+    totalQuestions: 0,
+    completedQuestions: 0,
+  });
+  // Initialize with empty object, will be populated from API
+  const [topicProgress, setTopicProgress] = useState<Record<string, number>>({});
+  const [isTopicsLoading, setIsTopicsLoading] = useState(true);
+
+
 
   useEffect(() => {
       const lessonFromURL = queryParams.get('lesson');
@@ -33,18 +65,6 @@ const Homepage = ({ toggleDark }: Prop) => {
       }
   }, [location]);
 
-  const navigate = useNavigate();
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [questionStats, setQuestionStats] = useState({
-    totalQuestions: 0,
-    completedQuestions: 0,
-  });
-  // Initialize with empty object, will be populated from API
-  const [topicProgress, setTopicProgress] = useState<Record<string, number>>({});
-  const [isTopicsLoading, setIsTopicsLoading] = useState(true);
-
-  // Get username from localStorage with fallback
-  const username = localStorage.getItem("username") || "Agent 41";
 
   // Fetch both questions and topics data
   useEffect(() => {
@@ -112,6 +132,26 @@ const Homepage = ({ toggleDark }: Prop) => {
         setIsTopicsLoading(false);
       });
   }, []);
+
+  /// PLAYER STATS ///
+  useEffect(() => {
+    const fetchPlayerStats = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/get_user_stats/${uid}`);
+        const data = await response.json();
+        if (response.status === 200 && data.streak !== undefined && data.points !== undefined) {
+          setPlayerStats({ [uid]: { streak: data.streak, points: data.points } });
+        } else {
+          setPlayerStats({ [uid]: { streak: 0, points: 0 } });
+        }
+      } catch (error) {
+        console.error(`Error fetching stats for ${uid}:`, error);
+        setPlayerStats({ [uid]: { streak: 0, points: 0 } });
+      }
+    };
+  
+    fetchPlayerStats();
+  }, [uid]);
 
   const toggleOverlay = () => {
     setShowOverlay(!showOverlay);
@@ -347,14 +387,14 @@ const Homepage = ({ toggleDark }: Prop) => {
             <div className="stat-item">
               <div className="stat-icon">🏆</div>
               <div className="stat-value">
-                {questionStats.completedQuestions || 1}
+                {playerStats[uid]?.points || 0}
               </div>
               <div className="stat-label">Points</div>
             </div>
 
             <div className="stat-item">
               <div className="stat-icon">🔥</div>
-              <div className="stat-value">5</div>
+              <div className="stat-value">{playerStats[uid]?.streak || 0}</div>
               <div className="stat-label">Day Streak</div>
             </div>
 

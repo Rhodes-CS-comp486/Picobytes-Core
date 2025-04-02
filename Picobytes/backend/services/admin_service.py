@@ -4,6 +4,7 @@ import sqlite3
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
 from services.analytics_service import AnalyticsService
+import random
 
 class AdminService:
     def __init__(self, db_path="pico.db"):
@@ -162,3 +163,74 @@ class AdminService:
             })
             
         return result
+
+    def get_activity_summary(self, time_range: str = "30d") -> Dict[str, Any]:
+        """
+        Get user activity summary data including daily, weekly, and monthly active users,
+        along with session time and completion metrics.
+        
+        Args:
+            time_range: The time range for which to fetch data (7d, 30d, 90d)
+        """
+        # For now, generate mock data since we don't have real session tracking yet
+        # In a real implementation, this would query the database for actual metrics
+        
+        # Convert time_range to number of days for generating data
+        days = 30  # default
+        if time_range == "7d":
+            days = 7
+        elif time_range == "90d":
+            days = 90
+        
+        # Generate daily active users data
+        daily_active_users = []
+        today = datetime.now().date()
+        
+        for i in range(days):
+            day = today - timedelta(days=days-i-1)
+            # Simulate some realistic patterns - weekends have fewer users
+            modifier = 0.7 if day.weekday() >= 5 else 1.0
+            count = int((80 + (i % 10) * 3 + random.randint(-5, 15)) * modifier)
+            daily_active_users.append({
+                "date": day.strftime("%Y-%m-%d"),
+                "count": count
+            })
+        
+        # Generate weekly active users data
+        weeks = days // 7 + (1 if days % 7 > 0 else 0)
+        weekly_active_users = []
+        
+        for i in range(weeks):
+            end_date = today - timedelta(days=i*7)
+            # Each week has roughly 5x the daily average
+            count = int(sum(item["count"] for item in daily_active_users[max(0, i*7):min(len(daily_active_users), (i+1)*7)]) * 0.8)
+            weekly_active_users.append({
+                "date": end_date.strftime("%Y-%m-%d"),
+                "count": count
+            })
+        
+        # Generate monthly active users data
+        months = days // 30 + (1 if days % 30 > 0 else 0)
+        monthly_active_users = []
+        
+        for i in range(months):
+            month_date = datetime(today.year, today.month, 1) - timedelta(days=i*30)
+            # Each month has roughly 3x the weekly average
+            count = int(sum(item["count"] for item in weekly_active_users[max(0, i*4):min(len(weekly_active_users), (i+1)*4)]) * 0.7)
+            monthly_active_users.append({
+                "date": month_date.strftime("%Y-%m-%d"),
+                "count": count
+            })
+        
+        # Calculate other metrics
+        total_questions = random.randint(3000, 8000)
+        correct_answers = int(total_questions * (random.uniform(0.55, 0.85)))
+        
+        return {
+            "daily_active_users": daily_active_users,
+            "weekly_active_users": weekly_active_users,
+            "monthly_active_users": monthly_active_users,
+            "average_session_time": random.randint(8, 25),  # in minutes
+            "total_questions_attempted": total_questions,
+            "total_correct_answers": correct_answers
+        }

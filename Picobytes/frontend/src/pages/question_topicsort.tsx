@@ -3,17 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//ESENTIALLY THE SAME AS questions.tsx EXCPET WE ITERATE BY QUESTION ID
-// INSTEAD OF GOING UP FROM QID 1 TO QID INFINITY
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-const QuestionTopic = () => {
+const Question = () => {
   const [answer, setAnswer] = useState<boolean[] | boolean | string | null>([
     false,
     false,
@@ -36,11 +26,23 @@ const QuestionTopic = () => {
   const [topic, setTopic] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState(0);
-  const [index, setIndex] = useState(0);
 
-
-  let id: string[] | null = JSON.parse(localStorage.getItem('qidArray') || "[]");
+  let params = useParams();
+  let id = params.id;
   const navigate = useNavigate();
+  const qidArray = localStorage.getItem("qidArray")
+  ? JSON.parse(localStorage.getItem("qidArray")!)
+  : null;
+const useQuestionIndex = () => {
+    const [index, setIndex] = useState(0);
+
+    const incrementIndex = () => setIndex((prev) => prev + 1);
+    const decrementIndex = () => setIndex((prev) => Math.max(prev - 1, 0));
+
+    return { index, setIndex, incrementIndex, decrementIndex };
+};
+
+const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
 
   // Fetch total number of questions
   useEffect(() => {
@@ -56,9 +58,7 @@ const QuestionTopic = () => {
 
   // Fetch question data when ID changes
   useEffect(() => {
-    if (id) {
-      fetchQuestion(id[index]);
-    }
+    fetchQuestion(id);
   }, [id]);
 
   const fetchQuestion = (questionId: string | undefined) => {
@@ -70,7 +70,7 @@ const QuestionTopic = () => {
     setIsSubmitting(false);
     setShowCelebration(false);
 
-    fetch(`http://127.0.0.1:5000/api/question/${id ? id[index] : ""}`, {
+    fetch(`http://127.0.0.1:5000/api/question/${questionId}`, {
       method: "GET",
     })
       .then((response) => response.json())
@@ -81,6 +81,8 @@ const QuestionTopic = () => {
         setQuestionType(data.question_type);
         setDifficulty(data.question_level);
         setTopic(data.question_topic);
+
+        
 
         if (data.question_type === "multiple_choice") {
           setOptions([
@@ -103,10 +105,8 @@ const QuestionTopic = () => {
       });
   };
 
-  const navToQuestion = () => {
-    if (id && Array.isArray(id)) {
-        navigate(`/questionsT/${id[index]}`);
-    }
+  const navToQuestion = (qid: number) => {
+    navigate(`/questionsT/${qid}`);
   };
 
   const goToHomepage = () => {
@@ -198,14 +198,14 @@ const QuestionTopic = () => {
           `Incorrect. The correct answer was: ${correct ? "True" : "False"}`
         );
       }
-      
+
       // Enable proceeding to next question
       setIsSubmitting(true);
     }
   };
 
   // Calculate current progress percentage
-const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100 : 0;
+  const progressPercentage = id ? (parseInt(id) / totalQuestions) * 100 : 0;
 
   if (error !== "") {
     return (
@@ -221,8 +221,12 @@ const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100
               <button
                 className="nav-button"
                 onClick={() => {
-                  setIndex(index - 1);
-                  navToQuestion();
+                  if (qidArray) {
+                    decrementIndex();
+                    navToQuestion(parseInt(qidArray[index]));
+                  } else {
+                    console.error("qidArray is null");
+                  }
                 }}
               >
                 Previous Question
@@ -233,8 +237,12 @@ const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100
               <button
                 className="nav-button"
                 onClick={() => {
-                    setIndex(index + 1);
-                    navToQuestion();
+                    if (qidArray) {
+                        incrementIndex();
+                        navToQuestion(parseInt(qidArray[index]));
+                    } else {
+                      console.error("qidArray is null");
+                    }
                   }}
               >
                 Next Question
@@ -263,8 +271,8 @@ const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100
               ></div>
               {totalQuestions > 0 && Array.from({ length: Math.min(totalQuestions, 20) }, (_, index) => {
                 const questionPosition = ((index + 1) / totalQuestions) * 100;
-                const isCurrentQuestion = id && parseInt(id[index]!) === index + 1;
-                const isCompletedQuestion = id && parseInt(id[index]!) > index + 1;
+                const isCurrentQuestion = parseInt(id!) === index + 1;
+                const isCompletedQuestion = parseInt(id!) > index + 1;
                 return (
                   <div
                     key={index}
@@ -272,8 +280,12 @@ const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100
                     style={{ left: `${questionPosition}%` }}
                     title={`Question ${index + 1}`}
                     onClick={() => {
-                        setIndex(index + 1);
-                        navToQuestion();
+                        if (qidArray) {
+                            incrementIndex();
+                          navToQuestion(parseInt(qidArray[index]));
+                        } else {
+                          console.error("qidArray is null");
+                        }
                       }}
                   />
                 );
@@ -427,8 +439,13 @@ const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100
               <button
                 className="continue-button"
                 onClick={() => {
-                    setIndex(index + 1);
-                    navToQuestion();
+                    if (qidArray) {
+                        console.log(typeof qidArray);
+                        incrementIndex();
+                      navToQuestion(parseInt(qidArray[index]));
+                    } else {
+                      console.error("qidArray is null");
+                    }
                   }}
               >
                 Continue
@@ -441,10 +458,14 @@ const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100
             <button
               className="skip-button"
               onClick={() => {
-                setIndex(index - 1);
-                navToQuestion();
+                if (qidArray) {
+                    decrementIndex();
+                  navToQuestion(parseInt(qidArray[index]));
+                } else {
+                  console.error("qidArray is null");
+                }
               }}
-              disabled={!id || parseInt(id[index]!) <= 1}
+              disabled={parseInt(id!) <= 1}
             >
               Previous
             </button>
@@ -456,10 +477,14 @@ const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100
             <button
               className="skip-button"
               onClick={() => {
-                setIndex(index + 1);
-                navToQuestion();
+                if (qidArray) {
+                    incrementIndex();
+                  navToQuestion(parseInt(qidArray[index]));
+                } else {
+                  console.error("qidArray is null");
+                }
               }}
-              disabled={id ? parseInt(id[index]) >= totalQuestions : true}
+              disabled={parseInt(id!) >= totalQuestions}
             >
               Skip
             </button>
@@ -470,4 +495,4 @@ const progressPercentage = id && id.length > 0 ? ((index + 1) / id.length) * 100
   }
 };
 
-export default QuestionTopic;
+export default Question;

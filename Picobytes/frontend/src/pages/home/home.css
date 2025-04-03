@@ -935,9 +935,9 @@
 }
 
 /* Fixed text inside the button */
-button span {
+.home-question-text {
   display: inline-block;
-  transform: rotate(4deg);
+  transform: rotate(5deg);
   
 }
 

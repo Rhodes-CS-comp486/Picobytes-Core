@@ -306,7 +306,7 @@ const Homepage = ({ toggleDark }: Prop) => {
               <span className="streak-flame">🔥</span>
               Daily Streak
             </div>
-            <div className="streak-days">5 days</div>
+            <div className="streak-days">{playerStats[uid]?.streak || 0} days</div>
           </div>
 
         

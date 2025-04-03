@@ -52,6 +52,19 @@ const Homepage = ({ toggleDark }: Prop) => {
   const [isTopicsLoading, setIsTopicsLoading] = useState(true);
 
 
+  // Function to apply the S-curve positioning
+  const getButtonPosition = (index) => {
+    // Calculate S-curve path
+    const curveOffset = 10; // Height offset for each curve step
+    const maxCurveOffset = 70; // Maximum offset (how wide the curve should be)
+    
+    // Using Math.sin to create the S-curve effect
+    const curveY = Math.sin(index * 0.3) * curveOffset; // Adjust the multiplier for curve tightness
+    const curveX = Math.cos(index * 0.3) * maxCurveOffset; // Slight horizontal offset to make it more pronounced
+
+    return { transform: `translateY(${curveY}px) translateX(${curveX}px)` };
+  };
+
 
   useEffect(() => {
       const lessonFromURL = queryParams.get('lesson');
@@ -153,6 +166,8 @@ const Homepage = ({ toggleDark }: Prop) => {
     fetchPlayerStats();
   }, [uid]);
 
+  /// NAVS ///
+
   const toggleOverlay = () => {
     setShowOverlay(!showOverlay);
   };
@@ -240,6 +255,9 @@ const Homepage = ({ toggleDark }: Prop) => {
     return topic.charAt(0).toUpperCase();
   };
 
+
+  /// MAIN CONTENT ///
+
   return (
     <div className="duolingo-layout">
       {/* Mobile Menu is included in Header component */}
@@ -291,6 +309,8 @@ const Homepage = ({ toggleDark }: Prop) => {
             <div className="streak-days">5 days</div>
           </div>
 
+        
+          {/*
           {isTopicsLoading ? (
             <div style={{ textAlign: 'center', margin: '30px 0' }}>
               Loading topics...
@@ -325,7 +345,10 @@ const Homepage = ({ toggleDark }: Prop) => {
               </div>
             </div>
           )}
+            */}
 
+
+          {/* MASCOT */}
           <div className="mascot-container">
             <div className="mascot-speech">
               {overallProgress > 0
@@ -341,8 +364,40 @@ const Homepage = ({ toggleDark }: Prop) => {
           >
             {overallProgress > 0 ? "CONTINUE" : "START"}
           </button>
+          
+          
+          {/* QUESTIONS PATH */}
+          <div id="home-questions-vscroll">
+            {[...Array(questionStats.totalQuestions)].map((_, index) => {
+              const questionId = index + 1;
+              const isCompleted =
+                questionId <= questionStats.completedQuestions;
+
+              // Get the dynamic positioning for each button
+              const buttonPosition = getButtonPosition(index);
+
+              return (
+                <div key={questionId} id="home-question-button-container" style={buttonPosition}>
+                  <button
+                    className={`home-question-button ${
+                      isCompleted ? "completed" : ""
+                    }`}
+                    onClick={() => goToQuestion(questionId)}
+                  >
+                    <span className="home-question-text">{isCompleted ? "✓ " : ""}{questionId}</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          
+          
+
+       
 
           {/* All Questions Section */}
+        {/*
           <div className="all-questions-section">
             <h2>All Questions</h2>
             <div className="questions-grid">
@@ -364,8 +419,10 @@ const Homepage = ({ toggleDark }: Prop) => {
                   </div>
                 );
               })}
+              
             </div>
-          </div>
+          </div> 
+        */}
         </div>
       </div>
 

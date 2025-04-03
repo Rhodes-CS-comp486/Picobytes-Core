@@ -12,7 +12,7 @@ class CodeExecutionService:
         Args:
             execution_endpoint (str): The endpoint to send code execution requests to
         """
-        self.execution_endpoint = execution_endpoint or "http://execution-team-endpoint/execute"
+        self.execution_endpoint = execution_endpoint or "http://localhost:5000/execute_code"
     
     def get_coding_question(self, qid):
         """
@@ -144,19 +144,32 @@ class CodeExecutionService:
             # Prepare the payload for the execution team
             payload = {
                 "code": code_base64,
-                "test_cases": test_cases_base64
+                "tests": test_cases_base64
             }
             
-            # For now, we'll just return the encoded data instead of making a real request
-            # In a production environment, we would send a request to the execution team
-            # response = requests.post(self.execution_endpoint, json=payload)
-            # return response.json()
-            
-            return {
-                "success": True,
-                "message": "Code and test cases prepared for execution",
-                "payload": payload
-            }
+            # Send the request to the execution service
+            try:
+                response = requests.post(self.execution_endpoint, json=payload)
+                
+                # Check if the request was successful
+                if response.status_code == 200:
+                    return {
+                        "success": True,
+                        "message": "Code executed successfully",
+                        "results": response.json()
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "message": f"Error from execution service: {response.status_code}",
+                        "error": response.text
+                    }
+            except requests.RequestException as req_err:
+                return {
+                    "success": False,
+                    "message": "Failed to connect to execution service",
+                    "error": str(req_err)
+                }
             
         except Error as e:
             print(f"Database error: {e}")

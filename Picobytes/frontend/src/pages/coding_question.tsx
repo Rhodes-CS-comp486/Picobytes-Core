@@ -120,7 +120,15 @@ const CodingQuestion = () => {
         if (data.error) throw new Error(data.error);
         
         setExecutionResults(data);
-        setFeedback('Code executed! Check the results below.');
+        
+        if (data.results && data.results.status === 'error') {
+          setFeedback(`Execution failed: ${data.results.message}`);
+        } else if (data.success) {
+          setFeedback('Code executed! Check the results below.');
+        } else {
+          setFeedback(`Error: ${data.message || 'Unknown error'}`);
+        }
+        
         setIsSubmitting(false);
       })
       .catch((error) => {
@@ -276,10 +284,51 @@ const CodingQuestion = () => {
               {executionResults.success ? (
                 <div className="success-message">
                   <p>{executionResults.message}</p>
-                  {executionResults.payload && (
-                    <div className="payload-info">
-                      <p>Payload prepared for execution:</p>
-                      <p>Code and test cases have been encoded to base64 and are ready to be sent to the execution service.</p>
+                  
+                  {executionResults.results && (
+                    <div className="results-info">
+                      {executionResults.results.status === 'error' ? (
+                        <div className="error-details">
+                          <p>Error: {executionResults.results.message}</p>
+                          {executionResults.results.details && (
+                            <>
+                              {executionResults.results.details.output && (
+                                <div className="output-section">
+                                  <h4>Compiler/Runtime Output:</h4>
+                                  <pre className="output-code">
+                                    {executionResults.results.details.output}
+                                  </pre>
+                                </div>
+                              )}
+                              {executionResults.results.details.compilation_time > 0 && (
+                                <p>Compilation Time: {executionResults.results.details.compilation_time.toFixed(2)}s</p>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="success-details">
+                          <p>Status: {executionResults.results.status}</p>
+                          {executionResults.results.details && (
+                            <>
+                              {executionResults.results.details.output && (
+                                <div className="output-section">
+                                  <h4>Program Output:</h4>
+                                  <pre className="output-code">
+                                    {executionResults.results.details.output}
+                                  </pre>
+                                </div>
+                              )}
+                              {executionResults.results.details.compilation_time > 0 && (
+                                <p>Compilation Time: {executionResults.results.details.compilation_time.toFixed(2)}s</p>
+                              )}
+                              {executionResults.results.details.run_time > 0 && (
+                                <p>Execution Time: {executionResults.results.details.run_time.toFixed(2)}s</p>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -839,4 +839,4 @@ if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))
     #print(get_user_stats("pvCYNLaP7Z"))
-    app.run(use_reloader = False, debug=True)
+    app.run(host='0.0.0.0', port=5000, use_reloader=False, debug=True)

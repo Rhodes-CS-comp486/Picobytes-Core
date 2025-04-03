@@ -42,11 +42,10 @@ class GetQuestions:
             
             if type is None:
                 return jsonify("Question not found")
-                
-            q_type = type
+            q_type = type.get('qtype', 'default_value')
             print(q_type)
 
-            if q_type[0] == 'multiple_choice':
+            if q_type == 'multiple_choice':
                 print(qid)
                 question_data = mc_question_service.get_question_by_id(qid)
                 print(question_data)
@@ -63,6 +62,7 @@ class GetQuestions:
                     'question_topic': question_data['qtopic'],
                     #'uid': uid
                 }
+
                 return jsonify(response)
                 #return response
 

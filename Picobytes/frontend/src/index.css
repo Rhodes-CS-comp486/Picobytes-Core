@@ -1,3 +1,4 @@
+/*/// PUT THE -- VARIABLES HERE BC YOU will BE AFFECTING SOME OTHER CSS WITHOUT KNOWING /// */  
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -85,7 +86,9 @@ input {
   --grid-text-color: #242424;
   --border-color: #999999;
 
+
   --card-color: #ffffff;
+  --input-bg: #ffffff;
 
   --subtitle-color: #222529;
 
@@ -108,6 +111,22 @@ input {
 
   --inactive-button-bg: #a1acb9;
   --inactive-button-hover: #bfccdc;
+
+  /* Used primarily in Admin Dashboard */
+  /*--background-primary: #f3f7fb;*/
+  --background-primary: var(--second-bg-color);
+  --background-secondary: #ffffff;
+  
+  --background-accent: #e1e6ec;
+
+  --text-primary: #353a3e;
+  --text-secondary: #61676f; /*used in AddQuestions*/
+  --text-third: #5d7b9d;
+  --text-accent: #49516b;
+
+  --input-background: #1e2235;
+  --accent-green: #4CAF50;
+  --accent-blue: #3182ce;
   
 }
 
@@ -124,6 +143,7 @@ input {
   --border-color: #374151;
 
   --card-color: #2d3748;
+  --input-bg: #1e2235;
 
   --subtitle-color : #a0aec0;
 
@@ -137,7 +157,7 @@ input {
   --second-bg-color: #1f2937;
   --third-bg-color: #2d3748;
 
-  --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.2);
 
 
   --question-button-hover: #374151;
@@ -145,4 +165,20 @@ input {
 
   --inactive-button-bg: #a1acb9;
   --inactive-button-hover: #bfccdc;
+
+  /* Used primarily in Admin Dashboard */
+  --background-primary: #1e2235;
+  --background-secondary: #2a2f45;
+  
+  --background-accent: #3a4a63;
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #a0aec0; /*used in AddQuestions*/
+  --text-third: #bcd0e7;
+  --text-accent: #f0e2e2;
+
+  --accent-green: #4CAF50;
+  --accent-blue: #3182ce;
+
+  
 }

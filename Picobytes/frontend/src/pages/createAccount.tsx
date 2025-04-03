@@ -42,7 +42,7 @@ const AccountCreate = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("http://localhost:5000/api/create_account", {
+      const response = await fetch("http://localhost:5001/api/create_account", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

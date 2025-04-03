@@ -34,7 +34,7 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
       setError(null);
       
       try {
-        const response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users-list?period=${period}&uid=${uid}`);
+        const response = await fetch(`http://localhost:5001/api/admin/dashboard/active-users-list?period=${period}&uid=${uid}`);
         
         if (!response.ok) {
           throw new Error(`Error fetching users: ${response.status}`);
@@ -66,7 +66,7 @@ const UserListModal: React.FC<UserListModalProps> = ({ isOpen, onClose, period }
     try {
       setUpdatingUser(user.uid);
       
-      const response = await fetch('http://localhost:5000/api/admin/update-user-status', {
+      const response = await fetch('http://localhost:5001/api/admin/update-user-status', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

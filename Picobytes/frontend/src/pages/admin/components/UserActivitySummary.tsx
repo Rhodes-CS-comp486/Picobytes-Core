@@ -28,7 +28,7 @@ const UserActivitySummary: React.FC<UserActivitySummaryProps> = ({ initialData }
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/dashboard/activity-summary?uid=${uid}&range=${timeRange}`);
+      const response = await fetch(`http://localhost:5001/api/admin/dashboard/activity-summary?uid=${uid}&range=${timeRange}`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch activity data: ${response.status}`);

@@ -51,8 +51,8 @@ const Practice_Page = ({ toggleDark }: Prop) => {
     };
 
     useEffect(() => {
-        // Fetch topics from the database
-        fetch("http://localhost:5000/api/topics")
+        // Fetch all topics
+        fetch("http://localhost:5001/api/topics")
             .then((response) => response.json())
             .then((data) => {
                 // Extract unique topics from the questions

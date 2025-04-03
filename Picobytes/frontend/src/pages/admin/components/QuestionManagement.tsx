@@ -29,7 +29,7 @@ const QuestionManagement = () => {
     setLoading(true);
     try {
       const uid = localStorage.getItem('uid');
-      const response = await fetch(`http://localhost:5000/api/admin/all_questions?uid=${uid}`);
+      const response = await fetch(`http://localhost:5001/api/admin/all_questions?uid=${uid}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -55,7 +55,7 @@ const QuestionManagement = () => {
   const toggleQuestionActive = async (qid: number, currentActive: boolean) => {
     try {
       const uid = localStorage.getItem('uid');
-      const response = await fetch('http://localhost:5000/api/admin/update_question', {
+      const response = await fetch('http://localhost:5001/api/admin/update_question', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ const QuestionManagement = () => {
   const updateDifficultyRating = async (qid: number, newLevel: string) => {
     try {
       const uid = localStorage.getItem('uid');
-      const response = await fetch('http://localhost:5000/api/admin/update_question', {
+      const response = await fetch('http://localhost:5001/api/admin/update_question', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ const QuestionManagement = () => {
 
     try {
       const uid = localStorage.getItem('uid');
-      const response = await fetch('http://localhost:5000/api/admin/bulk_update_questions', {
+      const response = await fetch('http://localhost:5001/api/admin/bulk_update_questions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -152,7 +152,7 @@ const QuestionManagement = () => {
   const previewQuestionAsStudent = async (qid: number) => {
     try {
       const uid = localStorage.getItem('uid');
-      const response = await fetch(`http://localhost:5000/api/question/${qid}?uid=${uid}`);
+      const response = await fetch(`http://localhost:5001/api/question/${qid}?uid=${uid}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -173,7 +173,7 @@ const QuestionManagement = () => {
 
     try {
       const uid = localStorage.getItem('uid');
-      const response = await fetch('http://localhost:5000/api/admin/delete_question', {
+      const response = await fetch('http://localhost:5001/api/admin/delete_question', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -49,7 +49,7 @@ const Homepage = ({ toggleDark }: Prop) => {
   // Fetch both questions and topics data
   useEffect(() => {
     // Fetch total number of questions
-    fetch("http://localhost:5000/api/questions")
+    fetch("http://localhost:5001/api/questions")
       .then((response) => response.json())
       .then((data) => {
         setQuestionStats({
@@ -63,7 +63,7 @@ const Homepage = ({ toggleDark }: Prop) => {
       });
 
     // Fetch topics from the database
-    fetch("http://localhost:5000/api/topics")
+    fetch("http://localhost:5001/api/topics")
       .then((response) => response.json())
       .then((data) => {
         // Extract unique topics from the questions

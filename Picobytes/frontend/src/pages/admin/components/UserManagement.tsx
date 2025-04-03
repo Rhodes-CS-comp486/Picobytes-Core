@@ -34,7 +34,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserStatusChange }) =
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users-list?uid=${uid}&period=all`);
+      const response = await fetch(`http://localhost:5001/api/admin/dashboard/active-users-list?uid=${uid}&period=all`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch users: ${response.status}`);
@@ -96,7 +96,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ onUserStatusChange }) =
     setSuccessMessage(null);
     
     try {
-      const response = await fetch('http://localhost:5000/api/admin/update-user-status', {
+      const response = await fetch('http://localhost:5001/api/admin/update-user-status', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

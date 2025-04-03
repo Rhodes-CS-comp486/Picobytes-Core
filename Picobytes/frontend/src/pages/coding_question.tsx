@@ -39,7 +39,7 @@ const CodingQuestion = () => {
     setExecutionResults(null);
     setLoading(true);
     
-    fetch(`http://127.0.0.1:5000/api/coding/question/${questionId}`, {
+    fetch(`http://127.0.0.1:5001/api/coding/question/${questionId}`, {
       method: 'GET',
     })
       .then((response) => response.json())
@@ -70,7 +70,7 @@ const CodingQuestion = () => {
     setIsSubmitting(true);
     setFeedback('');
     
-    fetch('http://127.0.0.1:5000/api/coding/submit', {
+    fetch('http://127.0.0.1:5001/api/coding/submit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -105,7 +105,7 @@ const CodingQuestion = () => {
     setExecutionResults(null);
     setFeedback('Executing your code...');
     
-    fetch('http://127.0.0.1:5000/api/coding/execute', {
+    fetch('http://127.0.0.1:5001/api/coding/execute', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

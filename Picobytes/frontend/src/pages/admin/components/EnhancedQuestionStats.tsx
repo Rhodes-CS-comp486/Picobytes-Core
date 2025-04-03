@@ -36,7 +36,7 @@ const EnhancedQuestionStats: React.FC<EnhancedQuestionStatsProps> = ({ data: pro
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/dashboard/question-stats?uid=${uid}`);
+      const response = await fetch(`http://localhost:5001/api/admin/dashboard/question-stats?uid=${uid}`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch question stats: ${response.status}`);

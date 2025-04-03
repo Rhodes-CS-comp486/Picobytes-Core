@@ -27,7 +27,7 @@ const Topic_Select = () => {
         const fetchQuestions = async () => {
             try {
                 console.log(`Fetching questions for topic: ${topicName} and question type: ${questionType}`);
-                const response = await fetch(`http://localhost:5000/api/topic_selection?qtype=${questionType}&topic=${topicName}`);
+                const response = await fetch(`http://localhost:5001/api/topic_selection?qtype=${questionType}&topic=${topicName}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch questions");
                 }

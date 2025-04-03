@@ -65,9 +65,9 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
         const top10players: Player[] = [];
     
 
-        const fetchTop10 = async () => {
+        const fetchTopPlayers = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/get_top_10');
+                const response = await fetch('http://localhost:5001/api/get_top_10');
                 const data = await response.json();
                 if (response.ok) {
                     console.log(data);
@@ -87,14 +87,14 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                 console.error("Error fetching top 10 players:", error);
             }
         };
-        fetchTop10();
+        fetchTopPlayers();
 
         const fetchPlayerStats = async () => {
             const stats: { [key: string]: PlayerStats } = {};
             for (const player of top10players) {
                 console.log(player.uid);
                 try {
-                    const response = await fetch(`http://localhost:5000/api/get_user_stats/${player.uid}`);
+                    const response = await fetch(`http://localhost:5001/api/get_user_stats/${player.uid}`);
                     const data = await response.json();
                     if (response.status === 200 && data.streak !== undefined && data.points !== undefined) {
                         stats[player.uid] = { streak: data.streak, points: data.points };

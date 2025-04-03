@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
@@ -22,7 +21,7 @@ const Home_Top_Content = () => {
     
     // Fetch total number questions
     useEffect(() => {
-        fetch('http://localhost:5000/api/questions')
+        fetch('http://localhost:5001/api/questions')
             .then(response => response.json())
             .then(data => {
                 setTotalQuestions(data.total_questions);

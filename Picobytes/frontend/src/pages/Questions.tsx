@@ -18,7 +18,7 @@ const Questions = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/api/questions')
+    fetch('http://127.0.0.1:5001/api/questions')
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

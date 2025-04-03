@@ -33,7 +33,7 @@ const Question = () => {
 
   // Fetch total number of questions
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/questions")
+    fetch("http://127.0.0.1:5001/api/questions")
       .then((response) => response.json())
       .then((data) => {
         setTotalQuestions(data.total_questions);
@@ -57,7 +57,7 @@ const Question = () => {
     setIsSubmitting(false);
     setShowCelebration(false);
 
-    fetch(`http://127.0.0.1:5000/api/question/${questionId}`, {
+    fetch(`http://127.0.0.1:5001/api/question/${questionId}`, {
       method: "GET",
     })
       .then((response) => response.json())
@@ -125,7 +125,7 @@ const Question = () => {
     setFeedback("");
 
     if (questionType === "multiple_choice") {
-      fetch("http://127.0.0.1:5000/api/submit_answer", {
+      fetch("http://127.0.0.1:5001/api/submit_answer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -10,7 +10,7 @@ const Home_Bot_Content = () => {
         
         // Fetch total number questions
         useEffect(() => {
-            fetch('http://localhost:5000/api/questions')
+            fetch('http://localhost:5001/api/questions')
                 .then(response => response.json())
                 .then(data => {
                     setTotalQuestions(data.total_questions);

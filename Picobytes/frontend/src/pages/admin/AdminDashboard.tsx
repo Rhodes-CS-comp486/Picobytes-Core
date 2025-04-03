@@ -89,7 +89,7 @@ const AdminDashboard = () => {
       }
 
       // Fetch performance metrics
-      const perfResponse = await fetch(`http://localhost:5000/api/admin/dashboard/performance?uid=${uid}`);
+      const perfResponse = await fetch(`http://localhost:5001/api/admin/dashboard/performance?uid=${uid}`);
       if (perfResponse.ok) {
         const perfData = await perfResponse.json();
         setPerformanceMetrics(perfData);
@@ -100,7 +100,7 @@ const AdminDashboard = () => {
       }
       
       // Fetch question stats
-      const questionsResponse = await fetch(`http://localhost:5000/api/admin/dashboard/question-stats?uid=${uid}`);
+      const questionsResponse = await fetch(`http://localhost:5001/api/admin/dashboard/question-stats?uid=${uid}`);
       if (questionsResponse.ok) {
         const questionsData = await questionsResponse.json();
         setQuestionStats(questionsData);
@@ -110,7 +110,7 @@ const AdminDashboard = () => {
       }
       
       // Fetch usage stats
-      const usageResponse = await fetch(`http://localhost:5000/api/admin/dashboard/usage-stats?uid=${uid}`);
+      const usageResponse = await fetch(`http://localhost:5001/api/admin/dashboard/usage-stats?uid=${uid}`);
       if (usageResponse.ok) {
         const usageData = await usageResponse.json();
         setUsageStats(usageData);

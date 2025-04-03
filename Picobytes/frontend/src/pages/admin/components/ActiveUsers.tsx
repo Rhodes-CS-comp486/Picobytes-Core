@@ -28,7 +28,7 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
     setError(null);
     
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/dashboard/active-users?period=${selectedPeriod}&uid=${uid}`);
+      const response = await fetch(`http://localhost:5001/api/admin/dashboard/active-users?period=${selectedPeriod}&uid=${uid}`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch active users: ${response.status}`);

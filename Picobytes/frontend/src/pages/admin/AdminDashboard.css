@@ -1,5 +1,6 @@
 /* Duolingo-inspired Admin Dashboard */
 /* Full screen settings */
+/*
 :root {
   --background-primary: #1e2235;
   --background-secondary: #2a2f45;
@@ -11,6 +12,7 @@
   --accent-green: #4CAF50;
   --accent-blue: #3182ce;
 }
+  */
 
 html, body, #root {
   margin: 0;
@@ -25,7 +27,7 @@ html, body, #root {
   width: 100vw;
   margin: 0;
   font-family: 'Nunito', sans-serif;
-  background-color: #1e2235;
+  background-color: var(--background-primary);
   color: #e2e8f0;
   min-height: 100vh;
   box-sizing: border-box;
@@ -45,7 +47,7 @@ html, body, #root {
   margin: 0 0 25px 0;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .admin-nav {
@@ -56,7 +58,7 @@ html, body, #root {
 }
 
 .tab-button {
-  background-color: #2d3748;
+  background-color: var(--third-bg-color);
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
@@ -65,11 +67,13 @@ html, body, #root {
   font-size: 15px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+ /*box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);*/
+ box-shadow: var(--box-shadow-default);
 }
 
 .tab-button:hover {
-  background-color: #3a4a63;
+  /*background-color: #3a4a63;*/
+  background-color: var(--primary-shadow-color);
   transform: translateY(-2px);
 }
 
@@ -85,16 +89,17 @@ html, body, #root {
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
-  color: #e2e8f0;
+/*  color: #e2e8f0;*/
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--box-shadow-default)
 }
 
 .back-button:hover {
-  background-color: #3a4a63;
+  /*background-color: #3a4a63;*/
+  background-color: var(--primary-shadow-color);
   transform: translateY(-2px);
 }
 
@@ -107,7 +112,8 @@ html, body, #root {
 }
 
 .dashboard-card {
-  background-color: #2a2f45;
+  /*background-color: #2a2f45;*/
+  background-color: var(--background-secondary);
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
@@ -143,7 +149,7 @@ html, body, #root {
   margin-bottom: 25px;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .metric-card {
@@ -262,7 +268,7 @@ html, body, #root {
   overflow-x: auto;
   margin-top: 20px;
   border-radius: 8px;
-  background-color: #2a2f45;
+  background-color: var(--background-secondary);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -276,13 +282,13 @@ html, body, #root {
 .stats-table td {
   padding: 15px 20px;
   text-align: left;
-  border-bottom: 1px solid #3a4a63;
+  border-bottom: 1px solid var(--background-accent);
 }
 
 .stats-table th {
-  background-color: #3a4a63;
+  background-color: var(--background-accent);
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -297,7 +303,7 @@ html, body, #root {
 }
 
 .stats-table td {
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 /* Loading spinner */
@@ -306,7 +312,7 @@ html, body, #root {
   height: 50px;
   border: 5px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  border-top-color: #4CAF50;
+  border-top-color: var(--accent-green);
   animation: spin 1s ease-in-out infinite;
   margin: 0 auto;
 }
@@ -335,7 +341,7 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   min-height: 100px;
-  background-color: #2a2f45;
+  background-color: var(--background-secondary);
 }
 
 .click-hint {
@@ -363,7 +369,7 @@ html, body, #root {
 .activity-container,
 .users-management-container {
   padding: 30px;
-  background-color: #2a2f45;
+  background-color: var(--background-secondary);
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   margin-bottom: 30px;
@@ -386,8 +392,8 @@ html, body, #root {
   width: 100%;
   padding: 12px 16px;
   border-radius: 8px;
-  border: 1px solid #3a4a63;
-  background-color: #1e2235;
+  border: 1px solid var(--background-accent);
+  background-color: var(--background-primary);
   color: #e2e8f0;
   font-size: 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) inset;
@@ -460,9 +466,9 @@ html, body, #root {
 
 .users-table th,
 .questions-table th {
-  background-color: #3a4a63;
+  background-color: var(--background-accent);
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -677,7 +683,8 @@ html, body, #root {
 /* User Activity Summary Styles */
 .user-activity-summary {
   padding: 30px;
-  background-color: #2a2f45;
+  /*background-color: #2a2f45;*/
+  background-color: var(--background-secondary);
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
@@ -703,7 +710,7 @@ html, body, #root {
 }
 
 .activity-metrics .metric-card {
-  background-color: #3a4a63;
+  background-color: var(--background-accent);
   padding: 24px;
   border-radius: 12px;
   text-align: center;
@@ -714,25 +721,27 @@ html, body, #root {
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #bcd0e7;
+  color: var(--text-third);
 }
 
 .activity-metrics .metric-card .metric-value {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #e2e8f0;
+  /*color: #f0e2e2;*/
+  color: var(--text-accent);
   margin: 15px 0;
 }
 
 .activity-metrics .metric-card .metric-label {
   font-size: 0.9rem;
-  color: #a0aec0;
+  color: var(--text-secondary);
   margin-top: 8px;
 }
 
 .activity-chart-container {
   margin-top: 30px;
-  background-color: #2d3344;
+  /*background-color: #2d3344;*/
+  background-color: var(--background-primary);
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -742,7 +751,7 @@ html, body, #root {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .activity-chart {
@@ -750,8 +759,8 @@ html, body, #root {
   height: 300px;
   margin-bottom: 30px;
   position: relative;
-  border-bottom: 1px solid #3a4a63;
-  border-left: 1px solid #3a4a63;
+  border-bottom: 1px solid var(--background-accent);
+  border-left: 1px solid var(--background-accent);
   padding: 10px 0 40px 0;
 }
 
@@ -786,7 +795,7 @@ html, body, #root {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
-  color: #a0aec0;
+  color: var(--text-secondary);
 }
 
 .chart-y-axis {
@@ -802,7 +811,8 @@ html, body, #root {
 
 .activity-insights {
   margin-top: 30px;
-  background-color: #2d3344;
+  /*background-color: #2d3344;*/
+  background-color: var(--background-primary);
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -812,7 +822,7 @@ html, body, #root {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 20px;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .insights-list {
@@ -826,7 +836,7 @@ html, body, #root {
   margin-bottom: 16px;
   align-items: flex-start;
   padding: 16px;
-  background-color: #3a4a63;
+  background-color: var(--background-accent);
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -840,12 +850,13 @@ html, body, #root {
   flex: 1;
   line-height: 1.6;
   font-size: 15px;
+  color: var(--text-primary)
 }
 
 .no-data-message {
   text-align: center;
   padding: 60px;
-  color: #a0aec0;
+  color: var(--text-secondary);
   font-size: 18px;
 }
 

@@ -118,7 +118,7 @@ class QuestionSave:
         try:
             #Step 1. Save Answer
 
-            is_correct = False
+            is_correct : bool = False
             currtime = time.time()
 
             conn = self._connect()
@@ -133,7 +133,8 @@ class QuestionSave:
             cursor.execute('select qid from user_responses where uid = ? and qid = ?', (uid,qid))
             exists = cursor.fetchone()
 
-            if exists is None:
+
+            if exists is not None:
                 return jsonify({'error': 'user has already answered this question'})
 
             cursor.execute('insert into user_responses (uid, qid) values (?, ?)', (uid, qid))
@@ -141,15 +142,22 @@ class QuestionSave:
             conn.commit()
 
             qtype = qtype[0]
+            print("check 1")
 
             if qtype == 'multiple_choice':
+                print("check 1.1")
                 cursor.execute('select answer from multiple_choice where qid = ?', (qid,))
-                answer = cursor.fetchone()
+                print("check 1.2")
+                answer = cursor.fetchone()[0]
+                print(f"answer: {answer}")
+                print(f"response: {response}")
                 if response == answer -1:
                     is_correct = True
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                cursor.execute('insert into user_multiple_choice (uid, qid, response, correct_answer)', (uid, qid, response, answer))
+                print("check 1.3")
+                cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (?, ?, ?, ?)', (uid, qid, response, answer))
+                print("check 1.4")
                 conn.commit()
 
 
@@ -185,8 +193,7 @@ class QuestionSave:
                                (uid, qid, response, answer))
                 conn.commit()
 
-
-
+            print("check 2")
 
 
             #Step 3: Update streak if answer is correct
@@ -212,9 +219,14 @@ class QuestionSave:
                 cursor.execute('update users set uincorrect = ? where uid = ?', (num_wrong + 1, uid,))
                 conn.commit()
 
+            print("check 3")
 
             cursor.execute('select upoints from users where uid = ?', (uid,))
-            curr_points = cursor.fetchone()
+            curr_points = cursor.fetchone()[0]
+
+            print(f"Current Points: {curr_points}")
+            print(f"New Points: {new_points}")
+            print(f"Total: {curr_points + new_points}")
             cursor.execute('update users set upoints = ? where uid = ?', (curr_points+new_points, uid,))
 
 
@@ -223,10 +235,13 @@ class QuestionSave:
             #Step 5 Add to analytics
             analytics_service.record_question_attempt(int(qid), is_correct, uid)
 
+            conn.commit()
 
+            return jsonify({"is_correct": is_correct})
+            
         except Exception as e:
-            print(f"Error saving response1: {e}")
-            return 0
+            print(f"Error saving response: {e}")
+            return jsonify({"error": {e}})
 
 
 

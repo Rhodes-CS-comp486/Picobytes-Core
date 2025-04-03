@@ -4,12 +4,7 @@ import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 
 const Question = () => {
-  const [answer, setAnswer] = useState<boolean[] | boolean | string | null>([
-    false,
-    false,
-    false,
-    false,
-  ]);
+  const [answer, setAnswer] = useState<number | boolean | string | null>(null);
   const [question, setQuestion] = useState("Loading question...");
   const [questionType, setQuestionType] = useState<string>("multiple_choice");
   const [correct, setCorrect] = useState<number | boolean>(0);
@@ -77,7 +72,7 @@ const Question = () => {
             data.option_4,
           ]);
           setCorrect(data.answer);
-          setAnswer([false, false, false, false]);
+          setAnswer(null);
         } else if (data.question_type === "true_false") {
           console.log(data);
           setCorrect(data.correct_answer === 1);
@@ -99,11 +94,11 @@ const Question = () => {
   };
 
   const updateMCAnswer = (n: number) => {
-    // Create a new array with all false values
-    const newAnswer = [false, false, false, false];
-    // Set the selected option to true
-    newAnswer[n] = true;
-    setAnswer(newAnswer);
+    // // Create a new array with all false values
+    // const newAnswer = [false, false, false, false];
+    // // Set the selected option to true
+    // newAnswer[n] = true;
+    setAnswer(n);
   };
 
   const updateTFAnswer = (value: boolean) => {
@@ -112,11 +107,15 @@ const Question = () => {
 
   const submitAnswer = () => {
     // Check if an answer is selected
-    if (
-      (questionType === "multiple_choice" &&
-        !(answer as boolean[]).includes(true)) ||
-      (questionType === "true_false" && answer === null)
-    ) {
+    // if (
+    //   (questionType === "multiple_choice" &&
+    //     // !(answer as boolean[]).includes(true)) ||
+    //   // (questionType === "true_false" && answer === null)
+    // ) {
+    //   setFeedback("Please select an answer");
+    //   return;
+    // }
+    if (answer === null) {
       setFeedback("Please select an answer");
       return;
     }
@@ -132,7 +131,8 @@ const Question = () => {
         },
         body: JSON.stringify({
           question_id: id,
-          selected_answer: answer,
+          response: answer,
+          uid: localStorage.getItem("uid"),
         }),
       })
         .then((response) => {
@@ -155,7 +155,7 @@ const Question = () => {
             } else {
               setFeedback(
                 `Incorrect. The correct answer was: ${
-                  options[data.correct_answer_index]
+                  options[data.correct_answer - 1]
                 }`
               );
             }
@@ -232,7 +232,9 @@ const Question = () => {
           {/* Progress bar */}
           <div className="question-progress">
             <div className="progress-info">
-              <span>Question {id} of {totalQuestions}</span>
+              <span>
+                Question {id} of {totalQuestions}
+              </span>
               <span>{Math.round(progressPercentage)}% Complete</span>
             </div>
             <div className="progress-bar">
@@ -240,29 +242,33 @@ const Question = () => {
                 className="progress-filled"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
-              {totalQuestions > 0 && Array.from({ length: Math.min(totalQuestions, 20) }, (_, index) => {
-                const questionPosition = ((index + 1) / totalQuestions) * 100;
-                const isCurrentQuestion = parseInt(id!) === index + 1;
-                const isCompletedQuestion = parseInt(id!) > index + 1;
-                return (
-                  <div
-                    key={index}
-                    className={`progress-marker ${isCurrentQuestion ? 'current' : ''} ${isCompletedQuestion ? 'completed' : ''}`}
-                    style={{ left: `${questionPosition}%` }}
-                    title={`Question ${index + 1}`}
-                    onClick={() => navToQuestion(index + 1)}
-                  />
-                );
-              })}
+              {totalQuestions > 0 &&
+                Array.from(
+                  { length: Math.min(totalQuestions, 20) },
+                  (_, index) => {
+                    const questionPosition =
+                      ((index + 1) / totalQuestions) * 100;
+                    const isCurrentQuestion = parseInt(id!) === index + 1;
+                    const isCompletedQuestion = parseInt(id!) > index + 1;
+                    return (
+                      <div
+                        key={index}
+                        className={`progress-marker ${
+                          isCurrentQuestion ? "current" : ""
+                        } ${isCompletedQuestion ? "completed" : ""}`}
+                        style={{ left: `${questionPosition}%` }}
+                        title={`Question ${index + 1}`}
+                        onClick={() => navToQuestion(index + 1)}
+                      />
+                    );
+                  }
+                )}
             </div>
           </div>
 
           {/* Home button at top */}
           <div className="top-nav">
-            <button
-              className="home-button"
-              onClick={goToHomepage}
-            >
+            <button className="home-button" onClick={goToHomepage}>
               Home
             </button>
           </div>
@@ -333,9 +339,9 @@ const Question = () => {
                     <button
                       key={index}
                       className={`option-button mc-option ${
-                        (answer as boolean[])[index] ? "selected" : ""
+                        answer == index ? "selected" : ""
                       } ${
-                        feedback && (answer as boolean[])[index]
+                        feedback && answer == index
                           ? index === (correct as number) - 1
                             ? "correct"
                             : "incorrect"
@@ -392,8 +398,7 @@ const Question = () => {
                 className="check-button"
                 onClick={submitAnswer}
                 disabled={
-                  (questionType === "multiple_choice" &&
-                    !(answer as boolean[]).includes(true)) ||
+                  (questionType === "multiple_choice" && answer === null) ||
                   (questionType === "true_false" && answer === null)
                 }
               >

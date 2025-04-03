@@ -14,7 +14,7 @@ class AnalyticsService:
     
 
         
-    def record_question_attempt(self, qid: int, is_correct: bool, uid: str = None) -> bool:
+    def record_question_attempt(self, qid: int, is_correct: bool, uid: str) -> bool:
         """
         Record a question attempt in the analytics database
         

@@ -15,7 +15,9 @@ class Streaks:
 
     def _connect(self):
         """Establish and return a database connection."""
-        return psycopg.connect(self.db_url, row_factory=dict_row)
+        #return psycopg.connect(self.db_url, row_factory=dict_row)
+        return psycopg.connect(self.db_url)
+
 
     def update_streak(self, uid, time):
         try:

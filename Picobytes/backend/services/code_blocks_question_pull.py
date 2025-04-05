@@ -13,7 +13,7 @@ class CB_QuestionFetcher:
 
     def _connect(self):
         """Establish and return a database connection."""
-        return psycopg.connect(self.db_url, row_factory=dict_row)
+        return psycopg.connect(self.db_url)
 
 
 
@@ -36,7 +36,7 @@ class CB_QuestionFetcher:
 
     def get_question_by_id(self, question_id):
         """Fetch a specific question by its ID."""
-        conn = self._connect()
+        conn = psycopg.connect(self.db_url, row_factory=dict_row)
         cursor = conn.cursor()
         cursor.execute("SELECT q.qid, q.qtext, q.qtype, q.qtopic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer FROM questions q NATURAL JOIN code_blocks c where q.qactive = True and q.qid = %s", (question_id,))
         question = cursor.fetchone()

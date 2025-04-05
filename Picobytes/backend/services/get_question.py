@@ -66,7 +66,7 @@ class GetQuestions:
                 return jsonify(response)
                 #return response
 
-            elif q_type[0] == 'true_false':
+            elif q_type == 'true_false':
                 question_data = tf_question_service.get_question_by_id(qid)
                 response = {
                     'question_id': question_data['qid'],
@@ -79,7 +79,7 @@ class GetQuestions:
                 }
                 return jsonify(response)
 
-            elif q_type[0] == 'free_response':
+            elif q_type == 'free_response':
                 question_data = fr_question_service.get_question_by_id(qid)
                 response = {
                     'question_id': question_data['qid'],
@@ -92,7 +92,7 @@ class GetQuestions:
                 }
                 return jsonify(response)
 
-            elif q_type[0] == 'code_blocks':
+            elif q_type == 'code_blocks':
                 question_data = cb_question_service.get_question_by_id(qid)
                 response = {
                     'question_id': question_data['qid'],

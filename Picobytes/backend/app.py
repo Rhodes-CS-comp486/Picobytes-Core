@@ -21,6 +21,13 @@ import sqlite3
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from email_notifications.handle_emails import handle_emails
+import psycopg
+from psycopg.rows import dict_row
+from db_info import *
+
+
+# Connect to an existing database
+conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=practice user={DBUSER} password={DBPASS}")
 
 
 
@@ -102,11 +109,11 @@ def getleaderboard():
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):
     """API endpoint to fetch a question by ID."""
-    #if verification_service.verify_user(uid):
+    print(qid)
     response = question_fetcher_service.get_question(qid)
+
     return response
-    #else:
-      #  return jsonify({'error': 'User not found'}), 401
+
 
 
 
@@ -314,8 +321,12 @@ def create_account():
     upassword = data.get('upassword')
     uemail = data.get('uemail')
 
-    if not uname or not upassword:
-        return jsonify({'error': 'Missing username or password'}), 400
+    if not uname:
+        return jsonify({'error': 'Missing username or password or email'}), 400
+    elif not upassword:
+        return jsonify({'error': 'Missing password'}), 400
+    elif not uemail:
+        return jsonify({'error': 'Missing email'}), 400
     hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
     uid = user_service.add_user(uname, hashed_password, uemail, 0)
     if uid is None:

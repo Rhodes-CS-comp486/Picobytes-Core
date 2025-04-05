@@ -1,20 +1,33 @@
 # services/admin_service.py
 
-import sqlite3
+
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
 from services.analytics_service import AnalyticsService
+import psycopg
+from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 import random
 
 class AdminService:
-    def __init__(self, db_path="pico.db"):
+    '''def __init__(self, db_path="pico.db"):
         self.db_path = db_path
         self.analytics_service = AnalyticsService()
     
     def _get_db_connection(self):
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        return conn
+        return conn'''
+
+    def __init__(self, db_filename="pico.db"):
+        """Initialize the connection to the SQLite database located one directory above."""
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+        self.analytics_service = AnalyticsService()
+
+    def _connect(self):
+        """Establish and return a database connection."""
+        return psycopg.connect(self.db_url, row_factory=dict_row)
+
 
     def update_user_admin_status(self, uid, is_admin):
         conn = self._get_db_connection()

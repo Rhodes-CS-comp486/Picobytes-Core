@@ -14,7 +14,9 @@ class MC_QuestionFetcher:
 
     def _connect(self):
         """Establish and return a database connection."""
-        return psycopg.connect(self.db_url, row_factory=dict_row)
+        #return psycopg.connect(self.db_url, row_factory=dict_row)
+
+        return psycopg.connect(self.db_url)
 
 
     def get_all_mc_questions(self):
@@ -30,6 +32,7 @@ class MC_QuestionFetcher:
                 WHERE q.qtype = 'multiple_choice' AND q.qactive = True
             """)
             all_questions = cursor.fetchall()
+            print(all_questions)
             conn.close()
             return all_questions
         except Exception as e:
@@ -38,7 +41,7 @@ class MC_QuestionFetcher:
 
     def get_question_by_id(self, question_id):
         """Fetch a specific question by its ID."""
-        conn = self._connect()
+        conn = psycopg.connect(self.db_url, row_factory=dict_row)
         cursor = conn.cursor()
         cursor.execute("select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel, qtopic from multiple_choice natural join questions where qactive = True and multiple_choice.qid = %s", (question_id,))
         #cursor.execute("select qid, qtext, qtype, qlevel from questions where qid = ?", (question_id,))

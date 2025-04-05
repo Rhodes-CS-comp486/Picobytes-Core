@@ -11,7 +11,7 @@ class QuestionService:
 
     def _connect(self):
         """Establish and return a database connection."""
-        return psycopg.connect(self.db_url, row_factory=dict_row)
+        return psycopg.connect(self.db_url)
 
 
     def pull_questions(self):
@@ -35,17 +35,16 @@ class QuestionService:
 
     def get_question_by_id(self, question_id):
         """Fetch a specific question by its ID."""
-        conn = self._connect()
-        conn.row_factory = sqlite3.Row
+        conn =  psycopg.connect(self.db_url, row_factory=dict_row)
         cursor = conn.cursor()
         cursor.execute("select qid, qtext, correct, qtype, qlevel, qtopic from true_false natural join questions where qactive = True and true_false.qid = %s", (question_id,))
         question = cursor.fetchone()
         conn.close()
         return question
 
-if __name__ == '__main__':
-    service = QuestionService()
-    questions = service.pull_questions()
+#if __name__ == '__main__':
+    #service = QuestionService()
+    #questions = service.pull_questions()
     # Commenting out the loop that prints each question
     # for question in questions:
     #     print(question)

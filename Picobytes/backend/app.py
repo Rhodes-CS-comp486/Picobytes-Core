@@ -503,6 +503,245 @@ def check_user(username):
         }), 404
 
 
+@app.route('/api/admin/dashboard/activity-summary', methods=['GET'])
+def get_activity_summary():
+    uid = request.args.get('uid')
+    if not validate_admin_access(uid):
+        return jsonify({'error': 'Unauthorized access'}), 403
+        
+    time_range = request.args.get('range', '30d')
+    data = admin_service.get_activity_summary(time_range)
+    return jsonify(data)
+
+
+@app.route('/api/admin/all_questions', methods=['GET'])
+def get_all_questions():
+    """API endpoint to get all questions for admin management."""
+    try:
+        uid = request.args.get('uid')
+        
+        if not validate_admin_access(uid):
+            return jsonify({'error': 'Unauthorized access'}), 403
+        
+        conn = sqlite3.connect('pico.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Get all questions with their active status
+        cursor.execute("""
+            SELECT qid, qtext, qtype, qlevel, qtopic, qactive
+            FROM questions
+            ORDER BY qid DESC
+        """)
+        
+        questions = []
+        for row in cursor.fetchall():
+            questions.append({
+                'qid': row['qid'],
+                'qtext': row['qtext'],
+                'qtype': row['qtype'],
+                'qlevel': row['qlevel'],
+                'qtopic': row['qtopic'],
+                'qactive': row['qactive'] == 1
+            })
+        
+        conn.close()
+        
+        return jsonify({'questions': questions}), 200
+        
+    except Exception as e:
+        print(f"Error in get_all_questions endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
+@app.route('/api/admin/update_question', methods=['POST'])
+def update_question():
+    """API endpoint to update a question's properties."""
+    try:
+        data = request.get_json()
+        uid = data.get('uid')
+        qid = data.get('qid')
+        updates = data.get('updates', {})
+        
+        if not validate_admin_access(uid):
+            return jsonify({'error': 'Unauthorized access'}), 403
+            
+        if not qid:
+            return jsonify({"error": "Missing question ID"}), 400
+            
+        if not updates:
+            return jsonify({"error": "No updates provided"}), 400
+        
+        conn = sqlite3.connect('pico.db')
+        cursor = conn.cursor()
+        
+        # Build the update query dynamically based on the provided updates
+        update_fields = []
+        update_values = []
+        
+        valid_fields = ['qtext', 'qlevel', 'qtopic', 'qactive']
+        for field, value in updates.items():
+            if field in valid_fields:
+                update_fields.append(f"{field} = ?")
+                # Convert boolean to integer for SQLite
+                if field == 'qactive' and isinstance(value, bool):
+                    update_values.append(1 if value else 0)
+                else:
+                    update_values.append(value)
+        
+        if not update_fields:
+            return jsonify({"error": "No valid update fields provided"}), 400
+            
+        # Add qid to values
+        update_values.append(qid)
+        
+        # Execute the update
+        query = f"UPDATE questions SET {', '.join(update_fields)} WHERE qid = ?"
+        cursor.execute(query, update_values)
+        conn.commit()
+        
+        # Check if any rows were affected
+        if cursor.rowcount == 0:
+            conn.close()
+            return jsonify({"error": "Question not found or no changes made"}), 404
+            
+        conn.close()
+        
+        return jsonify({"success": True, "message": "Question updated successfully"}), 200
+        
+    except Exception as e:
+        print(f"Error in update_question endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
+@app.route('/api/admin/bulk_update_questions', methods=['POST'])
+def bulk_update_questions():
+    """API endpoint to update multiple questions at once."""
+    try:
+        data = request.get_json()
+        uid = data.get('uid')
+        question_ids = data.get('question_ids', [])
+        updates = data.get('updates', {})
+        
+        if not validate_admin_access(uid):
+            return jsonify({'error': 'Unauthorized access'}), 403
+            
+        if not question_ids:
+            return jsonify({"error": "No question IDs provided"}), 400
+            
+        if not updates:
+            return jsonify({"error": "No updates provided"}), 400
+        
+        conn = sqlite3.connect('pico.db')
+        cursor = conn.cursor()
+        
+        # Build the update query dynamically based on the provided updates
+        update_fields = []
+        update_values = []
+        
+        valid_fields = ['qlevel', 'qtopic', 'qactive']
+        for field, value in updates.items():
+            if field in valid_fields:
+                update_fields.append(f"{field} = ?")
+                # Convert boolean to integer for SQLite
+                if field == 'qactive' and isinstance(value, bool):
+                    update_values.append(1 if value else 0)
+                else:
+                    update_values.append(value)
+        
+        if not update_fields:
+            return jsonify({"error": "No valid update fields provided"}), 400
+        
+        # Use parameterized query with placeholders for the IN clause
+        placeholders = ','.join('?' for _ in question_ids)
+        query = f"UPDATE questions SET {', '.join(update_fields)} WHERE qid IN ({placeholders})"
+        
+        # Combine update values with question IDs
+        cursor.execute(query, update_values + question_ids)
+        conn.commit()
+        
+        # Get the number of updated rows
+        updated_count = cursor.rowcount
+        
+        conn.close()
+        
+        return jsonify({
+            "success": True, 
+            "message": f"Successfully updated {updated_count} questions"
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in bulk_update_questions endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
+@app.route('/api/admin/delete_question', methods=['POST'])
+def delete_question():
+    """API endpoint to delete a question."""
+    try:
+        data = request.get_json()
+        uid = data.get('uid')
+        qid = data.get('qid')
+        
+        if not validate_admin_access(uid):
+            return jsonify({'error': 'Unauthorized access'}), 403
+            
+        if not qid:
+            return jsonify({"error": "Missing question ID"}), 400
+        
+        conn = sqlite3.connect('pico.db')
+        cursor = conn.cursor()
+        
+        # Get the question type
+        cursor.execute("SELECT qtype FROM questions WHERE qid = ?", (qid,))
+        question = cursor.fetchone()
+        
+        if not question:
+            conn.close()
+            return jsonify({"error": "Question not found"}), 404
+            
+        qtype = question[0]
+        
+        # Begin transaction
+        conn.execute("BEGIN TRANSACTION")
+        
+        try:
+            # Delete from the type-specific table
+            if qtype == 'multiple_choice':
+                cursor.execute("DELETE FROM multiple_choice WHERE qid = ?", (qid,))
+            elif qtype == 'true_false':
+                cursor.execute("DELETE FROM true_false WHERE qid = ?", (qid,))
+            elif qtype == 'free_response':
+                cursor.execute("DELETE FROM free_response WHERE qid = ?", (qid,))
+            elif qtype == 'code_blocks':
+                cursor.execute("DELETE FROM code_blocks WHERE qid = ?", (qid,))
+            
+            # Delete user responses
+            cursor.execute("DELETE FROM user_responses WHERE qid = ?", (qid,))
+            
+            # Delete from questions table
+            cursor.execute("DELETE FROM questions WHERE qid = ?", (qid,))
+            
+            # Commit the transaction
+            conn.commit()
+        except Exception as e:
+            # Rollback in case of error
+            conn.rollback()
+            conn.close()
+            raise e
+        
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "message": "Question deleted successfully"
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in delete_question endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))

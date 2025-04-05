@@ -879,3 +879,65 @@
   box-sizing: border-box;
   background: transparent;
 }
+
+
+/* /// HOMEPAGE QUESTIONS VSCROLL /// */
+.light-mode .home-question-button {
+  background-color: var(--first-bg-color);
+}
+#home-questions-vscroll {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 100%;
+  padding-right: 10px;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+
+/* Apply S-curve effect based on button index */
+#home-questions-vscroll .home-question-button {
+  transform: translateY(0) rotate(0); /* Default no transformation */
+  transition: transform 0.3s ease-out; /* Smooth transition for transform */
+}
+
+/* Slight S-curve effect - Apply translateY and rotate using nth-child */
+#home-questions-vscroll button:nth-child(odd) {
+  transform: translateY(10px) rotate(-5deg);
+}
+
+#home-questions-vscroll button:nth-child(even) {
+  transform: translateY(-10px) rotate(5deg);
+}
+
+#home-question-button-container {
+  padding: 20px;
+}
+
+.home-question-button {
+  width: 120px;
+  height: 120px;
+  padding: 15px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+}
+
+.home-question-button.completed {
+  background-color: var(--primary-theme-color);
+  color: white;
+  box-shadow: 0 6px 0 var(--primary-shadow-color);
+}
+
+/* Fixed text inside the button */
+.home-question-text {
+  display: inline-block;
+  transform: rotate(5deg);
+  
+}
+

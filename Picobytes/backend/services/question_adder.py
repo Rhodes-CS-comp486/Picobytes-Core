@@ -27,8 +27,8 @@ class QuestionAdder:
                 return {"error": "Missing required question fields"}, 400
             
             # Validate question type
-            if qtype not in ['multiple_choice', 'true_false']:
-                return {"error": "Invalid question type. Must be 'multiple_choice' or 'true_false'"}, 400
+            if qtype not in ['multiple_choice', 'true_false', 'code_blocks']:
+                return {"error": "Invalid question type. Must be 'multiple_choice', 'true_false', or 'code_blocks'"}, 400
             
             # Connect to the database
             connection = self._connect()
@@ -79,6 +79,34 @@ class QuestionAdder:
                     INSERT INTO true_false (qid, correct)
                     VALUES (%s, %s)
                 """, (qid, 1 if correct else 0))
+
+            elif qtype == 'code_blocks':
+                # Extract code blocks data
+                block1 = question_data.get('block1', '')
+                block2 = question_data.get('block2', '')
+                block3 = question_data.get('block3', '')
+                block4 = question_data.get('block4', '')
+                block5 = question_data.get('block5', '')
+                block6 = question_data.get('block6', '')
+                block7 = question_data.get('block7', '')
+                block8 = question_data.get('block8', '')
+                block9 = question_data.get('block9', '')
+                block10 = question_data.get('block10', '')
+                answer = question_data.get('answer')
+                
+                # Validate required fields
+                if not block1 or not answer:
+                    # Roll back the transaction
+                    connection.rollback()
+                    return {"error": "Missing required code blocks fields"}, 400
+                
+                # Insert into code_blocks table
+                cursor.execute("""
+                    INSERT INTO code_blocks (qid, block1, block2, block3, block4, block5, 
+                                            block6, block7, block8, block9, block10, answer)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (qid, block1, block2, block3, block4, block5, 
+                     block6, block7, block8, block9, block10, answer))
             
             # Commit the transaction
             connection.commit()

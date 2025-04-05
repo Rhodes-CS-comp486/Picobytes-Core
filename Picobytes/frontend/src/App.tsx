@@ -8,6 +8,8 @@ import Question from "./pages/question";
 import AccountCreate from "./pages/createAccount";
 import Questions from "./pages/Questions"; //import new Questions component
 import AdminDashboard from "./pages/admin/AdminDashboard"; //import new AdminDashboard component
+import ManageQuestions from "./pages/admin/ManageQuestions"; // import ManageQuestions component
+import AddQuestion from "./pages/admin/AddQuestion"; // import AddQuestion component
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 import Settings from "./pages/settings";
@@ -75,6 +77,16 @@ function App() {
             <Route path="/admin/dashboard" element={
               <AdminRoute>
                 <AdminDashboard />
+              </AdminRoute>
+            } />
+            <Route path="/admin/manage-questions" element={
+              <AdminRoute>
+                <ManageQuestions />
+              </AdminRoute>
+            } />
+            <Route path="/admin/add-question" element={
+              <AdminRoute>
+                <AddQuestion />
               </AdminRoute>
             } />
             <Route path="/accountcreate" element={<AccountCreate />} />

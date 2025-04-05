@@ -105,7 +105,7 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
         )}
       </div>
       
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', marginTop: '16px' }}>
         <button 
           className={`tab-button ${period === '24h' ? 'active' : ''}`} 
           onClick={() => handlePeriodChange('24h')}

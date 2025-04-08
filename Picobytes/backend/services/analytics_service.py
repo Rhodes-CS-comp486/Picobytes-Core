@@ -25,7 +25,8 @@ class AnalyticsService:
         """
         conn = self._get_db_connection()
         try:
-            cursor = conn.execute(
+            cursor = conn.cursor()
+            cursor.execute(
                 "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (?, ?, ?)",
                 (qid, uid, is_correct)
             )

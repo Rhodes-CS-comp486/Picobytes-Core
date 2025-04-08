@@ -133,21 +133,22 @@ class QuestionSave:
             cursor.execute('select qid from user_responses where uid = ? and qid = ?', (uid,qid))
             exists = cursor.fetchone()
 
+            already_answered = False
 
             if exists is not None:
-                return jsonify({'error': 'user has already answered this question'})
+                already_answered = True
 
-            cursor.execute('insert into user_responses (uid, qid) values (?, ?)', (uid, qid))
+            if not already_answered:
+                cursor.execute('insert into user_responses (uid, qid) values (?, ?)', (uid, qid))
 
             conn.commit()
 
             qtype = qtype[0]
-            print("check 1")
+
+            
 
             if qtype == 'multiple_choice':
-                print("check 1.1")
                 cursor.execute('select answer from multiple_choice where qid = ?', (qid,))
-                print("check 1.2")
                 answer = cursor.fetchone()[0]
                 print(f"answer: {answer}")
                 print(f"response: {response}")
@@ -155,9 +156,9 @@ class QuestionSave:
                     is_correct = True
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                print("check 1.3")
-                cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (?, ?, ?, ?)', (uid, qid, response, answer))
-                print("check 1.4")
+                
+                if not already_answered:
+                    cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (?, ?, ?, ?)', (uid, qid, response, answer))
                 conn.commit()
 
 
@@ -168,7 +169,8 @@ class QuestionSave:
                     is_correct = True
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                cursor.execute('insert into user_true_false (uid, qid, response, correct)', (uid, qid, response, answer))
+                if not already_answered:
+                    cursor.execute('insert into user_true_false (uid, qid, response, correct)', (uid, qid, response, answer))
                 conn.commit()
 
 
@@ -179,7 +181,8 @@ class QuestionSave:
                     is_correct = True
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                cursor.execute('insert into user_code_blocks (uid, qid, submission, correct)',
+                if not already_answered:
+                    cursor.execute('insert into user_code_blocks (uid, qid, submission, correct)',
                                (uid, qid, response, answer))
                 conn.commit()
 
@@ -189,11 +192,15 @@ class QuestionSave:
                 answer = cursor.fetchone()
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
-                cursor.execute('insert into user_free_response (uid, qid, uanswer, profanswer)',
+                if not already_answered:
+                    cursor.execute('insert into user_free_response (uid, qid, uanswer, profanswer)',
                                (uid, qid, response, answer))
                 conn.commit()
 
-            print("check 2")
+
+            # When question is already answered don't update points, and just return if it's correct
+            if already_answered:
+                return jsonify({'is_correct': is_correct})
 
 
             #Step 3: Update streak if answer is correct

@@ -144,9 +144,6 @@ def api_get_questions():
         tf_questions = tf_question_service.pull_questions()
         mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
 
-        print(f"TF Questions: {tf_questions}")
-        print(f"MC Questions: {mc_questions}")
-
         questions = {
             'tf': tf_questions,
             'mc': mc_questions
@@ -157,7 +154,6 @@ def api_get_questions():
             'total_questions': len(tf_questions) + len(mc_questions)
         }
 
-        print(f"Sending response: {response}")  # Debug log
         return jsonify(response)
 
     except Exception as e:
@@ -321,23 +317,29 @@ def login():
     uname = data.get('uname')
     upassword = data.get('upassword')
 
-    print(f"Login attempt: User={uname}, Password length={len(upassword) if upassword else 0}")
+    # Kept minimal login attempt log but removed password length info
+    print(f"Login attempt: User={uname}")
 
     if not uname or not upassword:
-        print("Login failed: Missing username or password")
         return jsonify({'error': 'Missing username or password'}), 400
+    
     hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
-    print(f"Generated hash: {hashed_password}")
+    # Removed hash debug print
+    
     uid = user_service.get_user_by_credentials(uname, hashed_password)
     if uid is None:
-        print(f"Login failed: Invalid credentials for user {uname}")
         return jsonify({'error': 'Invalid username or password'}), 401
         
     # Check if the user is an admin
     is_admin = user_service.is_admin(uid)
     
-    print(f"Login successful: User={uname}, UID={uid}, Admin={is_admin}")
-    return jsonify({'uid': uid, 'is_admin': is_admin})
+    # Kept login success log with minimal info
+    print(f"Login successful: User={uname}")
+    
+    return jsonify({
+        'uid': uid,
+        'is_admin': is_admin
+    })
 
 
 @app.route('/api/update_password', methods=['POST'])
@@ -530,8 +532,9 @@ def get_all_questions():
         if not validate_admin_access(uid):
             return jsonify({'error': 'Unauthorized access'}), 403
         
-        conn = sqlite3.connect('pico.db')
-        conn.row_factory = sqlite3.Row
+        # Connect to PostgreSQL database
+        conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}")
+        conn.row_factory = dict_row
         cursor = conn.cursor()
         
         # Get all questions with their active status
@@ -549,7 +552,7 @@ def get_all_questions():
                 'qtype': row['qtype'],
                 'qlevel': row['qlevel'],
                 'qtopic': row['qtopic'],
-                'qactive': row['qactive'] == 1
+                'qactive': row['qactive']
             })
         
         conn.close()
@@ -579,7 +582,8 @@ def update_question():
         if not updates:
             return jsonify({"error": "No updates provided"}), 400
         
-        conn = sqlite3.connect('pico.db')
+        # Connect to PostgreSQL database
+        conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}")
         cursor = conn.cursor()
         
         # Build the update query dynamically based on the provided updates
@@ -589,12 +593,9 @@ def update_question():
         valid_fields = ['qtext', 'qlevel', 'qtopic', 'qactive']
         for field, value in updates.items():
             if field in valid_fields:
-                update_fields.append(f"{field} = ?")
-                # Convert boolean to integer for SQLite
-                if field == 'qactive' and isinstance(value, bool):
-                    update_values.append(1 if value else 0)
-                else:
-                    update_values.append(value)
+                update_fields.append(f"{field} = %s")
+                # Convert boolean to boolean for PostgreSQL
+                update_values.append(value)
         
         if not update_fields:
             return jsonify({"error": "No valid update fields provided"}), 400
@@ -603,7 +604,7 @@ def update_question():
         update_values.append(qid)
         
         # Execute the update
-        query = f"UPDATE questions SET {', '.join(update_fields)} WHERE qid = ?"
+        query = f"UPDATE questions SET {', '.join(update_fields)} WHERE qid = %s"
         cursor.execute(query, update_values)
         conn.commit()
         
@@ -639,7 +640,8 @@ def bulk_update_questions():
         if not updates:
             return jsonify({"error": "No updates provided"}), 400
         
-        conn = sqlite3.connect('pico.db')
+        # Connect to PostgreSQL database
+        conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}")
         cursor = conn.cursor()
         
         # Build the update query dynamically based on the provided updates
@@ -649,18 +651,15 @@ def bulk_update_questions():
         valid_fields = ['qlevel', 'qtopic', 'qactive']
         for field, value in updates.items():
             if field in valid_fields:
-                update_fields.append(f"{field} = ?")
-                # Convert boolean to integer for SQLite
-                if field == 'qactive' and isinstance(value, bool):
-                    update_values.append(1 if value else 0)
-                else:
-                    update_values.append(value)
+                update_fields.append(f"{field} = %s")
+                # PostgreSQL handles booleans directly
+                update_values.append(value)
         
         if not update_fields:
             return jsonify({"error": "No valid update fields provided"}), 400
         
         # Use parameterized query with placeholders for the IN clause
-        placeholders = ','.join('?' for _ in question_ids)
+        placeholders = ','.join(['%s' for _ in question_ids])
         query = f"UPDATE questions SET {', '.join(update_fields)} WHERE qid IN ({placeholders})"
         
         # Combine update values with question IDs
@@ -696,11 +695,12 @@ def delete_question():
         if not qid:
             return jsonify({"error": "Missing question ID"}), 400
         
-        conn = sqlite3.connect('pico.db')
+        # Connect to PostgreSQL database
+        conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}")
         cursor = conn.cursor()
         
         # Get the question type
-        cursor.execute("SELECT qtype FROM questions WHERE qid = ?", (qid,))
+        cursor.execute("SELECT qtype FROM questions WHERE qid = %s", (qid,))
         question = cursor.fetchone()
         
         if not question:
@@ -715,34 +715,31 @@ def delete_question():
         try:
             # Delete from the type-specific table
             if qtype == 'multiple_choice':
-                cursor.execute("DELETE FROM multiple_choice WHERE qid = ?", (qid,))
+                cursor.execute("DELETE FROM multiple_choice WHERE qid = %s", (qid,))
             elif qtype == 'true_false':
-                cursor.execute("DELETE FROM true_false WHERE qid = ?", (qid,))
+                cursor.execute("DELETE FROM true_false WHERE qid = %s", (qid,))
             elif qtype == 'free_response':
-                cursor.execute("DELETE FROM free_response WHERE qid = ?", (qid,))
+                cursor.execute("DELETE FROM free_response WHERE qid = %s", (qid,))
             elif qtype == 'code_blocks':
-                cursor.execute("DELETE FROM code_blocks WHERE qid = ?", (qid,))
+                cursor.execute("DELETE FROM code_blocks WHERE qid = %s", (qid,))
+            elif qtype == 'coding':
+                cursor.execute("DELETE FROM coding WHERE qid = %s", (qid,))
             
-            # Delete user responses
-            cursor.execute("DELETE FROM user_responses WHERE qid = ?", (qid,))
-            
-            # Delete from questions table
-            cursor.execute("DELETE FROM questions WHERE qid = ?", (qid,))
+            # Delete from the main questions table
+            cursor.execute("DELETE FROM questions WHERE qid = %s", (qid,))
             
             # Commit the transaction
             conn.commit()
+            
+            conn.close()
+            
+            return jsonify({"success": True, "message": "Question deleted successfully"}), 200
+            
         except Exception as e:
-            # Rollback in case of error
+            # Rollback in case of any error
             conn.rollback()
             conn.close()
-            raise e
-        
-        conn.close()
-        
-        return jsonify({
-            "success": True,
-            "message": "Question deleted successfully"
-        }), 200
+            return jsonify({"error": f"Failed to delete question: {str(e)}"}), 500
         
     except Exception as e:
         print(f"Error in delete_question endpoint: {e}")

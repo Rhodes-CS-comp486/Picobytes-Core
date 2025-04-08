@@ -29,17 +29,17 @@ class AdminService:
         """Establish and return a database connection."""
         return psycopg.connect(self.db_url, row_factory=dict_row)
 
+    def _get_db_connection(self):
+        """Alias for _connect to maintain consistency with other services."""
+        return self._connect()
 
     def update_user_admin_status(self, uid, is_admin):
         conn = self._get_db_connection()
         try:
-            # Convert boolean to integer for SQLite
-            admin_value = 1 if is_admin else 0
-            
-            # Update the user's admin status
+            # Update the user's admin status (Postgres handles booleans directly)
             cursor = conn.execute(
-                "UPDATE users SET uadmin = ? WHERE uid = ?",
-                (admin_value, uid)
+                "UPDATE users SET uadmin = %s WHERE uid = %s",
+                (is_admin, uid)
             )
             conn.commit()
             
@@ -61,11 +61,10 @@ class AdminService:
         """
         conn = self._get_db_connection()
         
-        # Debug: Check what we have in the users table
+        # Get count of users from users table
         cursor = conn.execute("SELECT COUNT(*) as count FROM users")
         result = cursor.fetchone()
         total_users = result['count'] if result else 0
-        print(f"DEBUG - Total users in database: {total_users}")
         
         # For now, simply return all users as the active count
         # Since we don't have timestamp data
@@ -92,13 +91,13 @@ class AdminService:
             
             # Convert rows to list of dictionaries
             for row in cursor:
-                is_admin = row[2] == 1  # uadmin column
+                is_admin = row['uadmin'] == 1  # uadmin column
                 user = {
-                    "uid": row[0],             # First column: uid
-                    "username": row[1],        # Second column: uname
-                    "last_active": "N/A",      # We don't have timestamp data
+                    "uid": row['uid'],             # uid
+                    "username": row['uname'],      # uname
+                    "last_active": "N/A",          # We don't have timestamp data
                     "user_type": "Admin" if is_admin else "Student",  # Based on uadmin
-                    "is_admin": is_admin       # Add direct boolean flag
+                    "is_admin": is_admin           # Add direct boolean flag
                 }
                 users.append(user)
                 

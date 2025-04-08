@@ -47,7 +47,7 @@ const AccountCreate = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, uname: username, upassword: password }),
+        body: JSON.stringify({ uemail: email, uname: username, upassword: password }),
       });
 
       const data = await response.json();

@@ -15,7 +15,27 @@ interface Topic {
   progress: number;
 }
 
+interface PlayerStats {
+  streak: number;
+  points: number;
+}
+
+interface Player {
+  username: string;
+  uid: string;
+}
+
+/// MAIN CONTENT ////////////////////////////////////
+
 const Homepage = ({ toggleDark }: Prop) => {
+  /// CONSTANTS ///////////////////////////////////////
+  const [playerStats, setPlayerStats] = useState<{ [key: string]: PlayerStats }>({});
+  const [players, setPlayers] = useState<Player[]>([]);
+
+  // Get username from localStorage with fallback
+  const username = localStorage.getItem("username") || "Agent 41";
+  const uid = localStorage.getItem("uid") || "pvCYNLaP7Z";
+
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const [lessonNumber, setLessonNumber] = useState<string | null>(null);
@@ -24,6 +44,31 @@ const Homepage = ({ toggleDark }: Prop) => {
   );
   const [streak, setStreak] = useState(-1);
   const [points, setPoints] = useState(-1);
+
+  const navigate = useNavigate();
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [questionStats, setQuestionStats] = useState({
+    totalQuestions: 0,
+    completedQuestions: 0,
+  });
+  // Initialize with empty object, will be populated from API
+  const [topicProgress, setTopicProgress] = useState<Record<string, number>>({});
+  const [isTopicsLoading, setIsTopicsLoading] = useState(true);
+
+
+  // Function to apply the S-curve positioning
+  const getButtonPosition = (index) => {
+    // Calculate S-curve path
+    const curveOffset = 10; // Height offset for each curve step
+    const maxCurveOffset = 70; // Maximum offset (how wide the curve should be)
+    
+    // Using Math.sin to create the S-curve effect
+    const curveY = Math.sin(index * 0.3) * curveOffset; // Adjust the multiplier for curve tightness
+    const curveX = Math.cos(index * 0.3) * maxCurveOffset; // Slight horizontal offset to make it more pronounced
+
+    return { transform: `translateY(${curveY}px) translateX(${curveX}px)` };
+  };
+
 
   useEffect(() => {
     const lessonFromURL = queryParams.get("lesson");
@@ -51,6 +96,7 @@ const Homepage = ({ toggleDark }: Prop) => {
 
   // Get username from localStorage with fallback
   const username = localStorage.getItem("username") || "Agent 41";
+
 
   // Get user information
   useEffect(() => {
@@ -133,6 +179,28 @@ const Homepage = ({ toggleDark }: Prop) => {
         setIsTopicsLoading(false);
       });
   }, []);
+
+  /// PLAYER STATS ///
+  useEffect(() => {
+    const fetchPlayerStats = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/get_user_stats/${uid}`);
+        const data = await response.json();
+        if (response.status === 200 && data.streak !== undefined && data.points !== undefined) {
+          setPlayerStats({ [uid]: { streak: data.streak, points: data.points } });
+        } else {
+          setPlayerStats({ [uid]: { streak: 0, points: 0 } });
+        }
+      } catch (error) {
+        console.error(`Error fetching stats for ${uid}:`, error);
+        setPlayerStats({ [uid]: { streak: 0, points: 0 } });
+      }
+    };
+  
+    fetchPlayerStats();
+  }, [uid]);
+
+  /// NAVS ///
 
   const toggleOverlay = () => {
     setShowOverlay(!showOverlay);
@@ -222,6 +290,9 @@ const Homepage = ({ toggleDark }: Prop) => {
     return topic.charAt(0).toUpperCase();
   };
 
+
+  /// MAIN CONTENT ///
+
   return (
     <div className="duolingo-layout">
       {/* Mobile Menu is included in Header component */}
@@ -273,6 +344,8 @@ const Homepage = ({ toggleDark }: Prop) => {
             <div className="streak-days">{streak} days</div>
           </div>
 
+        
+          {/*
           {isTopicsLoading ? (
             <div style={{ textAlign: "center", margin: "30px 0" }}>
               Loading topics...
@@ -307,7 +380,10 @@ const Homepage = ({ toggleDark }: Prop) => {
               </div>
             </div>
           )}
+            */}
 
+
+          {/* MASCOT */}
           <div className="mascot-container">
             <div className="mascot-speech">
               {overallProgress > 0
@@ -323,8 +399,40 @@ const Homepage = ({ toggleDark }: Prop) => {
           >
             {overallProgress > 0 ? "CONTINUE" : "START"}
           </button>
+          
+          
+          {/* QUESTIONS PATH */}
+          <div id="home-questions-vscroll">
+            {[...Array(questionStats.totalQuestions)].map((_, index) => {
+              const questionId = index + 1;
+              const isCompleted =
+                questionId <= questionStats.completedQuestions;
+
+              // Get the dynamic positioning for each button
+              const buttonPosition = getButtonPosition(index);
+
+              return (
+                <div key={questionId} id="home-question-button-container" style={buttonPosition}>
+                  <button
+                    className={`home-question-button ${
+                      isCompleted ? "completed" : ""
+                    }`}
+                    onClick={() => goToQuestion(questionId)}
+                  >
+                    <span className="home-question-text">{isCompleted ? "✓ " : ""}{questionId}</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          
+          
+
+       
 
           {/* All Questions Section */}
+        {/*
           <div className="all-questions-section">
             <h2>All Questions</h2>
             <div className="questions-grid">
@@ -346,8 +454,10 @@ const Homepage = ({ toggleDark }: Prop) => {
                   </div>
                 );
               })}
+              
             </div>
-          </div>
+          </div> 
+        */}
         </div>
       </div>
 

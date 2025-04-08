@@ -1,8 +1,15 @@
-import sqlite3
+import psycopg
+from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 
 class QuestionAdder:
-    def __init__(self):
-        self.db_path = "pico.db"
+    def __init__(self, db_filename="pico.db"):
+        """Initialize the connection to the SQLite database located one directory above."""
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+
+    def _connect(self):
+        """Establish and return a database connection."""
+        return psycopg.connect(self.db_url, row_factory=dict_row)
     
     def add_question(self, question_data):
         """Add a new question to the database."""
@@ -20,21 +27,21 @@ class QuestionAdder:
                 return {"error": "Missing required question fields"}, 400
             
             # Validate question type
-            if qtype not in ['multiple_choice', 'true_false']:
-                return {"error": "Invalid question type. Must be 'multiple_choice' or 'true_false'"}, 400
+            if qtype not in ['multiple_choice', 'true_false', 'code_blocks']:
+                return {"error": "Invalid question type. Must be 'multiple_choice', 'true_false', or 'code_blocks'"}, 400
             
             # Connect to the database
-            connection = sqlite3.connect(self.db_path)
+            connection = self._connect()
             cursor = connection.cursor()
             
             # Insert into questions table - use the full form qtype values directly
             cursor.execute("""
                 INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s) RETURNING qid
             """, (qtext, qtype, qlevel, qtopic, qactive))
             
             # Get the new question ID
-            qid = cursor.lastrowid
+            qid = cursor.fetchone()[0]
             
             # Insert type-specific data
             if qtype == 'multiple_choice':
@@ -54,7 +61,7 @@ class QuestionAdder:
                 # Insert into multiple_choice table
                 cursor.execute("""
                     INSERT INTO multiple_choice (qid, option1, option2, option3, option4, answer)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s)
                 """, (qid, option1, option2, option3, option4, answer))
                 
             elif qtype == 'true_false':
@@ -70,8 +77,36 @@ class QuestionAdder:
                 # Insert into true_false table
                 cursor.execute("""
                     INSERT INTO true_false (qid, correct)
-                    VALUES (?, ?)
+                    VALUES (%s, %s)
                 """, (qid, 1 if correct else 0))
+
+            elif qtype == 'code_blocks':
+                # Extract code blocks data
+                block1 = question_data.get('block1', '')
+                block2 = question_data.get('block2', '')
+                block3 = question_data.get('block3', '')
+                block4 = question_data.get('block4', '')
+                block5 = question_data.get('block5', '')
+                block6 = question_data.get('block6', '')
+                block7 = question_data.get('block7', '')
+                block8 = question_data.get('block8', '')
+                block9 = question_data.get('block9', '')
+                block10 = question_data.get('block10', '')
+                answer = question_data.get('answer')
+                
+                # Validate required fields
+                if not block1 or not answer:
+                    # Roll back the transaction
+                    connection.rollback()
+                    return {"error": "Missing required code blocks fields"}, 400
+                
+                # Insert into code_blocks table
+                cursor.execute("""
+                    INSERT INTO code_blocks (qid, block1, block2, block3, block4, block5, 
+                                            block6, block7, block8, block9, block10, answer)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (qid, block1, block2, block3, block4, block5, 
+                     block6, block7, block8, block9, block10, answer))
             
             # Commit the transaction
             connection.commit()

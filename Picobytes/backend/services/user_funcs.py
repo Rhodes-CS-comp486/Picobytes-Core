@@ -3,6 +3,9 @@ import os
 import string
 import random
 import time
+import psycopg
+from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 
 
 
@@ -10,7 +13,8 @@ class UserFuncs:
 
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
-        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+
 
     ########################################
     ########## CREATING NEW USERS ##########
@@ -21,13 +25,13 @@ class UserFuncs:
             # Generate a random 10-character alphanumeric string
             uid = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
             # Check if the UID already exists in the database
-            cursor.execute("SELECT 1 FROM users WHERE uid = ?", (uid,))
+            cursor.execute("SELECT 1 FROM users WHERE uid = %s", (uid,))
             if not cursor.fetchone():
                 return uid
 
     def add_user(self, uname, hashed_password, uemail, uadmin):
         try:
-            connection = sqlite3.connect(self.db_path)
+            connection = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={'pico'} password={'pico'}")
             cursor = connection.cursor()
 
             # Generate a unique UID
@@ -35,7 +39,7 @@ class UserFuncs:
             currtime = time.time()
 
             # Insert the new user
-            cursor.execute("INSERT INTO users (uid, uname, uemail, upassword, ustreak, ulastanswertime, uincorrect, ucorrect, upoints, uadmin) VALUES (?, ?, ?, ?, 1, ?, 0, 0, 0, ?)",
+            cursor.execute("INSERT INTO users (uid, uname, uemail, upassword, ustreak, ulastanswertime, uincorrect, ucorrect, upoints, uadmin) VALUES (%s, %s, %s, %s, 1, %s, 0, 0, 0, %s)",
                            (uid, uname, uemail, hashed_password, currtime, uadmin))
 
             connection.commit()
@@ -48,7 +52,7 @@ class UserFuncs:
     
     def get_users(self):
         try:
-            connection = sqlite3.connect(self.db_path)
+            connection = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={'pico'} password={'pico'}")
             cursor = connection.cursor()
 
             cursor.execute("SELECT uid, uname, uemail FROM users")
@@ -67,16 +71,16 @@ class UserFuncs:
     ##################################################
 
     def get_user_by_credentials(self, uname, hashed_password):
-        conn = sqlite3.connect(self.db_path)  # Replace with your actual DB
-        cursor = conn.cursor()
+        connection = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={'pico'} password={'pico'}")
+        cursor = connection.cursor()
         
         # First check if the user exists
-        cursor.execute("SELECT uid, upassword FROM users WHERE uname = ?", (uname,))
+        cursor.execute("SELECT uid, upassword FROM users WHERE uname = %s", (uname,))
         user = cursor.fetchone()
         
         if not user:
             print(f"User not found in database: {uname}")
-            conn.close()
+            connection.close()
             return None
             
         db_uid, db_password = user
@@ -85,11 +89,11 @@ class UserFuncs:
         
         if db_password == hashed_password:
             print(f"Password match: returning UID {db_uid}")
-            conn.close()
+            connection.close()
             return db_uid
         else:
             print("Password mismatch")
-            conn.close()
+            connection.close()
             return None
     
 
@@ -103,15 +107,15 @@ class UserFuncs:
             return False
         
         try:
-            connection = sqlite3.connect(self.db_path)
+            connection = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={'pico'} password={'pico'}")
             cursor = connection.cursor()
             
             # Using the correct column name uadmin instead of is_admin
-            cursor.execute("SELECT uadmin FROM users WHERE uid = ?", (uid,))
+            cursor.execute("SELECT uadmin FROM users WHERE uid = %s", (uid,))
             result = cursor.fetchone()
             
             # Check if there's a result and if uadmin is 1
-            is_admin = bool(result and result[0] == 1)
+            is_admin = result[0]
             
             connection.close()
             return is_admin
@@ -122,11 +126,11 @@ class UserFuncs:
 
     def change_password(self, uname, hashed_password):
         try:
-            connection = sqlite3.connect(self.db_path)
+            connection = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={'pico'} password={'pico'}")
             cursor = connection.cursor()
 
-            cursor.execute("UPDATE users SET upassword = ? WHERE uname = ?", (hashed_password, uname))
-            cursor.execute("select uid from users where uname = ?", (uname,))
+            cursor.execute("UPDATE users SET upassword = %s WHERE uname = %s", (hashed_password, uname))
+            cursor.execute("select uid from users where uname = %s", (uname,))
             uid = cursor.fetchone()
             connection.commit()
 
@@ -142,7 +146,6 @@ class UserFuncs:
 
 if __name__ == '__main__':
     service = UserFuncs()
-    service.add_user('will', 'testing123', 0)
 
 
 

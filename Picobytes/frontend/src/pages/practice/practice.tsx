@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Home_Header from "../home/home_header";
 import Home_Prof_Overlay from "../home/home_prof_overlay";
+import SideBar from "../home/side_bar";
 
 import './practice.css';
 
@@ -98,42 +99,7 @@ const Practice_Page = ({ toggleDark }: Prop) => {
             {showOverlay && <Home_Prof_Overlay />}
 
             {/* Left Sidebar */}
-            <div className="sidebar">
-                <div className="logo-container">
-                    <h1 className="logo-text">Picobytes</h1>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={() => navigate('/homepage')}>
-                        <span className="material-icon">🏠</span>
-                        <span>Home</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => goToAllQuestions()}>
-                        <span className="material-icon">📝</span>
-                        <span>Questions</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => goToTopicSelection()}>
-                        <span className="material-icon">📚</span>
-                        <span>Topics</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>
-                        <span className="material-icon">⚙️</span>
-                        <span>Settings</span>
-                    </div>
-                    {/* Admin section if user is admin */}
-                    {localStorage.getItem("isAdmin") === "true" && (
-                        <div className="nav-item" onClick={() => navigate('/admin/dashboard')}>
-                            <span className="material-icon">👑</span>
-                            <span>Admin</span>
-                        </div>
-                    )}
-
-                    <div className="nav-item" onClick={() => toggleDark()}>
-                        <span className="material-icon">☾</span>
-                        <span>Theme</span>
-                    </div>
-                </nav>
-            </div>
+            <SideBar toggleDark={toggleDark}></SideBar>
 
             {/* MIDDLE CONTENTS */}
             <div className="main-content">

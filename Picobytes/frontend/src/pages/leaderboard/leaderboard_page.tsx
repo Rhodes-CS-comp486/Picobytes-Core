@@ -3,8 +3,8 @@
 import './leaderboard.css';
 import Home_Header from '../home/home_header';
 import Home_Prof_Overlay from '../home/home_prof_overlay';
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import SideBar from '../home/side_bar';
 
 /// INTERFACES /////////////////////////////////////////////////////////////
 interface Prop {
@@ -26,7 +26,6 @@ interface Player {
 
 const Leaderboard_All = ({toggleDark}: Prop) => {
     /// CONSTANTS ////////////////////////////////////////////////////////
-    const navigate = useNavigate();
     const [showOverlay, setShowOverlay] = useState(false);
 
     const [playerStats, setPlayerStats] = useState<{ [key: string]: PlayerStats }>({});
@@ -61,23 +60,18 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
     
 
     useEffect(() => {
-
-        const top10players: Player[] = [];
-    
-
+        // Fetch top 10 players
         const fetchTop10 = async () => {
             try {
                 const response = await fetch('http://localhost:5000/api/get_top_10');
                 const data = await response.json();
                 if (response.ok) {
-                    console.log(data);
-                    // Map the array to a more readable format
                     const formattedPlayers = data.top10.map((player: any) => ({
-                        username: player[0], // First element is the username
-                        uid: player[1],      // Second element is the uid
-                        points: player[2],   // Third element is the points
+                        username: player[0],
+                        uid: player[1],
+                        points: player[2],
                     }));
-                    setPlayers(formattedPlayers || []); // Update state with formatted players
+                    setPlayers(formattedPlayers || []);
                 } else {
                     console.error("Error fetching top 10 players:", data.error);
                 }
@@ -85,34 +79,32 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                 console.error("Error fetching top 10 players:", error);
             }
         };
+
         fetchTop10();
+    }, []);
+    
 
+    // Fetch user stats only
+    useEffect(() => {
+        // Fetch the current user's stats only
         const fetchPlayerStats = async () => {
-            const stats: { [key: string]: PlayerStats } = {};
-            for (const player of top10players) {
-                console.log(player.uid);
-                try {
-                    const response = await fetch(`http://localhost:5000/api/get_user_stats/${player.uid}`);
-                    const data = await response.json();
-                    if (response.status === 200 && data.streak !== undefined && data.points !== undefined) {
-                        stats[player.uid] = { streak: data.streak, points: data.points };
-                    } else {
-                        stats[player.uid] = { streak: 0, points: 0 };
-                    }
-                } catch (error) {
-                    console.error(`Error fetching stats for ${player.uid}:`, error);
-                    stats[player.uid] = { streak: 0, points: 0 };
+            try {
+                const response = await fetch(`http://localhost:5000/api/get_user_stats/${uid}`);
+                const data = await response.json();
+                
+                if (response.ok && data.streak !== undefined && data.points !== undefined) {
+                    setPlayerStats({ [uid]: { streak: data.streak, points: data.points } });
+                } else {
+                    setPlayerStats({ [uid]: { streak: 0, points: 0 } });
                 }
+            } catch (error) {
+                console.error(`Error fetching stats for ${uid}:`, error);
+                setPlayerStats({ [uid]: { streak: 0, points: 0 } });
             }
-            setPlayerStats(stats);
         };
-
+    
         fetchPlayerStats();
-
-        setTimeout(() => {
-            setProgressValue(30);
-        }, 500);
-    }, [uid, username]);
+    }, [uid]);  // Only re-run when the `uid` changes
 
 
 
@@ -126,42 +118,7 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
             {showOverlay && <Home_Prof_Overlay />}
 
             {/* Left Sidebar */}
-            <div className="sidebar">
-                <div className="logo-container">
-                    <h1 className="logo-text">Picobytes</h1>
-                </div>
-
-                <nav className="sidebar-nav">
-                    <div className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`} onClick={() => navigate('/homepage')}>
-                        <span className="material-icon">🏠</span>
-                        <span>Home</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => navigate("questions")}>
-                        <span className="material-icon">📝</span>
-                        <span>Questions</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => navigate("/practice")}>
-                        <span className="material-icon">📚</span>
-                        <span>Topics</span>
-                    </div>
-                    <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate('/settings')}>
-                        <span className="material-icon">⚙️</span>
-                        <span>Settings</span>
-                    </div>
-                    {/* Admin section if user is admin */}
-                    {localStorage.getItem("isAdmin") === "true" && (
-                        <div className="nav-item" onClick={() => navigate('/admin/dashboard')}>
-                            <span className="material-icon">👑</span>
-                            <span>Admin</span>
-                        </div>
-                    )}
-
-                    <div className="nav-item" onClick={() => toggleDark()}>
-                        <span className="material-icon">☾</span>
-                        <span>Theme</span>
-                    </div>
-                </nav>
-            </div>
+            <SideBar toggleDark={toggleDark}></SideBar>
 
             {/* MAIN CONTENT */}
             
@@ -187,10 +144,9 @@ const Leaderboard_All = ({toggleDark}: Prop) => {
                                         {player.username.charAt(0).toUpperCase()}
                                     </div>
 
-                                    {/* PLAYER USERNAME & STREAKS */}
+                                    {/* PLAYER USERNAME*/}
                                     <div id="ld-user-stats">
                                         {player.username}
-                                        
                                     </div>
 
                                 </div>

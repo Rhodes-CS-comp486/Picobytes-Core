@@ -5,6 +5,9 @@ from .streak import Streaks
 from .analytics_service import AnalyticsService
 import time
 from flask import jsonify
+import psycopg
+from psycopg.rows import dict_row
+from Picobytes.backend.db_info import *
 
 
 
@@ -27,11 +30,11 @@ class QuestionSave:
 
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
-        self.db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", db_filename))
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
 
     def _connect(self):
         """Establish and return a database connection."""
-        return sqlite3.connect(self.db_path)
+        return psycopg.connect(self.db_url, row_factory=dict_row)
 
 
     def save_mc_response(self, uid, qid, response):
@@ -40,17 +43,17 @@ class QuestionSave:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO user_responses (uid, qid)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             """, (uid, qid))
 
             cursor.execute("""
-                select answer from multiple_choice where qid = ?
+                select answer from multiple_choice where qid = %s
                 """, (qid))
             correct_answer = cursor.fetchone()
 
             cursor.execute("""
                 INSERT INTO user_multiple_choice (uid, qid, response, correct_answer)
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
              """, (uid, qid, response, correct_answer,))
 
             conn.commit()
@@ -68,17 +71,17 @@ class QuestionSave:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO user_responses (uid, qid)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             """, (uid, qid))
 
             cursor.execute("""
-                select answer from true_false where qid = ?
+                select answer from true_false where qid = %s
                 """, (qid))
             correct_answer = cursor.fetchone()
 
             cursor.execute("""
                 INSERT INTO user_multiple_choice (uid, qid, response, correct_answer)
-                VALUES (?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s)
              """, (uid, qid, response, correct_answer,))
 
             conn.commit()
@@ -96,12 +99,12 @@ class QuestionSave:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO user_responses (uid, qid)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             """, (uid, qid))
 
             cursor.execute("""
                 INSERT INTO user_free_response (uid, qid, response)
-                VALUES (?, ?, ?)
+                VALUES (%s, %s, %s)
              """, (uid, qid, response))
 
             conn.commit()
@@ -124,13 +127,13 @@ class QuestionSave:
             conn = self._connect()
             cursor = conn.cursor()
 
-            cursor.execute('select qtype from questions where qid = ?', (qid,))
+            cursor.execute('select qtype from questions where qid = %s', (qid,))
 
             qtype = cursor.fetchone()
             if qtype is None:
                 return -1
 
-            cursor.execute('select qid from user_responses where uid = ? and qid = ?', (uid,qid))
+            cursor.execute('select qid from user_responses where uid = %s and qid = %s', (uid,qid))
             exists = cursor.fetchone()
 
             already_answered = False
@@ -139,7 +142,7 @@ class QuestionSave:
                 already_answered = True
 
             if not already_answered:
-                cursor.execute('insert into user_responses (uid, qid) values (?, ?)', (uid, qid))
+                cursor.execute('insert into user_responses (uid, qid) values (%s, %s)', (uid, qid))
 
             conn.commit()
 
@@ -148,7 +151,7 @@ class QuestionSave:
             
 
             if qtype == 'multiple_choice':
-                cursor.execute('select answer from multiple_choice where qid = ?', (qid,))
+                cursor.execute('select answer from multiple_choice where qid = %s', (qid,))
                 answer = cursor.fetchone()[0]
                 print(f"answer: {answer}")
                 print(f"response: {response}")
@@ -163,7 +166,7 @@ class QuestionSave:
 
 
             elif qtype == 'true_false':
-                cursor.execute('select correct from true_false where qid = ?', (qid,))
+                cursor.execute('select correct from true_false where qid = %s', (qid,))
                 answer = cursor.fetchone()
                 if response == answer:
                     is_correct = True
@@ -175,7 +178,7 @@ class QuestionSave:
 
 
             elif qtype == 'code_blocks':
-                cursor.execute('select answer from code_blocks where qid = ?', (qid,))
+                cursor.execute('select answer from code_blocks where qid = %s', (qid,))
                 answer = cursor.fetchone()
                 if response == answer:
                     is_correct = True
@@ -188,7 +191,7 @@ class QuestionSave:
 
 
             elif qtype == 'free_response':
-                cursor.execute('select prof_answer from free_response where qid = ?', (qid,))
+                cursor.execute('select prof_answer from free_response where qid = %s', (qid,))
                 answer = cursor.fetchone()
                 if answer is None:
                     return jsonify({"error": "Unable to submit"}), 404
@@ -207,34 +210,34 @@ class QuestionSave:
             if is_correct:
                 streaks_service.update_streak(uid, currtime)
             #Step 4: Update Points
-                cursor.execute('UPDATE users SET uincorrect = 0 WHERE uid = ?', (uid,))
+                cursor.execute('UPDATE users SET uincorrect = 0 WHERE uid = %s', (uid,))
                 conn.commit()
-                cursor.execute('select ucorrect from users where uid = ?', (uid,))
+                cursor.execute('select ucorrect from users where uid = %s', (uid,))
                 num_correct = cursor.fetchone()[0]
-                cursor.execute('update users set ucorrect = ? where uid = ?', (num_correct+1, uid,))
+                cursor.execute('update users set ucorrect = ? where uid = %s', (num_correct+1, uid,))
                 conn.commit()
                 new_points = 1*get_multiplier(num_correct)
 
 
             else:
-                cursor.execute('UPDATE users SET ucorrect = 0 WHERE uid = ?', (uid,))
+                cursor.execute('UPDATE users SET ucorrect = 0 WHERE uid = %s', (uid,))
                 conn.commit()
-                cursor.execute('select uincorrect from users where uid = ?', (uid,))
+                cursor.execute('select uincorrect from users where uid = %s', (uid,))
                 num_wrong = cursor.fetchone()[0]
 
                 new_points = -1*get_multiplier(num_wrong)
-                cursor.execute('update users set uincorrect = ? where uid = ?', (num_wrong + 1, uid,))
+                cursor.execute('update users set uincorrect = %s where uid = %s', (num_wrong + 1, uid,))
                 conn.commit()
 
             print("check 3")
 
-            cursor.execute('select upoints from users where uid = ?', (uid,))
+            cursor.execute('select upoints from users where uid = %s', (uid,))
             curr_points = cursor.fetchone()[0]
 
             print(f"Current Points: {curr_points}")
             print(f"New Points: {new_points}")
             print(f"Total: {curr_points + new_points}")
-            cursor.execute('update users set upoints = ? where uid = ?', (curr_points+new_points, uid,))
+            cursor.execute('update users set upoints = %s where uid = %s', (curr_points+new_points, uid,))
 
 
 

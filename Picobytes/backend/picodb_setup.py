@@ -2,6 +2,7 @@ import psycopg
 from psycopg.rows import dict_row
 from db_info import *
 
+
 def create_table():
     try:
         # Creating questions table

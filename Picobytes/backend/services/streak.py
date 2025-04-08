@@ -7,6 +7,7 @@ import psycopg
 from psycopg.rows import dict_row
 from db_info import *
 
+
 class Streaks:
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""

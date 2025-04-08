@@ -10,6 +10,7 @@ from psycopg.rows import dict_row
 from db_info import *
 
 
+
 streaks_service = Streaks()
 analytics_service = AnalyticsService()
 

@@ -3,7 +3,7 @@ from typing import Dict, List, Any
 from datetime import datetime, timedelta
 import psycopg
 from psycopg.rows import dict_row
-from Picobytes.backend.db_info import *
+from db_info import *
 
 class AnalyticsService:
     '''def __init__(self, db_path="pico.db",):

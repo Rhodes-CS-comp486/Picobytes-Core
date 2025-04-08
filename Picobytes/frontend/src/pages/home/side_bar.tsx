@@ -79,15 +79,17 @@ const SideBar = ({ toggleDark }: Prop) => {
           <span className="material-icon">☾</span>
           <span>Theme</span>
         </div>
-      </nav>
+        
 
-      <div className="sidebar-footer">
-        <div className="nav-item" onClick={handleLogout}>
-          <span className="material-icon">🚪</span>
-          <span>Logout</span>
+        <div className="sidebar-footer">
+          <div className="nav-item" onClick={handleLogout}>
+            <span className="material-icon">🚪</span>
+            <span>Logout</span>
+          </div>
         </div>
+      </nav>
       </div>
-    </div>
+
   );
 };
 

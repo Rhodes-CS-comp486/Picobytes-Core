@@ -12,6 +12,9 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --side-bar-width1: 220px 1fr 350px;
+  --side-bar-width2: 220px 1fr;
 }
 
 a {

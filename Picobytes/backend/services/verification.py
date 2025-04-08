@@ -2,7 +2,7 @@ import os
 import sqlite3
 import psycopg
 from psycopg.rows import dict_row
-from Picobytes.backend.db_info import *
+from db_info import *
 
 
 

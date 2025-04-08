@@ -2,7 +2,7 @@ import random
 import os
 import psycopg
 from psycopg.rows import dict_row
-from Picobytes.backend.db_info import *
+from db_info import *
 
 class FR_QuestionFetcher:
 

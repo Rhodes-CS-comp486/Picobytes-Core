@@ -24,7 +24,7 @@ class AnalyticsService:
     
 
         
-    def record_question_attempt(self, qid: int, is_correct: bool, uid: str = None) -> bool:
+    def record_question_attempt(self, qid: int, is_correct: bool, uid: str) -> bool:
         """
         Record a question attempt in the analytics database
         
@@ -35,7 +35,8 @@ class AnalyticsService:
         """
         conn = self._get_db_connection()
         try:
-            cursor = conn.execute(
+            cursor = conn.cursor()
+            cursor.execute(
                 "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (?, ?, ?)",
                 (qid, uid, is_correct)
             )

@@ -454,18 +454,17 @@ def submit_answer():
             return jsonify({"error": "Missing uid"})
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
-        # if response == null:
-        #     return jsonify({"error": "Missing response"}), 400
+        if not response:
+            return jsonify({"error": "Missing response"}), 400
 
         # Get the question to verify the correct answer
-        question_data = json.loads(question_fetcher_service.get_question(int(question_id)).get_data("answer"))
+        correctanswer = question_fetcher_service.get_answer(question_id)
 
-        if not question_data:
+        if not correctanswer:
             return jsonify({"error": "Question not found"}), 404
 
-        correct_answer = question_data['answer']
 
-        is_correct = json.loads(question_save_service.save_question(uid, question_id, response).get_data())
+        is_correct = question_save_service.save_question(uid, question_id, response)
 
         print(f"Is Correct ({type(is_correct)}: {is_correct})")
 
@@ -479,7 +478,7 @@ def submit_answer():
         return jsonify({
             'success': True,
             'is_correct': is_correct,
-            'correct_answer': correct_answer
+            'correct_answer': correctanswer
         })
 
     except Exception as e:

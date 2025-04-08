@@ -33,7 +33,7 @@ class QuestionSave:
 
     def _connect(self):
         """Establish and return a database connection."""
-        return psycopg.connect(self.db_url, row_factory=dict_row)
+        return psycopg.connect(self.db_url)
 
 
     def save_mc_response(self, uid, qid, response):
@@ -119,7 +119,8 @@ class QuestionSave:
     def save_question(self, uid, qid, response):
         try:
             #Step 1. Save Answer
-
+            conn = self._connect()
+            cursor = conn.cursor()
             is_correct : bool = False
             currtime = time.time()
 
@@ -143,6 +144,9 @@ class QuestionSave:
             if not already_answered:
                 cursor.execute('insert into user_responses (uid, qid) values (%s, %s)', (uid, qid))
 
+            if already_answered:
+                return jsonify('question already answered')
+
             conn.commit()
 
             qtype = qtype[0]
@@ -160,7 +164,7 @@ class QuestionSave:
                     return jsonify({"error": "Unable to submit"}), 404
                 
                 if not already_answered:
-                    cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (?, ?, ?, ?)', (uid, qid, response, answer))
+                    cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (%s, %s, %s, %s)', (uid, qid, response, answer))
                 conn.commit()
 
 
@@ -213,7 +217,7 @@ class QuestionSave:
                 conn.commit()
                 cursor.execute('select ucorrect from users where uid = %s', (uid,))
                 num_correct = cursor.fetchone()[0]
-                cursor.execute('update users set ucorrect = ? where uid = %s', (num_correct+1, uid,))
+                cursor.execute('update users set ucorrect = %s where uid = %s', (num_correct+1, uid,))
                 conn.commit()
                 new_points = 1*get_multiplier(num_correct)
 
@@ -246,11 +250,11 @@ class QuestionSave:
 
             conn.commit()
 
-            return jsonify({"is_correct": is_correct})
+            return {'is_correct': is_correct}
             
         except Exception as e:
             print(f"Error saving response: {e}")
-            return jsonify({"error": {e}})
+            return jsonify({"error": str(e)})
 
 
 

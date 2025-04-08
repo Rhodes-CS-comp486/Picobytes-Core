@@ -9,6 +9,7 @@ from services.code_blocks_question_pull import CB_QuestionFetcher
 from services.free_response_question_pull import FR_QuestionFetcher
 from services.mc_question_pull import MC_QuestionFetcher
 from services.tf_question_pull import QuestionService
+import json
 
 mc_question_service = MC_QuestionFetcher()
 tf_question_service = QuestionService()
@@ -116,7 +117,14 @@ class GetQuestions:
 
             else:
                 return jsonify("Server Error. Please try again later.")
-
         except Exception as e:
             print(f"Error fetching questions: {e}")
             return jsonify({"error": str(e)}), 500
+
+    def get_answer(self, qid):
+        response = self.get_question(qid)
+        raw_data = response.get_data(as_text=True)  # get raw data as string
+        questiondata = json.loads(raw_data)  # convert JSON string to dict
+        answer = questiondata.get('answer')
+        return answer
+

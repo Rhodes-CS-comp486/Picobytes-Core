@@ -3,8 +3,7 @@ from flask import jsonify
 import os
 import psycopg
 from psycopg.rows import dict_row
-from Picobytes.backend.db_info import *
-
+from db_info import *
 # Change absolute imports to relative imports
 from services.code_blocks_question_pull import CB_QuestionFetcher
 from services.free_response_question_pull import FR_QuestionFetcher

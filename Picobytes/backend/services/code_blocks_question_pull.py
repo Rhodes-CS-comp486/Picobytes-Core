@@ -3,8 +3,7 @@ import random
 import os
 import psycopg
 from psycopg.rows import dict_row
-from Picobytes.backend.db_info import *
-
+from db_info import *
 class CB_QuestionFetcher:
 
     def __init__(self, db_filename="pico.db"):

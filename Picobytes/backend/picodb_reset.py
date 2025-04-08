@@ -1,6 +1,5 @@
 import psycopg
-from Picobytes.backend.db_info import *
-
+from db_info import *
 
 def reset_tables():
     try:

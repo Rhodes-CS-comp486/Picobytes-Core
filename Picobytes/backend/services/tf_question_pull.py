@@ -2,8 +2,7 @@ import sqlite3
 import os
 import psycopg
 from psycopg.rows import dict_row
-from Picobytes.backend.db_info import *
-
+from db_info import *
 class QuestionService:
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""

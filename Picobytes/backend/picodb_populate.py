@@ -1,8 +1,7 @@
 import hashlib
 import psycopg
 from psycopg.rows import dict_row
-from Picobytes.backend.db_info import *
-
+from db_info import *
 from services.user_funcs import UserFuncs
 
 

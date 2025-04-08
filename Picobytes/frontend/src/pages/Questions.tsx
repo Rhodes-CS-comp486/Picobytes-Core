@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Home_Header from './home/home_header';
 import './questions.css';
+import SideBar from './home/side_bar';
+
+interface Prop {
+  toggleDark: () => void;
+}
 
 interface QuestionData {
   questions: {
@@ -11,7 +16,8 @@ interface QuestionData {
   total_questions: number;
 }
 
-const Questions = () => {
+/// MAIN CONTENT //////////////////////////////
+const Questions = ({toggleDark} : Prop) => {
   const [data, setData] = useState<QuestionData | null>(null);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -68,6 +74,7 @@ const Questions = () => {
   return (
     <div className="duolingo-question-page">
       <Home_Header toggleOverlay={() => {}} />
+      <SideBar toggleDark={toggleDark}/>
       <div className="questions-page">
         <h1>All Questions ({data.total_questions} total)</h1>
         

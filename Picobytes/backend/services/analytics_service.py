@@ -1,20 +1,31 @@
 import sqlite3
 from typing import Dict, List, Any
 from datetime import datetime, timedelta
+import psycopg
+from psycopg.rows import dict_row
+from db_info import *
 
 class AnalyticsService:
-    def __init__(self, db_path="pico.db",):
+    '''def __init__(self, db_path="pico.db",):
         self.db_path = db_path
 
     
     def _get_db_connection(self):
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        return conn
+        return conn'''
+
+    def __init__(self, db_filename="pico.db"):
+        """Initialize the connection to the SQLite database located one directory above."""
+        self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+
+    def _get_db_connection(self):
+        """Establish and return a database connection."""
+        return psycopg.connect(self.db_url, row_factory=dict_row)
     
 
         
-    def record_question_attempt(self, qid: int, is_correct: bool, uid: str = None) -> bool:
+    def record_question_attempt(self, qid: int, is_correct: bool, uid: str) -> bool:
         """
         Record a question attempt in the analytics database
         
@@ -25,7 +36,8 @@ class AnalyticsService:
         """
         conn = self._get_db_connection()
         try:
-            cursor = conn.execute(
+            cursor = conn.cursor()
+            cursor.execute(
                 "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (?, ?, ?)",
                 (qid, uid, is_correct)
             )

@@ -8,6 +8,8 @@ import Question from "./pages/question";
 import AccountCreate from "./pages/createAccount";
 import Questions from "./pages/Questions"; //import new Questions component
 import AdminDashboard from "./pages/admin/AdminDashboard"; //import new AdminDashboard component
+import ManageQuestions from "./pages/admin/ManageQuestions"; // import ManageQuestions component
+import AddQuestion from "./pages/admin/AddQuestion"; // import AddQuestion component
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 import Settings from "./pages/settings";
@@ -71,13 +73,24 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
-            <Route path="/question/:id" element={<Question />} />
+            <Route path="/question/:id" element={<Question toggleDark={toggleDark}/>} />
             <Route path="topic_select" element={<Topic_Select />} />
             <Route path="/questions" element={<Questions />} />
+            <Route path="/questions" element={<Questions toggleDark={toggleDark} />} />
             <Route path="/questionsT/:id" element={<QuestionTopic />} />
             <Route path="/admin/dashboard" element={
               <AdminRoute>
                 <AdminDashboard />
+              </AdminRoute>
+            } />
+            <Route path="/admin/manage-questions" element={
+              <AdminRoute>
+                <ManageQuestions />
+              </AdminRoute>
+            } />
+            <Route path="/admin/add-question" element={
+              <AdminRoute>
+                <AddQuestion />
               </AdminRoute>
             } />
             <Route path="/accountcreate" element={<AccountCreate />} />

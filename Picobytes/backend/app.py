@@ -21,6 +21,13 @@ import sqlite3
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from email_notifications.handle_emails import handle_emails
+import psycopg
+from psycopg.rows import dict_row
+from db_info import *
+
+
+# Connect to an existing database
+conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=practice user={DBUSER} password={DBPASS}")
 
 
 
@@ -102,11 +109,11 @@ def getleaderboard():
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):
     """API endpoint to fetch a question by ID."""
-    #if verification_service.verify_user(uid):
+    print(qid)
     response = question_fetcher_service.get_question(qid)
+
     return response
-    #else:
-      #  return jsonify({'error': 'User not found'}), 401
+
 
 
 
@@ -179,25 +186,6 @@ def update_user_status():
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'Failed to update user status'}), 500
-
-
-@app.route('/api/submit_question', methods=['POST'])
-def submit_question():
-    data = request.get_json()
-    uid = data.get('uid')
-    qid = data.get('qid')
-    response = data.get('response')
-
-    if not uid:
-        return jsonify({"error": "Missing user id"}), 400
-    if not qid:
-        return jsonify({"error": "Missing question id"}), 400
-    if not response:
-        return jsonify({"error": "Missing response"}), 400
-
-    question_save_service.save_question(uid, qid, response)
-
-    return jsonify({'uid': uid})
 
 @app.route('/api/topics', methods=['GET'])
 def get_topics():
@@ -314,8 +302,12 @@ def create_account():
     upassword = data.get('upassword')
     uemail = data.get('uemail')
 
-    if not uname or not upassword:
-        return jsonify({'error': 'Missing username or password'}), 400
+    if not uname:
+        return jsonify({'error': 'Missing username or password or email'}), 400
+    elif not upassword:
+        return jsonify({'error': 'Missing password'}), 400
+    elif not uemail:
+        return jsonify({'error': 'Missing email'}), 400
     hashed_password = hashlib.sha256(upassword.encode()).hexdigest()
     uid = user_service.add_user(uname, hashed_password, uemail, 0)
     if uid is None:
@@ -431,37 +423,63 @@ def get_usage_stats():
     return jsonify(data)
 
 
+# @app.route('/api/submit_question', methods=['POST'])
+# def submit_question():
+#     data = request.get_json()
+#     uid = data.get('uid')
+#     qid = data.get('qid')
+#     response = data.get('response')
+
+#     if not uid:
+#         return jsonify({"error": "Missing user id"}), 400
+#     if not qid:
+#         return jsonify({"error": "Missing question id"}), 400
+#     if not response:
+#         return jsonify({"error": "Missing response"}), 400
+
+#     question_save_service.save_question(uid, qid, response)
+
+#     return jsonify({'uid': uid})
+
+
 @app.route('/api/submit_answer', methods=['POST'])
 def submit_answer():
     try:
         data = request.get_json()
         question_id = data.get('question_id')
-        selected_answer = data.get('selected_answer')
+        response = data.get('response')
         uid = data.get('uid')  # Extract UID from request
 
+        if not uid:
+            return jsonify({"error": "Missing uid"})
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
-        if selected_answer is None:
-            return jsonify({"error": "Missing selected_answer"}), 400
+        # if response == null:
+        #     return jsonify({"error": "Missing response"}), 400
 
         # Get the question to verify the correct answer
-        question_data = mc_question_service.get_question_by_id(int(question_id))
+        question_data = json.loads(question_fetcher_service.get_question(int(question_id)).get_data("answer"))
+
         if not question_data:
             return jsonify({"error": "Question not found"}), 404
 
-        correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
-        is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
+        correct_answer = question_data['answer']
 
-        # Record this question attempt in analytics with the UID if available
-        analytics_service.record_question_attempt(int(question_id), is_correct, uid)
+        is_correct = json.loads(question_save_service.save_question(uid, question_id, response).get_data())
 
-        # Here you would typically save the user's answer to your database
-        # For now, we'll just return whether it was correct or not
+        print(f"Is Correct ({type(is_correct)}: {is_correct})")
+
+        if "error" in is_correct:
+            return is_correct
+
+        # is_correct : bool = False
+        # if (question_data)
+
 
         return jsonify({
             'success': True,
             'is_correct': is_correct,
-            'correct_answer_index': correct_answer_index
+            'correct_answer': correct_answer
         })
 
     except Exception as e:
@@ -490,6 +508,245 @@ def check_user(username):
         return jsonify({
             'exists': False
         }), 404
+
+
+@app.route('/api/admin/dashboard/activity-summary', methods=['GET'])
+def get_activity_summary():
+    uid = request.args.get('uid')
+    if not validate_admin_access(uid):
+        return jsonify({'error': 'Unauthorized access'}), 403
+        
+    time_range = request.args.get('range', '30d')
+    data = admin_service.get_activity_summary(time_range)
+    return jsonify(data)
+
+
+@app.route('/api/admin/all_questions', methods=['GET'])
+def get_all_questions():
+    """API endpoint to get all questions for admin management."""
+    try:
+        uid = request.args.get('uid')
+        
+        if not validate_admin_access(uid):
+            return jsonify({'error': 'Unauthorized access'}), 403
+        
+        conn = sqlite3.connect('pico.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        # Get all questions with their active status
+        cursor.execute("""
+            SELECT qid, qtext, qtype, qlevel, qtopic, qactive
+            FROM questions
+            ORDER BY qid DESC
+        """)
+        
+        questions = []
+        for row in cursor.fetchall():
+            questions.append({
+                'qid': row['qid'],
+                'qtext': row['qtext'],
+                'qtype': row['qtype'],
+                'qlevel': row['qlevel'],
+                'qtopic': row['qtopic'],
+                'qactive': row['qactive'] == 1
+            })
+        
+        conn.close()
+        
+        return jsonify({'questions': questions}), 200
+        
+    except Exception as e:
+        print(f"Error in get_all_questions endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
+@app.route('/api/admin/update_question', methods=['POST'])
+def update_question():
+    """API endpoint to update a question's properties."""
+    try:
+        data = request.get_json()
+        uid = data.get('uid')
+        qid = data.get('qid')
+        updates = data.get('updates', {})
+        
+        if not validate_admin_access(uid):
+            return jsonify({'error': 'Unauthorized access'}), 403
+            
+        if not qid:
+            return jsonify({"error": "Missing question ID"}), 400
+            
+        if not updates:
+            return jsonify({"error": "No updates provided"}), 400
+        
+        conn = sqlite3.connect('pico.db')
+        cursor = conn.cursor()
+        
+        # Build the update query dynamically based on the provided updates
+        update_fields = []
+        update_values = []
+        
+        valid_fields = ['qtext', 'qlevel', 'qtopic', 'qactive']
+        for field, value in updates.items():
+            if field in valid_fields:
+                update_fields.append(f"{field} = ?")
+                # Convert boolean to integer for SQLite
+                if field == 'qactive' and isinstance(value, bool):
+                    update_values.append(1 if value else 0)
+                else:
+                    update_values.append(value)
+        
+        if not update_fields:
+            return jsonify({"error": "No valid update fields provided"}), 400
+            
+        # Add qid to values
+        update_values.append(qid)
+        
+        # Execute the update
+        query = f"UPDATE questions SET {', '.join(update_fields)} WHERE qid = ?"
+        cursor.execute(query, update_values)
+        conn.commit()
+        
+        # Check if any rows were affected
+        if cursor.rowcount == 0:
+            conn.close()
+            return jsonify({"error": "Question not found or no changes made"}), 404
+            
+        conn.close()
+        
+        return jsonify({"success": True, "message": "Question updated successfully"}), 200
+        
+    except Exception as e:
+        print(f"Error in update_question endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
+@app.route('/api/admin/bulk_update_questions', methods=['POST'])
+def bulk_update_questions():
+    """API endpoint to update multiple questions at once."""
+    try:
+        data = request.get_json()
+        uid = data.get('uid')
+        question_ids = data.get('question_ids', [])
+        updates = data.get('updates', {})
+        
+        if not validate_admin_access(uid):
+            return jsonify({'error': 'Unauthorized access'}), 403
+            
+        if not question_ids:
+            return jsonify({"error": "No question IDs provided"}), 400
+            
+        if not updates:
+            return jsonify({"error": "No updates provided"}), 400
+        
+        conn = sqlite3.connect('pico.db')
+        cursor = conn.cursor()
+        
+        # Build the update query dynamically based on the provided updates
+        update_fields = []
+        update_values = []
+        
+        valid_fields = ['qlevel', 'qtopic', 'qactive']
+        for field, value in updates.items():
+            if field in valid_fields:
+                update_fields.append(f"{field} = ?")
+                # Convert boolean to integer for SQLite
+                if field == 'qactive' and isinstance(value, bool):
+                    update_values.append(1 if value else 0)
+                else:
+                    update_values.append(value)
+        
+        if not update_fields:
+            return jsonify({"error": "No valid update fields provided"}), 400
+        
+        # Use parameterized query with placeholders for the IN clause
+        placeholders = ','.join('?' for _ in question_ids)
+        query = f"UPDATE questions SET {', '.join(update_fields)} WHERE qid IN ({placeholders})"
+        
+        # Combine update values with question IDs
+        cursor.execute(query, update_values + question_ids)
+        conn.commit()
+        
+        # Get the number of updated rows
+        updated_count = cursor.rowcount
+        
+        conn.close()
+        
+        return jsonify({
+            "success": True, 
+            "message": f"Successfully updated {updated_count} questions"
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in bulk_update_questions endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
+@app.route('/api/admin/delete_question', methods=['POST'])
+def delete_question():
+    """API endpoint to delete a question."""
+    try:
+        data = request.get_json()
+        uid = data.get('uid')
+        qid = data.get('qid')
+        
+        if not validate_admin_access(uid):
+            return jsonify({'error': 'Unauthorized access'}), 403
+            
+        if not qid:
+            return jsonify({"error": "Missing question ID"}), 400
+        
+        conn = sqlite3.connect('pico.db')
+        cursor = conn.cursor()
+        
+        # Get the question type
+        cursor.execute("SELECT qtype FROM questions WHERE qid = ?", (qid,))
+        question = cursor.fetchone()
+        
+        if not question:
+            conn.close()
+            return jsonify({"error": "Question not found"}), 404
+            
+        qtype = question[0]
+        
+        # Begin transaction
+        conn.execute("BEGIN TRANSACTION")
+        
+        try:
+            # Delete from the type-specific table
+            if qtype == 'multiple_choice':
+                cursor.execute("DELETE FROM multiple_choice WHERE qid = ?", (qid,))
+            elif qtype == 'true_false':
+                cursor.execute("DELETE FROM true_false WHERE qid = ?", (qid,))
+            elif qtype == 'free_response':
+                cursor.execute("DELETE FROM free_response WHERE qid = ?", (qid,))
+            elif qtype == 'code_blocks':
+                cursor.execute("DELETE FROM code_blocks WHERE qid = ?", (qid,))
+            
+            # Delete user responses
+            cursor.execute("DELETE FROM user_responses WHERE qid = ?", (qid,))
+            
+            # Delete from questions table
+            cursor.execute("DELETE FROM questions WHERE qid = ?", (qid,))
+            
+            # Commit the transaction
+            conn.commit()
+        except Exception as e:
+            # Rollback in case of error
+            conn.rollback()
+            conn.close()
+            raise e
+        
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "message": "Question deleted successfully"
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in delete_question endpoint: {e}")
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
 if __name__ == '__main__':

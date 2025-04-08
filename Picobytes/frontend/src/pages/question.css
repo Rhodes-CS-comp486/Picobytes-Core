@@ -1,12 +1,18 @@
 /* Duolingo-inspired Question Page Styling */
 
 .duolingo-question-page {
-    display: flex;
-    flex-direction: column;
+    /*display: flex;
+    flex-direction: column;*/
+    display: grid;
+    grid-template-columns: 220px 1fr;/*var(--side-bar-width2, 220px 1fr)*/
     min-height: 100vh;
-    background-color: #111827;
+    background-color: var(--first-bg-color);
     font-family: 'Nunito', sans-serif;
   }
+
+.duolingo-question-page .sidebar.collapsed {
+  --side-bar-width2: auto;
+}
   
   .question-content {
     max-width: 800px;
@@ -43,7 +49,7 @@
   
   .progress-filled {
     height: 100%;
-    background-color: #58cc02;
+    background-color: var(--primary-theme-color);
     border-radius: 6px;
     transition: width 0.3s ease;
   }
@@ -69,7 +75,7 @@
   }
   
   .progress-marker.completed {
-    background-color: #58cc02;
+    background-color: var(--primary-theme-color);
   }
   
   .progress-marker:hover {
@@ -136,11 +142,11 @@
   
   /* Question card */
   .question-card {
-    background-color: #1f2937;
+    background-color: var(--second-bg-color);
     border-radius: 16px;
     padding: 30px;
     width: 100%;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow-default);
     margin-bottom: 30px;
     transition: transform 0.3s ease;
   }
@@ -148,7 +154,7 @@
   .question-text {
     font-size: 24px;
     font-weight: 700;
-    color: white;
+    color: black;
     margin-bottom: 30px;
     text-align: center;
     line-height: 1.4;
@@ -172,18 +178,23 @@
   .option-button {
     padding: 16px;
     border-radius: 12px;
-    background-color: #2d3748;
+    background-color: var(--third-bg-color);
     border: 2px solid transparent;
     cursor: pointer;
     width: 100%;
     text-align: left;
     transition: all 0.2s ease;
   }
-  
+
+
+  .options-container button {
+    background-color: var(--second-bg-color);
+  }
+
   .option-button:hover:not(:disabled) {
-    background-color: #374151;
+    background-color: var(--question-button-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow-default);
   }
   
   .option-button:disabled {
@@ -209,10 +220,17 @@
     font-size: 18px;
   }
   
+  .light-mode .option-text {
+    color: black;
+  }
+
+  .dark-mode .option-text {
+    color: white;
+  }
+
   .option-text {
     font-size: 18px;
     font-weight: 600;
-    color: white;
     flex-grow: 1;
   }
   

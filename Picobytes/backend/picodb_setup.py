@@ -1,15 +1,24 @@
-import sqlite3
+import psycopg
+from psycopg.rows import dict_row
+from db_info import *
+
 
 def create_table():
     try:
-
-        #creating questions table
-        connection = sqlite3.connect("pico.db")
-        cursor = connection.cursor()
+        # Creating questions table
+        conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}")
+        print(f"Database: {conn.info.dbname}")
+        print(f"User: {conn.info.user}")
+        print(f"Host: {conn.info.host}")
+        print(f"Port: {conn.info.port}")
+        print(f"Backend PID: {conn.info.backend_pid}")
+        print(f"Server version: {conn.info.server_version}")
+        print(f"Default client encoding: {conn.info.encoding}")
+        cursor = conn.cursor()
 
         cursor.execute("""
-                CREATE TABLE IF NOT EXISTS questions (
-                qid INTEGER PRIMARY KEY AUTOINCREMENT,
+            CREATE TABLE IF NOT EXISTS questions (
+                qid SERIAL PRIMARY KEY,
                 qtext TEXT NOT NULL,
                 qtype TEXT NOT NULL,
                 qlevel TEXT NOT NULL,
@@ -17,227 +26,206 @@ def create_table():
                 qactive BOOLEAN NOT NULL
             );""")
 
-        connection.commit()
+        conn.commit()
         print("questions table created successfully")
 
 
-
-        #creating True/False Table
+        # Creating True/False Table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS true_false (
-                qid INTEGER PRIMARY KEY,  -- Matches qid from questions
+                qid INTEGER PRIMARY KEY,
                 correct BOOLEAN NOT NULL,
                 FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
-                );""")
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("true_false table created successfully")
 
 
-        # creating Multiple choice Table
+        # Creating Multiple Choice Table
         cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS multiple_choice (
-                        qid INTEGER PRIMARY KEY,  -- Matches qid from questions
-                        option1 STRING NOT NULL,
-                        option2 STRING NOT NULL,
-                        option3 STRING NOT NULL,
-                        option4 STRING NOT NULL,
-                        answer INTEGER CHECK (answer BETWEEN 1 AND 4),
-                        FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
-                        );""")
+            CREATE TABLE IF NOT EXISTS multiple_choice (
+                qid INTEGER PRIMARY KEY,
+                option1 TEXT NOT NULL,
+                option2 TEXT NOT NULL,
+                option3 TEXT NOT NULL,
+                option4 TEXT NOT NULL,
+                answer INTEGER CHECK (answer BETWEEN 1 AND 4),
+                FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("multiple choice table created successfully")
 
 
-
-
-
-
-        # creating code blocks choice Table
+        # Creating Code Blocks Table
         cursor.execute("""
-                           CREATE TABLE IF NOT EXISTS code_blocks (
-                               qid INTEGER PRIMARY KEY,  -- Matches qid from questions
-                               block1 STRING NOT NULL,
-                               block2 STRING NOT NULL,
-                               block3 STRING NOT NULL,
-                               block4 STRING NOT NULL,
-                               block5 STRING NOT NULL,
-                               block6 STRING NOT NULL,
-                               block7 STRING NOT NULL,
-                               block8 STRING NOT NULL,
-                               block9 STRING NOT NULL,
-                               block10 STRING NOT NULL,
-                               answer STRING NOT NULL,
-                               FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
-                               );""")
+            CREATE TABLE IF NOT EXISTS code_blocks (
+                qid INTEGER PRIMARY KEY,
+                block1 TEXT NOT NULL,
+                block2 TEXT NOT NULL,
+                block3 TEXT NOT NULL,
+                block4 TEXT NOT NULL,
+                block5 TEXT NOT NULL,
+                block6 TEXT NOT NULL,
+                block7 TEXT NOT NULL,
+                block8 TEXT NOT NULL,
+                block9 TEXT NOT NULL,
+                block10 TEXT NOT NULL,
+                answer TEXT NOT NULL,
+                FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("code_blocks table created successfully")
 
-        # creating code blocks choice Table
+
+        # Creating Free Response Table
         cursor.execute("""
-                            CREATE TABLE IF NOT EXISTS free_response (
-                                qid INTEGER PRIMARY KEY,  -- Matches qid from questions
-                                prof_answer STRING NOT NULL,
-                                FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
-                                );""")
+            CREATE TABLE IF NOT EXISTS free_response (
+                qid INTEGER PRIMARY KEY,
+                prof_answer TEXT NOT NULL,
+                FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("free_response table created successfully")
 
 
-
-        # User response to multiple_choice
+        # Creating Coding Table
         cursor.execute("""
-                                          CREATE TABLE IF NOT EXISTS coding (
-                                              qid INTEGER PRIMARY KEY,
-                                              starter STRING NOT NULL,
-                                              FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
-                                              );""")
+            CREATE TABLE IF NOT EXISTS coding (
+                qid INTEGER PRIMARY KEY,
+                starter TEXT NOT NULL,
+                FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
+            );""")
 
-        connection.commit()
+        conn.commit()
 
 
+        ##############################################
+        ##########  STORING USER RESPONSES  ##########
+        ##############################################
 
-##############################################
-##########  STORING USER RESPONSES  ##########
-##############################################
-
-        #User responses
+        # User Responses Table
         cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS user_responses (
-                        uid STRING NOT NULL,
-                        qid INTEGER NOT NULL,
-                        PRIMARY KEY (uid, qid)
-                        );""")
+            CREATE TABLE IF NOT EXISTS user_responses (
+                uid TEXT NOT NULL,
+                qid INTEGER NOT NULL,
+                PRIMARY KEY (uid, qid)
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("user_response table created successfully")
 
 
-        #User response to free_response
+        # User Response to Free Response
         cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS user_free_response (
-                        uid STRING NOT NULL,
-                        qid INTEGER NOT NULL,
-                        uanswer STRING NOT NULL,
-                        profanswer STRING NOT NULL,
-                        PRIMARY KEY (uid, qid)
-                        );""")
+            CREATE TABLE IF NOT EXISTS user_free_response (
+                uid TEXT NOT NULL,
+                qid INTEGER NOT NULL,
+                uanswer TEXT NOT NULL,
+                profanswer TEXT NOT NULL,
+                PRIMARY KEY (uid, qid)
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("user free_response table created successfully")
 
 
-
-        # User response to multiple_choice
+        # User Response to Multiple Choice
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_multiple_choice (
-                uid STRING NOT NULL,
+                uid TEXT NOT NULL,
                 qid INTEGER NOT NULL,
                 response INTEGER NOT NULL,
                 correct INTEGER CHECK (correct BETWEEN 1 AND 4),
                 PRIMARY KEY (uid, qid)
-            );
-        """)
-        connection.commit()
+            );""")
 
+        conn.commit()
         print("user multiple_choice table created successfully")
 
 
-
-        # User response to multiple_choice
+        # User Response to Coding
         cursor.execute("""
-                                    CREATE TABLE IF NOT EXISTS user_coding (
-                                        uid STRING NOT NULL,
-                                        qid INTEGER NOT NULL,
-                                        code STRING NOT NULL,
-                                        PRIMARY KEY (uid, qid)
-                                        );""")
+            CREATE TABLE IF NOT EXISTS user_coding (
+                uid TEXT NOT NULL,
+                qid INTEGER NOT NULL,
+                code TEXT NOT NULL,
+                PRIMARY KEY (uid, qid)
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("user coding table created successfully")
 
 
-
-
-        # User response to multiple_choice
+        # User Response to Code Blocks
         cursor.execute("""
-                                            CREATE TABLE IF NOT EXISTS user_code_blocks (
-                                                uid STRING NOT NULL,
-                                                qid INTEGER NOT NULL,
-                                                submission STRING NOT NULL,
-                                                correct STRING NOT NULL,
-                                                PRIMARY KEY (uid, qid)
-                                                );""")
+            CREATE TABLE IF NOT EXISTS user_code_blocks (
+                uid TEXT NOT NULL,
+                qid INTEGER NOT NULL,
+                submission TEXT NOT NULL,
+                correct TEXT NOT NULL,
+                PRIMARY KEY (uid, qid)
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("user_code_blocks table created successfully")
 
 
-        # User response to multiple_choice
+        # User Response to True/False
         cursor.execute("""
-                                    CREATE TABLE IF NOT EXISTS user_true_false (
-                                        uid STRING NOT NULL,
-                                        qid INTEGER NOT NULL,
-                                        response INTEGER NOT NULL,
-                                        correct BOOLEAN NOT NULL,
-                                        PRIMARY KEY (uid, qid)
-                                        );""")
+            CREATE TABLE IF NOT EXISTS user_true_false (
+                uid TEXT NOT NULL,
+                qid INTEGER NOT NULL,
+                response INTEGER NOT NULL,
+                correct BOOLEAN NOT NULL,
+                PRIMARY KEY (uid, qid)
+            );""")
 
-        connection.commit()
-
-
+        conn.commit()
         print("user true false table created successfully")
 
+
+        # Users Table
         cursor.execute("""
-                       CREATE TABLE IF NOT EXISTS users (
-                       uid TEXT PRIMARY KEY,
-                       uname TEXT NOT NULL,
-                       uemail TEXT NOT NULL,
-                       upassword TEXT NOT NULL,
-                       ustreak INTEGER NOT NULL,
-                       ulastanswertime FLOAT NOT NULL,
-                       uincorrect INTEGER NOT NULL,
-                       ucorrect INTEGER NOT NULL,
-                       upoints INTEGER NOT NULL,
-                       uadmin INTEGER CHECK (uadmin BETWEEN 0 AND 1)
-                   );""")
+            CREATE TABLE IF NOT EXISTS users (
+                uid TEXT PRIMARY KEY,
+                uname TEXT NOT NULL,
+                uemail TEXT NOT NULL,
+                upassword TEXT NOT NULL,
+                ustreak INTEGER NOT NULL,
+                ulastanswertime FLOAT NOT NULL,
+                uincorrect INTEGER NOT NULL,
+                ucorrect INTEGER NOT NULL,
+                upoints INTEGER NOT NULL,
+                uadmin INTEGER CHECK (uadmin BETWEEN 0 AND 1)
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("users table created successfully")
 
+
+        # Question Analytics Table
         cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS question_analytics (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        qid INTEGER NOT NULL,
-                        uid TEXT,
-                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        is_correct BOOLEAN NOT NULL
-                    );
-                """)
+            CREATE TABLE IF NOT EXISTS question_analytics (
+                id SERIAL PRIMARY KEY,
+                qid INTEGER NOT NULL,
+                uid TEXT,
+                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_correct BOOLEAN NOT NULL
+            );""")
 
-        connection.commit()
-
+        conn.commit()
         print("question_analytics table created successfully")
 
-        connection.close()
 
-
+        conn.close()
 
     except Exception as e:
         print(f"Error creating table: {e}")
 
 
 if __name__ == "__main__":
-  create_table()
+    create_table()

@@ -58,8 +58,8 @@ const UsageStats: React.FC<UsageStatsProps> = ({ data }) => {
               </div>
               <div className="chart-label">
                 {activeTab === 'daily' 
-                  ? new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-                  : item.week
+                  ? new Date((item as {date: string}).date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                  : ((item as {week: string}).week).replace(' - ', '\n')
                 }
               </div>
             </div>

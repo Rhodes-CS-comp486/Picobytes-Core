@@ -1,3 +1,4 @@
+/*/// PUT THE -- VARIABLES HERE BC YOU will BE AFFECTING SOME OTHER CSS WITHOUT KNOWING /// */  
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -11,6 +12,9 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --side-bar-width1: 220px 1fr 350px;
+  --side-bar-width2: 220px 1fr;
 }
 
 a {
@@ -50,6 +54,8 @@ button {
 button:hover {
   border-color: #646cff;
 }
+
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -78,11 +84,14 @@ input {
   button {
     background-color: var(--primary-theme-color);
   }
+  
   --grid-bg: #FFF;
   --grid-text-color: #242424;
   --border-color: #999999;
 
+
   --card-color: #ffffff;
+  --input-bg: #ffffff;
 
   --subtitle-color: #222529;
 
@@ -97,7 +106,31 @@ input {
   --second-bg-color: #ecf0f5;
   --third-bg-color: #ffffff;
 
- 
+  --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+
+  --question-button-hover: #d8dde4;
+  --question-text-title: #525e6e;
+
+  --inactive-button-bg: #a1acb9;
+  --inactive-button-hover: #bfccdc;
+
+  /* Used primarily in Admin Dashboard */
+  /*--background-primary: #f3f7fb;*/
+  --background-primary: var(--second-bg-color);
+  --background-secondary: #ffffff;
+  
+  --background-accent: #e1e6ec;
+
+  --text-primary: #353a3e;
+  --text-secondary: #61676f; /*used in AddQuestions*/
+  --text-third: #5d7b9d;
+  --text-accent: #49516b;
+
+  --input-background: #1e2235;
+  --accent-green: #4CAF50;
+  --accent-blue: #3182ce;
+  
 }
 
 .dark-mode {
@@ -110,9 +143,10 @@ input {
 
   --grid-bg: #242424;
   --grid-button-text-color: #FFF;
-  --border-color: #4c4c4c;
+  --border-color: #374151;
 
   --card-color: #2d3748;
+  --input-bg: #1e2235;
 
   --subtitle-color : #a0aec0;
 
@@ -125,4 +159,29 @@ input {
   --first-bg-color: #111827;
   --second-bg-color: #1f2937;
   --third-bg-color: #2d3748;
+
+  --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+
+  --question-button-hover: #374151;
+  --question-text-title: --subtitle-color;
+
+  --inactive-button-bg: #a1acb9;
+  --inactive-button-hover: #bfccdc;
+
+  /* Used primarily in Admin Dashboard */
+  --background-primary: #1e2235;
+  --background-secondary: #2a2f45;
+  
+  --background-accent: #3a4a63;
+
+  --text-primary: #e2e8f0;
+  --text-secondary: #a0aec0; /*used in AddQuestions*/
+  --text-third: #bcd0e7;
+  --text-accent: #f0e2e2;
+
+  --accent-green: #4CAF50;
+  --accent-blue: #3182ce;
+
+  
 }

@@ -1,13 +1,14 @@
 import hashlib
-import sqlite3
-
+import psycopg
+from psycopg.rows import dict_row
+from db_info import *
 from services.user_funcs import UserFuncs
 
 
 def insert_sample_questions():
     try:
         # Connect to the database
-        connection = sqlite3.connect("pico.db")
+        connection = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={'pico'} password={'pico'}")
         cursor = connection.cursor()
 
 
@@ -18,7 +19,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "easy",
                 "C Basics",
-                1,
+                True,
                 "*",
                 "address_of()",
                 "@",
@@ -30,7 +31,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "medium",
                 "C Memory Management",
-                1,
+                True,
                 "int ptr = malloc(sizeof(int));",
                 "int *ptr = malloc(sizeof(int));",
                 "int ptr = malloc(sizeof(int *));",
@@ -42,7 +43,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "medium",
                 "C Basics",
-                1,
+                True,
                 "The program will print NULL.",
                 "The program will execute normally.",
                 "The program will cause a segmentation fault.",
@@ -54,7 +55,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "easy",
                 "C Memory Management",
-                1,
+                True,
                 "delete()",
                 "release()",
                 "free()",
@@ -66,7 +67,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "easy",
                 "C Functions",
-                1,
+                True,
                 "It returns the memory address of a variable.",
                 "It determines the size of a data type or variable in bytes.",
                 "It allocates memory for a variable.",
@@ -78,7 +79,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "easy",
                 "Linux",
-                1,
+                True,
                 "ls",
                 "list",
                 "show",
@@ -90,7 +91,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "easy",
                 "Linux",
-                1,
+                True,
                 "Prints the working directory",
                 "Changes the working directory",
                 "Lists all files in the directory",
@@ -102,7 +103,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "medium",
                 "Linux",
-                1,
+                True,
                 "chmod",
                 "chperm",
                 "setperm",
@@ -114,7 +115,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "easy",
                 "Linux",
-                1,
+                True,
                 "ls",
                 "cat",
                 "rm",
@@ -126,7 +127,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "easy",
                 "Linux",
-                1,
+                True,
                 "It manages user accounts",
                 "It updates system software",
                 "It opens the system manual pages for commands",
@@ -138,7 +139,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "hard",
                 "Linux",
-                1,
+                True,
                 ">",
                 ">>",
                 "|",
@@ -150,7 +151,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "medium",
                 "C Basics",
-                1,
+                True,
                 "structPtr.member",
                 "structPtr->member",
                 "*structPtr.member",
@@ -162,7 +163,7 @@ def insert_sample_questions():
                 "multiple_choice",
                 "medium",
                 "C Basics",
-                1,
+                True,
                 "It allows defining a struct without a name.",
                 "It creates a new data type name for the struct.",
                 "It dynamically allocates memory for the struct.",
@@ -177,7 +178,7 @@ def insert_sample_questions():
                 "free_response",  # Changed from "multiple_choice"
                 "easy",
                 "Linux",
-                1,
+                True,
                 "On Unix-style operating systems, programs are executed by specifying an absolute or relative path to their location or if the directory they reside is liked in the PATH environment variable."
             ),
             (
@@ -185,7 +186,7 @@ def insert_sample_questions():
                 "free_response",  # Changed from "multiple_choice"
                 "easy",
                 "C Memory Basics",
-                1,
+                True,
                 "It is stored in data."
             ),
             (
@@ -193,7 +194,7 @@ def insert_sample_questions():
                 "free_response",  # Changed from "multiple_choice"
                 "medium",
                 "C Basics",
-                1,
+                True,
                 "The program’s name or a relative/absolute executable path to that binary executable"
             )
 
@@ -206,7 +207,7 @@ def insert_sample_questions():
                 'code_blocks',
                 'easy',
                 'Programming',
-                1,
+                True,
                 'this',
                 'is',
                 'a',
@@ -229,7 +230,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "easy",
                 "C Basics",
-                1,
+                True,
                 False
             ),
             (
@@ -237,7 +238,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "easy",
                 "C Basics",
-                1,
+                True,
                 False
             ),
             (
@@ -245,7 +246,7 @@ def insert_sample_questions():
             "true_false",  # Changed from "true_false"
             "medium",
             "C Functions",
-            1,
+            True,
             True
             ),
             (
@@ -253,7 +254,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "easy",
                 "C Basics",
-                1,
+                True,
                 True
             ),
             (
@@ -261,7 +262,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "medium",
                 "C Basics",
-                1,
+                True,
                 True
             ),
             (
@@ -269,7 +270,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "medium",
                 "C Basics",
-                1,
+                True,
                 False
             ),
             (
@@ -277,7 +278,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "medium",
                 "C Basics",
-                1,
+                True,
                 False
             ),
             (
@@ -285,7 +286,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "medium",
                 "C Basics",
-                1,
+                True,
                 True
             ),
             (
@@ -293,7 +294,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "easy",
                 "C Memory Management",
-                1,
+                True,
                 False
             ),
             (
@@ -301,7 +302,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "easy",
                 "C Memory Management",
-                1,
+                True,
                 False
             ),
             (
@@ -309,7 +310,7 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "hard",
                 "C Basics",
-                1,
+                True,
                 True
             ),
             (
@@ -317,57 +318,57 @@ def insert_sample_questions():
                 "true_false",  # Changed from "true_false"
                 "hard",
                 "C Basics",
-                1,
+                True,
                 True
             )
         ]
 
-        
+
         # Insert multiple choice questions
         for q in mc_questions:
             # Insert into questions table
             cursor.execute("""
                 INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s) RETURNING qid
             """, (q[0], q[1], q[2], q[3], q[4]))
-            
-            qid = cursor.lastrowid
-            
+
+            qid = cursor.fetchone()[0]
+
             # Insert into multiple_choice table
             cursor.execute("""
                 INSERT INTO multiple_choice (qid, option1, option2, option3, option4, answer)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """, (qid, q[5], q[6], q[7], q[8], q[9]))
-        
+
         # Insert true/false questions
         for q in tf_questions:
             # Insert into questions table
             cursor.execute("""
                 INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s) RETURNING qid
             """, (q[0], q[1], q[2], q[3], q[4]))
-            
-            qid = cursor.lastrowid
-            
+
+            qid = cursor.fetchone()[0]
+
             # Insert into true_false table
             cursor.execute("""
                 INSERT INTO true_false (qid, correct)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             """, (qid, q[5]))
 
         for q in free_response:
             # Insert into questions table
             cursor.execute("""
                 INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (%s, %s, %s, %s, %s) RETURNING qid
             """, (q[0], q[1], q[2], q[3], q[4]))
 
-            qid = cursor.lastrowid
+            qid = cursor.fetchone()[0]
 
             # Insert into free_response table
             cursor.execute("""
                 INSERT INTO free_response (qid, prof_answer)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             """, (qid, q[5]))
 
         # Insert true/false questions
@@ -375,15 +376,15 @@ def insert_sample_questions():
             # Insert into questions table
             cursor.execute("""
                       INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
-                      VALUES (?, ?, ?, ?, ?)
+                      VALUES (%s, %s, %s, %s, %s) RETURNING qid
                   """, (q[0], q[1], q[2], q[3], q[4]))
 
-            qid = cursor.lastrowid
+            qid = cursor.fetchone()[0]
 
             # Insert into true_false table
             cursor.execute("""
                       INSERT INTO code_blocks (qid, block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, answer)
-                      VALUES (?, ?, ?, ?,?,?,?,?,?,?,?,?)
+                      VALUES (%s, %s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s)
                   """, (qid, q[5], q[6], q[7], q[8], q[9], q[10], q[11], q[12], q[13], q[14], q[15]))
 
         # Commit the changes
@@ -413,7 +414,7 @@ def insert_sample_questions():
         print('successfully inserted data')
 
 
-    except sqlite3.Error as e:
+    except psycopg.Error as e:
         print(f"An error occurred: {e}")
         connection.rollback()
 

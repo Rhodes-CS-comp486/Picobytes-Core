@@ -5,7 +5,9 @@ import ActiveUsers from './components/ActiveUsers';
 import PerformanceMetrics from './components/PerformanceMetrics';
 import QuestionStats from './components/QuestionStats';
 import UsageStats from './components/UsageStats';
-import AddQuestion from './components/AddQuestion';
+import UserManagement from './components/UserManagement';
+import EnhancedQuestionStats from './components/EnhancedQuestionStats';
+import UserActivitySummary from './components/UserActivitySummary';
 import Home_Header from '../home/home_header';
 import './AdminDashboard.css';
 
@@ -66,7 +68,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'questions'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'analytics' | 'activity'>('dashboard');
   const [showOverlay, setShowOverlay] = useState(false);
   
   // Keeping state for components
@@ -146,19 +148,9 @@ const AdminDashboard = () => {
     setActiveUsersPeriod(period);
   };
 
-  const handleQuestionAdded = () => {
-    // Refresh question stats data
-    fetch('http://localhost:5000/api/admin/dashboard/question-stats')
-      .then(response => {
-        if (response.ok) return response.json();
-        throw new Error('Failed to refresh question stats');
-      })
-      .then(data => {
-        setQuestionStats(data);
-      })
-      .catch(err => {
-        console.error('Error refreshing question stats:', err);
-      });
+  const handleUserStatusChange = () => {
+    // You could implement additional logic here if needed
+    console.log("User status has been updated");
   };
 
   const toggleOverlay = () => {
@@ -200,10 +192,34 @@ const AdminDashboard = () => {
             Dashboard
           </button>
           <button 
-            className={`tab-button ${activeTab === 'questions' ? 'active' : ''}`}
-            onClick={() => setActiveTab('questions')}
+            className="tab-button"
+            onClick={() => navigate('/admin/manage-questions')}
           >
             Manage Questions
+          </button>
+          <button 
+            className="tab-button"
+            onClick={() => navigate('/admin/add-question')}
+          >
+            Add New Question
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveTab('users')}
+          >
+            User Management
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'analytics' ? 'active' : ''}`}
+            onClick={() => setActiveTab('analytics')}
+          >
+            Question Analytics
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'activity' ? 'active' : ''}`}
+            onClick={() => setActiveTab('activity')}
+          >
+            User Activity
           </button>
           <button onClick={() => navigate('/homepage')} className="back-button">
             Back to Home
@@ -211,7 +227,7 @@ const AdminDashboard = () => {
         </div>
       </header>
       
-      {activeTab === 'dashboard' ? (
+      {activeTab === 'dashboard' && (
         <div className="dashboard-grid">
           <div className="dashboard-card">
             <ActiveUsers onPeriodChange={handlePeriodChange} />
@@ -229,14 +245,23 @@ const AdminDashboard = () => {
             <UsageStats data={usageStats} />
           </div>
         </div>
-      ) : (
-        <div className="questions-management">
-          <AddQuestion onQuestionAdded={handleQuestionAdded} />
-          
-          {/* You could add additional question management features here */}
-          <div className="dashboard-card wide" style={{ marginTop: '30px' }}>
-            <QuestionStats data={questionStats} />
-          </div>
+      )}
+      
+      {activeTab === 'users' && (
+        <div className="users-management-container">
+          <UserManagement onUserStatusChange={handleUserStatusChange} />
+        </div>
+      )}
+      
+      {activeTab === 'analytics' && (
+        <div className="analytics-container">
+          <EnhancedQuestionStats data={questionStats} />
+        </div>
+      )}
+      
+      {activeTab === 'activity' && (
+        <div className="activity-container">
+          <UserActivitySummary />
         </div>
       )}
     </div>

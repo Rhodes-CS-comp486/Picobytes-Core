@@ -187,25 +187,6 @@ def update_user_status():
     else:
         return jsonify({'success': False, 'error': 'Failed to update user status'}), 500
 
-
-@app.route('/api/submit_question', methods=['POST'])
-def submit_question():
-    data = request.get_json()
-    uid = data.get('uid')
-    qid = data.get('qid')
-    response = data.get('response')
-
-    if not uid:
-        return jsonify({"error": "Missing user id"}), 400
-    if not qid:
-        return jsonify({"error": "Missing question id"}), 400
-    if not response:
-        return jsonify({"error": "Missing response"}), 400
-
-    question_save_service.save_question(uid, qid, response)
-
-    return jsonify({'uid': uid})
-
 @app.route('/api/topics', methods=['GET'])
 def get_topics():
     return  jsonify(topic_service.get_topic_list())
@@ -442,37 +423,63 @@ def get_usage_stats():
     return jsonify(data)
 
 
+# @app.route('/api/submit_question', methods=['POST'])
+# def submit_question():
+#     data = request.get_json()
+#     uid = data.get('uid')
+#     qid = data.get('qid')
+#     response = data.get('response')
+
+#     if not uid:
+#         return jsonify({"error": "Missing user id"}), 400
+#     if not qid:
+#         return jsonify({"error": "Missing question id"}), 400
+#     if not response:
+#         return jsonify({"error": "Missing response"}), 400
+
+#     question_save_service.save_question(uid, qid, response)
+
+#     return jsonify({'uid': uid})
+
+
 @app.route('/api/submit_answer', methods=['POST'])
 def submit_answer():
     try:
         data = request.get_json()
         question_id = data.get('question_id')
-        selected_answer = data.get('selected_answer')
+        response = data.get('response')
         uid = data.get('uid')  # Extract UID from request
 
+        if not uid:
+            return jsonify({"error": "Missing uid"})
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
-        if selected_answer is None:
-            return jsonify({"error": "Missing selected_answer"}), 400
+        # if response == null:
+        #     return jsonify({"error": "Missing response"}), 400
 
         # Get the question to verify the correct answer
-        question_data = mc_question_service.get_question_by_id(int(question_id))
+        question_data = json.loads(question_fetcher_service.get_question(int(question_id)).get_data("answer"))
+
         if not question_data:
             return jsonify({"error": "Question not found"}), 404
 
-        correct_answer_index = question_data['answer'] - 1  # Convert from 1-based to 0-based index
-        is_correct = selected_answer[correct_answer_index] and selected_answer.count(True) == 1
+        correct_answer = question_data['answer']
 
-        # Record this question attempt in analytics with the UID if available
-        analytics_service.record_question_attempt(int(question_id), is_correct, uid)
+        is_correct = json.loads(question_save_service.save_question(uid, question_id, response).get_data())
 
-        # Here you would typically save the user's answer to your database
-        # For now, we'll just return whether it was correct or not
+        print(f"Is Correct ({type(is_correct)}: {is_correct})")
+
+        if "error" in is_correct:
+            return is_correct
+
+        # is_correct : bool = False
+        # if (question_data)
+
 
         return jsonify({
             'success': True,
             'is_correct': is_correct,
-            'correct_answer_index': correct_answer_index
+            'correct_answer': correct_answer
         })
 
     except Exception as e:

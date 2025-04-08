@@ -44,18 +44,6 @@ const Homepage = ({ toggleDark }: Prop) => {
   );
   const [streak, setStreak] = useState(-1);
   const [points, setPoints] = useState(-1);
-
-  const navigate = useNavigate();
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [questionStats, setQuestionStats] = useState({
-    totalQuestions: 0,
-    completedQuestions: 0,
-  });
-  // Initialize with empty object, will be populated from API
-  const [topicProgress, setTopicProgress] = useState<Record<string, number>>({});
-  const [isTopicsLoading, setIsTopicsLoading] = useState(true);
-
-
   // Function to apply the S-curve positioning
   const getButtonPosition = (index) => {
     // Calculate S-curve path
@@ -93,9 +81,6 @@ const Homepage = ({ toggleDark }: Prop) => {
     {}
   );
   const [isTopicsLoading, setIsTopicsLoading] = useState(true);
-
-  // Get username from localStorage with fallback
-  const username = localStorage.getItem("username") || "Agent 41";
 
 
   // Get user information

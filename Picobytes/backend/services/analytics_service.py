@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import psycopg
 from psycopg.rows import dict_row
 from db_info import *
+
 class AnalyticsService:
     '''def __init__(self, db_path="pico.db",):
         self.db_path = db_path

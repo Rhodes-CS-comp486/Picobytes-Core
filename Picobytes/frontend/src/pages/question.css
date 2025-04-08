@@ -1,12 +1,18 @@
 /* Duolingo-inspired Question Page Styling */
 
 .duolingo-question-page {
-    display: flex;
-    flex-direction: column;
+    /*display: flex;
+    flex-direction: column;*/
+    display: grid;
+    grid-template-columns: 220px 1fr;/*var(--side-bar-width2, 220px 1fr)*/
     min-height: 100vh;
     background-color: var(--first-bg-color);
     font-family: 'Nunito', sans-serif;
   }
+
+.duolingo-question-page .sidebar.collapsed {
+  --side-bar-width2: auto;
+}
   
   .question-content {
     max-width: 800px;

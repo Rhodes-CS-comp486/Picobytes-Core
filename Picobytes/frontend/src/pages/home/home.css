@@ -77,10 +77,12 @@
   width: 60px; /* Collapsed width */
   background-color: transparent;
   border-right: 1px solid transparent;
+
+  --side-bar-width2: 0px 1fr;
 }
 
 
-.sidebar.collapsed ~ .duolingo-layout {
+.sidebar.collapsed ~ .duolingo {
   grid-template-columns: 60px 1fr 350px;
 }
 

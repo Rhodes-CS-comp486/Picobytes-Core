@@ -1,6 +1,7 @@
 import psycopg
 from db_info import *
 
+
 def reset_tables():
     try:
         with psycopg.connect(

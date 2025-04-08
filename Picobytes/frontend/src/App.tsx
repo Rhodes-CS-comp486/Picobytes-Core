@@ -71,7 +71,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
-            <Route path="/question/:id" element={<Question />} />
+            <Route path="/question/:id" element={<Question toggleDark={toggleDark}/>} />
             <Route path="topic_select" element={<Topic_Select />} />
             <Route path="/questions" element={<Questions toggleDark={toggleDark} />} />
             <Route path="/admin/dashboard" element={

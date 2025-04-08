@@ -4,7 +4,7 @@
     /*display: flex;
     flex-direction: column;*/
     display: grid;
-    grid-template-columns: var(--side-bar-width2, 220px 1fr);
+    grid-template-columns: 220px 1fr;/*var(--side-bar-width2, 220px 1fr)*/
     min-height: 100vh;
     background-color: var(--first-bg-color);
     font-family: 'Nunito', sans-serif;

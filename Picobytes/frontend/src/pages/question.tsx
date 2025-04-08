@@ -3,7 +3,15 @@ import { useNavigate, useParams } from "react-router";
 import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 
-const Question = () => {
+import SideBar from "./home/side_bar";
+
+interface Prop {
+  toggleDark: () => void;
+}
+
+/// MAIN CONTENT //////////
+
+const Question = ({ toggleDark }: Prop) => {
   const [answer, setAnswer] = useState<boolean[] | boolean | string | null>([
     false,
     false,
@@ -197,6 +205,7 @@ const Question = () => {
       <div className="duolingo-question-page">
         <Home_Header toggleOverlay={() => {}} />
         <div className="question-content error-content">
+        <SideBar toggleDark={toggleDark}/>
           <div className="error-container">
             <div className="error-icon">⚠️</div>
             <h1>Error</h1>
@@ -227,6 +236,7 @@ const Question = () => {
     return (
       <div className="duolingo-question-page">
         <Home_Header toggleOverlay={() => {}} />
+        <SideBar toggleDark={toggleDark}/>
 
         <div className="question-content">
           {/* Progress bar */}

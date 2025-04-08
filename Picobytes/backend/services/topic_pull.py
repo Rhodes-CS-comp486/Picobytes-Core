@@ -11,7 +11,8 @@ class Topic_Puller:
 
     def _connect(self):
         """Establish and return a database connection."""
-        return psycopg.connect(self.db_url, row_factory=dict_row)
+        #return psycopg.connect(self.db_url, row_factory=dict_row)
+        return psycopg.connect(self.db_url)
 
 
     def get_fr_by_topic(self, topic):
@@ -20,7 +21,7 @@ class Topic_Puller:
             cursor = conn.cursor()
             cursor.execute(
                 "select qid, qtext, prof_answer, qtype, qlevel"
-                " from free_response natural join questions where qactive = 1 and qtopic = %s",
+                " from free_response natural join questions where qactive = True and qtopic = %s",
                 (topic,))
             questions = cursor.fetchall()
             conn.close()
@@ -35,7 +36,7 @@ class Topic_Puller:
             cursor = conn.cursor()
             cursor.execute(
                 "select qid, qtext, answer, qtype, qlevel"
-                " from code_blocks natural join questions where qactive = 1 and qtopic = %s",
+                " from code_blocks natural join questions where qactive = True and qtopic = %s",
                 (topic,))
             question = cursor.fetchall()
             conn.close()
@@ -50,7 +51,7 @@ class Topic_Puller:
             cursor = conn.cursor()
             cursor.execute(
                 "select qid, qtext, option1, option2, option3, option4, answer, qtype, qlevel"
-                " from multiple_choice natural join questions where qactive = 1 and qtopic = %s",
+                " from multiple_choice natural join questions where qactive = True and qtopic = %s",
                 (topic,))
             question = cursor.fetchall()
             conn.close()
@@ -65,7 +66,7 @@ class Topic_Puller:
             cursor = conn.cursor()
             cursor.execute(
                 "select qid, qtext, correct, qtype, qlevel"
-                " from true_false natural join questions where qactive = 1 and qtopic = %s",
+                " from true_false natural join questions where qactive = True and qtopic = %s",
                 (topic,))
             question = cursor.fetchall()
             conn.close()
@@ -84,7 +85,7 @@ class Topic_Puller:
                 """SELECT qid, qtype, qtext, option1, option2, option3, option4, answer, qlevel 
                    FROM multiple_choice 
                    NATURAL JOIN questions 
-                   WHERE qactive = 1 AND qtopic = %s""",
+                   WHERE qactive = True AND qtopic = %s""",
                 (topic,)
             )
             mc_questions = cursor.fetchall()
@@ -94,20 +95,20 @@ class Topic_Puller:
                 """SELECT qid, qtype, qtext, correct, qlevel 
                    FROM true_false 
                    NATURAL JOIN questions 
-                   WHERE qactive = 1 AND qtopic = %s""",
+                   WHERE qactive = True AND qtopic = %s""",
                 (topic,)
             )
             tf_questions = cursor.fetchall()
 
             cursor.execute(
                 "select qid, qtype, qtext, answer, qlevel"
-                " from code_blocks natural join questions where qactive = 1 and qtopic = ?",
+                " from code_blocks natural join questions where qactive = True and qtopic = %s",
                 (topic,))
             cb_questions = cursor.fetchall()
 
             cursor.execute(
                 "select qid, qtype, qtext, prof_answer, qlevel"
-                " from free_response natural join questions where qactive = 1 and qtopic = ?",
+                " from free_response natural join questions where qactive = True and qtopic = %s",
                 (topic,))
             fr_questions = cursor.fetchall()
 

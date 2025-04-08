@@ -6,6 +6,7 @@ from typing import Dict, List, Any
 from services.analytics_service import AnalyticsService
 import psycopg
 from psycopg.rows import dict_row
+import sqlite3
 from db_info import *
 import random
 

@@ -33,6 +33,7 @@ const Question = () => {
   const qidArray = localStorage.getItem("qidArray")
   ? JSON.parse(localStorage.getItem("qidArray")!)
   : null;
+
 const useQuestionIndex = () => {
     const [index, setIndex] = useState(0);
 
@@ -46,7 +47,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
 
   // Fetch total number of questions
   useEffect(() => {
-    setIndex(parseInt(id!));
+    setIndex(qidArray.indexOf(parseInt(id!)));
     fetch("http://127.0.0.1:5000/api/questions")
       .then((response) => response.json())
       .then((data) => {
@@ -65,7 +66,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
   const fetchQuestion = (questionId: string | undefined) => {
     if (!questionId) return;
     console.log("Fetching question with ID:", index);
-
+``
     // Reset states when fetching a new question
     setFeedback("");
     setError("");
@@ -207,7 +208,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
   };
 
   // Calculate current progress percentage
-  const progressPercentage = id ? (index / qidArray.length) * 100 : 0;
+  const progressPercentage = id ? ((index+1) / qidArray.length) * 100 : 0;
 
   if (error !== "") {
     return (
@@ -220,19 +221,6 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
             <p>{error}</p>
             <p>Question ID: {id}</p>
             <div className="question-nav">
-              <button
-                className="nav-button"
-                onClick={() => {
-                  if (qidArray) {
-                    decrementIndex();
-                    navToQuestion(parseInt(qidArray[index]));
-                  } else {
-                    console.error("qidArray is null");
-                  }
-                }}
-              >
-                Previous Question
-              </button>
               <button className="nav-button home-button" onClick={goToHomepage}>
                 Go to Homepage
               </button>
@@ -240,7 +228,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                 className="nav-button"
                 onClick={() => {
                     if (qidArray) {
-                        incrementIndex();
+                      incrementIndex();
                       navToQuestion(parseInt(qidArray[index]));
                     } else {
                       console.error("qidArray is null");
@@ -263,35 +251,13 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
           {/* Progress bar */}
           <div className="question-progress">
             <div className="progress-info">
-              <span>Question {index} of {qidArray.length}</span>
-              <span>{Math.round(progressPercentage)}% Complete</span>
+              <span>Question {index + 1} of {qidArray.length}</span>
             </div>
             <div className="progress-bar">
               <div
                 className="progress-filled"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
-              {totalQuestions > 0 && Array.from({ length: Math.min(totalQuestions, 20) }, (_, index) => {
-                const questionPosition = ((index + 1) / totalQuestions) * 100;
-                const isCurrentQuestion = parseInt(id!) === index + 1;
-                const isCompletedQuestion = parseInt(id!) > index + 1;
-                return (
-                  <div
-                    key={index}
-                    className={`progress-marker ${isCurrentQuestion ? 'current' : ''} ${isCompletedQuestion ? 'completed' : ''}`}
-                    style={{ left: `${questionPosition}%` }}
-                    title={`Question ${index + 1}`}
-                    onClick={() => {
-                        if (qidArray) {
-                            incrementIndex();
-                          navToQuestion(parseInt(qidArray[index]));
-                        } else {
-                          console.error("qidArray is null");
-                        }
-                      }}
-                  />
-                );
-              })}
             </div>
           </div>
 
@@ -439,19 +405,21 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
               </button>
             ) : (
                 <button
-                className="continue-button"
-                onClick={() => {
-                  if (qidArray) {
-                      incrementIndex();
-                    navToQuestion(parseInt(qidArray[index]));
-                  } else {
-                    console.error("qidArray is null");
-                  }
-                }}
-                disabled={index >= qidArray.length}
-              >
-                Continue
-              </button>
+                  className="continue-button"
+                  onClick={() => {
+                    if (qidArray) {
+                      incrementIndex(); // Increment the index
+                      setTimeout(() => {
+                        navToQuestion(parseInt(qidArray[index + 1])); // Navigate to the next question
+                      }, 0); // Ensure navigation happens after state update
+                    } else {
+                      console.error("qidArray is null");
+                    }
+                  }}
+                  disabled={index >= qidArray.length - 1}
+                >
+                  Continue
+                </button>
               
             )}
           </div>
@@ -459,38 +427,42 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
           {/* Bottom navigation */}
           <div className="bottom-nav">
             <button
-              className="skip-button"
-              onClick={() => {
-                if (qidArray) {
-                    decrementIndex();
-                  navToQuestion(parseInt(qidArray[index]));
-                } else {
-                  console.error("qidArray is null");
-                }
-              }}
-              disabled={index <= 1}
-            >
-              Previous
+                className="skip-button"
+                onClick={() => {
+                    if (qidArray) {
+                    decrementIndex(); // Decrement the index
+                    setTimeout(() => {
+                        navToQuestion(parseInt(qidArray[index - 1])); // Navigate to the previous question
+                    }, 0); // Ensure navigation happens after state update
+                    } else {
+                    console.error("qidArray is null");
+                    }
+                }}
+                disabled={index <= 0}
+                >
+                Previous
             </button>
             <div className="nav-center">
               <div className="question-counter">
-                Question {index} of {qidArray.length}
+                Question {index + 1} of {qidArray.length}
               </div>
             </div>
             <button
-              className="skip-button"
-              onClick={() => {
-                if (qidArray) {
-                    incrementIndex();
-                  navToQuestion(parseInt(qidArray[index]));
-                } else {
-                  console.error("qidArray is null");
-                }
-              }}
-              disabled={index >= qidArray.length}
-            >
-              Skip
-            </button>
+                className="skip-button"
+                onClick={() => {
+                    if (qidArray) {
+                    incrementIndex(); // Increment the index
+                    setTimeout(() => {
+                        navToQuestion(parseInt(qidArray[index + 1])); // Navigate to the next question
+                    }, 0); // Ensure navigation happens after state update
+                    } else {
+                    console.error("qidArray is null");
+                    }
+                }}
+                disabled={index >= qidArray.length - 1}
+                >
+                Skip
+                </button>
           </div>
         </div>
       </div>

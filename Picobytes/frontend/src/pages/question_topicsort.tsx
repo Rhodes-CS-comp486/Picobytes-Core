@@ -376,7 +376,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                   </button>
                 </div>
               )}
-              {questionType === "free_response" ? (
+              {questionType === "free_response" && (
                 <textarea
                   className="fr"
                   placeholder="Type your answer here..."
@@ -384,7 +384,8 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                   onChange={(e) => setAnswer(e.target.value)}
                   disabled={isSubmitting}
                 ></textarea>
-              ) : (
+              )}
+              {questionType === "multiple_choice" && (
                 <div className="mc-options">
                   {options.map((option, index) => (
                     <button

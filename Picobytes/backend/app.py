@@ -453,34 +453,41 @@ def submit_answer():
         uid = data.get('uid')  # Extract UID from request
 
         if not uid:
-            return jsonify({"error": "Missing uid"})
+            return jsonify({"error": "Missing uid"}), 400
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
-        # if response == null:
-        #     return jsonify({"error": "Missing response"}), 400
 
-        # Get the question to verify the correct answer
-        question_data = json.loads(question_fetcher_service.get_question(int(question_id)).get_data("answer"))
+        # Save the answer and get the result in a single operation
+        save_result = question_save_service.save_question(uid, question_id, response)
+        
+        # If the result is a tuple (response, status_code), handle it
+        if isinstance(save_result, tuple):
+            return save_result
+            
+        # Otherwise, parse the JSON response
+        save_data = json.loads(save_result.get_data())
+        
+        if "error" in save_data:
+            return jsonify(save_data), 500
 
-        if not question_data:
-            return jsonify({"error": "Question not found"}), 404
+        # Get the correct_answer if needed for the frontend
+        # But do it only after confirming the save was successful
+        question_data = json.loads(question_fetcher_service.get_question(int(question_id)).get_data())
+        
+        # Get correct answer based on question type
+        if question_data.get('question_type') == 'multiple_choice':
+            correct_answer = question_data.get('answer')
+        elif question_data.get('question_type') == 'true_false':
+            correct_answer = question_data.get('correct_answer')
+        elif question_data.get('question_type') == 'code_blocks':
+            correct_answer = question_data.get('answer')
+        else:
+            correct_answer = None
 
-        correct_answer = question_data['answer']
-
-        is_correct = json.loads(question_save_service.save_question(uid, question_id, response).get_data())
-
-        print(f"Is Correct ({type(is_correct)}: {is_correct})")
-
-        if "error" in is_correct:
-            return is_correct
-
-        # is_correct : bool = False
-        # if (question_data)
-
-
+        # Return the combined result
         return jsonify({
             'success': True,
-            'is_correct': is_correct,
+            'is_correct': save_data.get('is_correct', False),
             'correct_answer': correct_answer
         })
 

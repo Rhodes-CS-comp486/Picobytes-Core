@@ -781,6 +781,51 @@ def test_code_execution():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/test-database', methods=['GET'])
+def test_database():
+    """Debug endpoint to test database insertion."""
+    try:
+        # Connect to the database
+        conn = psycopg.connect(f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}")
+        cursor = conn.cursor()
+        
+        # Test inserting a question
+        cursor.execute("""
+            INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
+            VALUES (%s, %s, %s, %s, %s) RETURNING qid
+        """, ("Test Question", "true_false", "easy", "Test", True))
+        
+        qid = cursor.fetchone()[0]
+        
+        # Test inserting a true_false record
+        cursor.execute("""
+            INSERT INTO true_false (qid, correct)
+            VALUES (%s, %s::boolean)
+        """, (qid, True))
+        
+        # Commit the transaction
+        conn.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Database test successful",
+            "qid": qid
+        })
+        
+    except Exception as e:
+        print(f"Database test error: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+    finally:
+        if 'conn' in locals() and conn:
+            conn.close()
+
+
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))

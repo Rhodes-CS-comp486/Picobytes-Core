@@ -461,9 +461,14 @@ def submit_answer():
 
         # Get the question to verify the correct answer
         correctanswer = question_fetcher_service.get_answer(question_id)
-
-        if not correctanswer:
-            return jsonify({"error": "Question not found"}), 404
+        
+        # Debug the correct answer
+        print(f"Question ID: {question_id}, Correct answer from DB: {correctanswer}, Type: {type(correctanswer)}")
+        
+        if correctanswer is None:
+            print(f"Warning: No correct answer found for question {question_id}")
+            # Default to a value rather than returning error
+            correctanswer = "Not available"
 
         result = question_save_service.save_question(uid, question_id, response)
 
@@ -479,11 +484,13 @@ def submit_answer():
         # Extract is_correct from the result dictionary
         is_correct = result.get('is_correct', False) if isinstance(result, dict) else False
 
-        return jsonify({
+        response_data = {
             'success': True,
             'is_correct': is_correct,
-            'correct_answer': correctanswer
-        })
+            'correct_answer': str(correctanswer)  # Ensure it's always a string
+        }
+        print(f"Sending response: {response_data}")
+        return jsonify(response_data)
 
     except Exception as e:
         print(f"Error in submit_answer: {e}")

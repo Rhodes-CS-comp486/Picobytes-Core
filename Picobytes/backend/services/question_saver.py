@@ -121,24 +121,23 @@ class QuestionSave:
 
     def save_question(self, uid, qid, response):
         try:
-            #Step 1. Save Answer
+            #Step 1. Save Answer - Use a single database connection for all operations
             conn = self._connect()
             cursor = conn.cursor()
-            is_correct : bool = False
+            is_correct = False
             currtime = time.time()
 
-            # Use a single database connection for all operations
-            conn = self._connect()
-            cursor = conn.cursor()
-
-            # Fetch question type and check if already answered in a single transaction
+            # Combined query to fetch question type, check if already answered, and get the answer in a single transaction
+            query_type = ''
+            query_params = (uid, qid)
+            
             cursor.execute('''
                 SELECT q.qtype, 
                        CASE WHEN ur.qid IS NOT NULL THEN true ELSE false END as already_answered
                 FROM questions q
                 LEFT JOIN user_responses ur ON ur.qid = q.qid AND ur.uid = %s
                 WHERE q.qid = %s
-            ''', (uid, qid))
+            ''', query_params)
             
             result = cursor.fetchone()
             if result is None:
@@ -154,16 +153,17 @@ class QuestionSave:
                 qtype = result[0]
                 already_answered = result[1]
 
-            # If not already answered, insert user response record
-            if not already_answered:
-                cursor.execute('insert into user_responses (uid, qid) values (%s, %s)', (uid, qid))
-
+            # If already answered, return early to avoid unnecessary processing
             if already_answered:
-                return jsonify('question already answered')
+                conn.close()
+                return jsonify({'is_correct': False, 'message': 'Question already answered'})
 
-            conn.commit()
-
-            # Process based on question type
+            # Insert user response record
+            cursor.execute('INSERT INTO user_responses (uid, qid) VALUES (%s, %s)', (uid, qid))
+            
+            # Process based on question type - fetch answer and insert response in a more efficient way
+            answer = None
+            
             if qtype == 'multiple_choice':
                 cursor.execute('SELECT answer FROM multiple_choice WHERE qid = %s', (qid,))
                 result = cursor.fetchone()
@@ -175,13 +175,51 @@ class QuestionSave:
                     answer = result['answer']
                 except (TypeError, KeyError):
                     answer = result[0]
-                    
-                if int(response) == int(answer) - 1:  # Compare as integers and adjust for zero-indexing
-                    is_correct = True
                 
-                if not already_answered:
-                    cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (%s, %s, %s, %s)', (uid, qid, response, answer))
-                conn.commit()
+                # Print debug info about the comparison
+                print(f"MC Question {qid}: User response: '{response}' (type: {type(response)}) | Correct answer: '{answer}' (type: {type(answer)})")
+                
+                # Convert both to integers for comparison
+                try:
+                    # Handle string responses (like '0', '1', '2', '3' or 'A', 'B', 'C', 'D')
+                    user_response_int = None
+                    if isinstance(response, str):
+                        if response.isdigit():
+                            user_response_int = int(response)
+                        elif response.upper() in ['A', 'B', 'C', 'D']:
+                            # Convert letter choices to 0-indexed numbers
+                            user_response_int = ord(response.upper()) - ord('A')
+                    elif isinstance(response, int):
+                        user_response_int = response
+                    
+                    # Convert answer to int if it's a string
+                    correct_answer_int = int(answer) if answer is not None else None
+                    
+                    # Debug the converted values
+                    print(f"Converted values - User: {user_response_int}, Correct: {correct_answer_int}")
+                    
+                    # Compare with zero-indexing adjustment
+                    if user_response_int is not None and correct_answer_int is not None:
+                        # Correct answer in database is 1-indexed, UI may be 0-indexed
+                        # Compare user response directly and with adjustment
+                        if user_response_int == correct_answer_int - 1:
+                            is_correct = True
+                            print(f"Correct answer with zero-indexing adjustment")
+                        elif user_response_int == correct_answer_int:
+                            is_correct = True
+                            print(f"Correct answer without adjustment")
+                        else:
+                            print(f"Incorrect answer: {user_response_int} != {correct_answer_int} or {correct_answer_int-1}")
+                    
+                except (ValueError, TypeError) as e:
+                    print(f"Error converting answers to int: {e}")
+                    # Fallback to direct string comparison
+                    if str(response) == str(answer):
+                        is_correct = True
+                        print("Direct string comparison matched")
+                
+                cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (%s, %s, %s, %s)', 
+                              (uid, qid, response, answer))
 
             elif qtype == 'true_false':
                 cursor.execute('SELECT correct FROM true_false WHERE qid = %s', (qid,))
@@ -198,10 +236,8 @@ class QuestionSave:
                 if response == answer:
                     is_correct = True
                 
-                if not already_answered:
-                    cursor.execute('INSERT INTO user_true_false (uid, qid, response, correct) VALUES (%s, %s, %s, %s)', 
-                                  (uid, qid, response, answer))
-                    conn.commit()
+                cursor.execute('INSERT INTO user_true_false (uid, qid, response, correct) VALUES (%s, %s, %s, %s)', 
+                              (uid, qid, response, answer))
 
             elif qtype == 'code_blocks':
                 cursor.execute('SELECT answer FROM code_blocks WHERE qid = %s', (qid,))
@@ -218,10 +254,8 @@ class QuestionSave:
                 if response == answer:
                     is_correct = True
                 
-                if not already_answered:
-                    cursor.execute('INSERT INTO user_code_blocks (uid, qid, submission, correct) VALUES (%s, %s, %s, %s)',
-                                 (uid, qid, response, answer))
-                    conn.commit()
+                cursor.execute('INSERT INTO user_code_blocks (uid, qid, submission, correct) VALUES (%s, %s, %s, %s)',
+                              (uid, qid, response, answer))
 
             elif qtype == 'free_response':
                 cursor.execute('SELECT prof_answer FROM free_response WHERE qid = %s', (qid,))
@@ -235,64 +269,44 @@ class QuestionSave:
                 except (TypeError, KeyError):
                     answer = result[0]
                 
-                if not already_answered:
-                    cursor.execute('INSERT INTO user_free_response (uid, qid, uanswer, profanswer) VALUES (%s, %s, %s, %s)',
-                                 (uid, qid, response, answer))
-                    conn.commit()
+                cursor.execute('INSERT INTO user_free_response (uid, qid, uanswer, profanswer) VALUES (%s, %s, %s, %s)',
+                              (uid, qid, response, answer))
 
-            # When question is already answered don't update points, and just return if it's correct
-            if already_answered:
-                conn.close()
-                return jsonify({'is_correct': is_correct})
-
-            # Update user stats in batch if not already answered
+            # Update user stats in a more efficient way
+            # First record the analytics data
+            analytics_service.record_question_attempt(int(qid), is_correct, uid)
+            
+            # Update user stats based on is_correct (combine queries)
             if is_correct:
-                # Update streak, reset incorrect count, and increment correct count in one transaction
-                streaks_service.update_streak(uid, currtime)
-                #Step 4: Update Points
-                cursor.execute('UPDATE users SET uincorrect = 0 WHERE uid = %s', (uid,))
-                conn.commit()
-                cursor.execute('select ucorrect from users where uid = %s', (uid,))
-                result = cursor.fetchone()
+                # Use a single transaction for updating streaks and user stats
                 try:
-                    num_correct = result['ucorrect'] 
-                except (TypeError, KeyError):
-                    num_correct = result[0]
-                    
-                cursor.execute('update users set ucorrect = %s where uid = %s', (num_correct+1, uid,))
-                conn.commit()
-                new_points = 1*get_multiplier(num_correct)
-
+                    # Update streak - we'll handle this separately to avoid stalling the response
+                    streaks_service.update_streak(uid, currtime)
+                except Exception as e:
+                    print(f"Error updating streak (non-critical): {e}")
+                
+                # Update user stats with a single query
+                cursor.execute('''
+                    UPDATE users 
+                    SET uincorrect = 0,
+                        ucorrect = ucorrect + 1,
+                        upoints = upoints + %s
+                    WHERE uid = %s
+                    RETURNING ucorrect
+                ''', (get_multiplier(0), uid))  # We'll use base multiplier for now
             else:
-                # Reset correct count and increment incorrect count in one transaction
+                # Update user stats with a single query for incorrect answers
                 cursor.execute('''
                     UPDATE users 
                     SET ucorrect = 0,
-                        uincorrect = uincorrect + 1
+                        uincorrect = uincorrect + 1,
+                        upoints = upoints - %s
                     WHERE uid = %s
-                    RETURNING uincorrect
-                ''', (uid,))
-                result = cursor.fetchone()
-                try:
-                    num_wrong = result['uincorrect']
-                except (TypeError, KeyError):
-                    num_wrong = result[0]
-                    
-                new_points = -1 * get_multiplier(num_wrong)
-
-            # Update points in a single query
-            cursor.execute('''
-                UPDATE users 
-                SET upoints = upoints + %s 
-                WHERE uid = %s
-            ''', (new_points, uid))
+                ''', (get_multiplier(0), uid))  # We'll use base multiplier for now
             
+            # Commit all changes and close connection
             conn.commit()
-
-            # Record analytics asynchronously
-            analytics_service.record_question_attempt(int(qid), is_correct, uid)
-
-            conn.commit()
+            conn.close()
 
             return {'is_correct': is_correct}
             

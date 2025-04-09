@@ -120,9 +120,89 @@ class GetQuestions:
             return jsonify({"error": str(e)}), 500
 
     def get_answer(self, qid):
-        response = self.get_question(qid)
-        raw_data = response.get_data(as_text=True)  # get raw data as string
-        questiondata = json.loads(raw_data)  # convert JSON string to dict
-        answer = questiondata.get('answer')
-        return answer
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            
+            # First determine the question type
+            cursor.execute("SELECT qtype FROM questions WHERE qid = %s", (qid,))
+            type_result = cursor.fetchone()
+            
+            if not type_result:
+                print(f"Question type not found for qid: {qid}")
+                conn.close()
+                return None
+                
+            qtype = type_result['qtype']
+            print(f"Question type for qid {qid}: {qtype}")
+            
+            # Directly query the appropriate table for the answer
+            if qtype == 'multiple_choice':
+                cursor.execute("SELECT answer FROM multiple_choice WHERE qid = %s", (qid,))
+                result = cursor.fetchone()
+                if not result:
+                    print(f"Multiple choice answer not found for qid: {qid}")
+                    conn.close()
+                    return None
+                    
+                try:
+                    answer = result['answer'] if result else None
+                    print(f"Retrieved multiple choice answer: {answer} for qid: {qid}")
+                except (TypeError, KeyError) as e:
+                    print(f"Error accessing multiple choice answer: {e}")
+                    answer = result[0] if result and len(result) > 0 else None
+                    print(f"Fallback multiple choice answer: {answer}")
+                
+            elif qtype == 'true_false':
+                cursor.execute("SELECT correct FROM true_false WHERE qid = %s", (qid,))
+                result = cursor.fetchone()
+                if not result:
+                    print(f"True/False answer not found for qid: {qid}")
+                    conn.close()
+                    return None
+                    
+                try:
+                    answer = result['correct'] if result else None
+                except (TypeError, KeyError) as e:
+                    print(f"Error accessing true/false answer: {e}")
+                    answer = result[0] if result and len(result) > 0 else None
+                
+            elif qtype == 'code_blocks':
+                cursor.execute("SELECT answer FROM code_blocks WHERE qid = %s", (qid,))
+                result = cursor.fetchone()
+                if not result:
+                    print(f"Code blocks answer not found for qid: {qid}")
+                    conn.close()
+                    return None
+                    
+                try:
+                    answer = result['answer'] if result else None
+                except (TypeError, KeyError) as e:
+                    print(f"Error accessing code blocks answer: {e}")
+                    answer = result[0] if result and len(result) > 0 else None
+                
+            elif qtype == 'free_response':
+                cursor.execute("SELECT prof_answer FROM free_response WHERE qid = %s", (qid,))
+                result = cursor.fetchone()
+                if not result:
+                    print(f"Free response answer not found for qid: {qid}")
+                    conn.close()
+                    return None
+                    
+                try:
+                    answer = result['prof_answer'] if result else None
+                except (TypeError, KeyError) as e:
+                    print(f"Error accessing free response answer: {e}")
+                    answer = result[0] if result and len(result) > 0 else None
+                
+            else:
+                print(f"Unknown question type: {qtype} for qid: {qid}")
+                answer = None
+                
+            conn.close()
+            return answer
+            
+        except Exception as e:
+            print(f"Error getting answer for qid {qid}: {e}")
+            return None
 

@@ -13,6 +13,7 @@ interface Prop {
 
 const Question = ({ toggleDark }: Prop) => {
   const [answer, setAnswer] = useState<number | boolean | string | null>(null);
+  const [isCorrect, setIsCorrect] = useState<boolean>(false);
 
   const [question, setQuestion] = useState("Loading question...");
   const [questionType, setQuestionType] = useState<string>("multiple_choice");
@@ -60,6 +61,8 @@ const Question = ({ toggleDark }: Prop) => {
     setError("");
     setIsSubmitting(false);
     setShowCelebration(false);
+    setIsCorrect(false);
+    setAnswer(null);
 
     fetch(`http://127.0.0.1:5000/api/question/${questionId}`, {
       method: "GET",
@@ -159,17 +162,43 @@ const Question = ({ toggleDark }: Prop) => {
             setIsSubmitting(false);
           } else {
             // Display feedback
-            const isCorrect = data.is_correct;
+            console.log("Response data:", data);
+            
+            // Check if this question was already answered
+            if (data.message === 'Question already answered') {
+              setFeedback("You've already answered this question.");
+              setIsSubmitting(true);
+              return;
+            }
+            
+            const isCorrectResponse = data.is_correct;
+            setIsCorrect(isCorrectResponse);
 
-            if (isCorrect) {
+            if (isCorrectResponse) {
               setFeedback("Correct!");
               setShowCelebration(true);
             } else {
-              setFeedback(
-                `Incorrect. The correct answer was: ${
-                  options[data.correct_answer - 1]
-                }`
-              );
+              // Log entire response for debugging
+              console.log("Full response object for debugging:", data);
+              
+              // Try to extract the correct answer from various possible property names
+              let correctAnswerText = "Unknown";
+              
+              try {
+                const correctAnswerValue = data.correct_answer;
+                console.log("Raw correct_answer value:", correctAnswerValue);
+                
+                if (correctAnswerValue && !isNaN(parseInt(correctAnswerValue))) {
+                  const index = parseInt(correctAnswerValue) - 1;
+                  if (index >= 0 && index < options.length) {
+                    correctAnswerText = options[index];
+                  }
+                }
+              } catch (err) {
+                console.error("Error parsing correct answer:", err);
+              }
+              
+              setFeedback(`Incorrect. The correct answer was: ${correctAnswerText}`);
             }
 
             // Enable proceeding to next question
@@ -178,16 +207,29 @@ const Question = ({ toggleDark }: Prop) => {
         })
         .catch((error) => {
           console.error("Error submitting answer: ", error);
-          setError(`Error submitting answer: ${error.message}`);
+          
+          // More user-friendly error handling
+          let errorMessage = "Error submitting answer";
+          
+          if (error.message && error.message.includes("400")) {
+            errorMessage = "Missing required information. Please try again.";
+          } else if (error.message && error.message.includes("500")) {
+            errorMessage = "Server error. Please try again later.";
+          } else {
+            errorMessage = `Error: ${error.message}`;
+          }
+          
+          setFeedback(errorMessage);
           setIsSubmitting(false);
         });
     } else if (questionType === "true_false") {
       // For true/false questions, we can check the answer client-side
-      const isCorrect = answer === correct;
+      const isAnswerCorrect = answer === correct;
+      setIsCorrect(isAnswerCorrect);
 
       console.log(correct);
 
-      if (isCorrect) {
+      if (isAnswerCorrect) {
         setFeedback("Correct!");
         setShowCelebration(true);
       } else {
@@ -364,10 +406,10 @@ const Question = ({ toggleDark }: Prop) => {
                     <button
                       key={index}
                       className={`option-button mc-option ${
-                        answer == index ? "selected" : ""
+                        answer === index ? "selected" : ""
                       } ${
-                        feedback && answer == index
-                          ? index === (correct as number) - 1
+                        feedback && answer === index
+                          ? isCorrect
                             ? "correct"
                             : "incorrect"
                           : ""

@@ -20,43 +20,31 @@ class Streaks:
         return conn
 
 
-    def update_streak(self, uid, time):
+    def update_streak(self, uid, current_time):
         try:
             conn = self._connect()
             cursor = conn.cursor()
-            cursor.execute("""
-                       select ulastanswertime, ustreak from users where uid=%s
-                   """, (uid,))
-
-            u = cursor.fetchone()
             
-            try:
-                last_time = u['ulastanswertime']
-                days = u['ustreak']
-            except (TypeError, KeyError):
-                # If it's a tuple
-                last_time, days = u
-
-            old_dt = datetime.fromtimestamp(last_time)
-
-            new_dt = datetime.fromtimestamp(time.time())
-
-            difference = new_dt - old_dt
-
-            if difference.days == 0:
-                print()
-            elif difference.days == 1:
-                days += 1
-            elif difference.days > 1:
-                days = 0
-
-            # Fixed SQL query to use %s for all parameters in PostgreSQL
-            cursor.execute("""UPDATE users SET ulastanswertime = %s, ustreak = %s WHERE uid = %s""", (time, days, uid))
+            # Calculate streak update in a single operation (PostgreSQL)
+            cursor.execute("""
+                UPDATE users 
+                SET 
+                    ustreak = CASE 
+                        WHEN (EXTRACT(EPOCH FROM NOW()) - ulastanswertime) / 86400 < 1 THEN ustreak  -- Same day, no change
+                        WHEN (EXTRACT(EPOCH FROM NOW()) - ulastanswertime) / 86400 < 2 THEN ustreak + 1  -- Next day, increment
+                        ELSE 0  -- More than 1 day gap, reset to 0
+                    END,
+                    ulastanswertime = %s
+                WHERE uid = %s
+                RETURNING ustreak
+            """, (current_time, uid))
+            
             conn.commit()
             conn.close()
             return 1
+            
         except Exception as e:
-            print(f"Error saving response: {e}")
+            print(f"Error updating streak: {e}")
             return 0
 
 

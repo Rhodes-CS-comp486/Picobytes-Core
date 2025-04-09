@@ -34,8 +34,8 @@ class AnalyticsService:
             is_correct: Whether the answer was correct
             uid: User ID (optional)
         """
-        conn = self._get_db_connection()
         try:
+            conn = self._get_db_connection()
             cursor = conn.cursor()
             # If timestamp is auto-generated in the database schema, we don't need to include it
             cursor.execute(
@@ -43,12 +43,11 @@ class AnalyticsService:
                 (qid, uid, is_correct)
             )
             conn.commit()
+            conn.close()
             return True
         except Exception as e:
             print(f"Error recording question attempt: {e}")
             return False
-        finally:
-            conn.close()
     
     def get_most_attempted_questions(self, limit: int = 5) -> List[Dict[str, Any]]:
         """

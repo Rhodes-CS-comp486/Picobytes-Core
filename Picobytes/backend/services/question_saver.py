@@ -34,7 +34,7 @@ class QuestionSave:
 
     def _connect(self):
         """Establish and return a database connection."""
-        return psycopg.connect(self.db_url, row_factory=dict_row)
+        return psycopg.connect(self.db_url)
 
 
     def save_mc_response(self, uid, qid, response):
@@ -120,7 +120,9 @@ class QuestionSave:
     def save_question(self, uid, qid, response):
         try:
             #Step 1. Save Answer
-            is_correct = False
+            conn = self._connect()
+            cursor = conn.cursor()
+            is_correct : bool = False
             currtime = time.time()
 
             # Use a single database connection for all operations
@@ -146,8 +148,12 @@ class QuestionSave:
 
             # If not already answered, insert user response record
             if not already_answered:
-                cursor.execute('INSERT INTO user_responses (uid, qid) VALUES (%s, %s)', (uid, qid))
-                conn.commit()
+                cursor.execute('insert into user_responses (uid, qid) values (%s, %s)', (uid, qid))
+
+            if already_answered:
+                return jsonify('question already answered')
+
+            conn.commit()
 
             # Process based on question type
             if qtype == 'multiple_choice':
@@ -162,9 +168,8 @@ class QuestionSave:
                     is_correct = True
                 
                 if not already_answered:
-                    cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (%s, %s, %s, %s)', 
-                                  (uid, qid, response, answer))
-                    conn.commit()
+                    cursor.execute('INSERT INTO user_multiple_choice (uid, qid, response, correct) VALUES (%s, %s, %s, %s)', (uid, qid, response, answer))
+                conn.commit()
 
             elif qtype == 'true_false':
                 cursor.execute('SELECT correct FROM true_false WHERE qid = %s', (qid,))
@@ -221,15 +226,16 @@ class QuestionSave:
             if is_correct:
                 # Update streak, reset incorrect count, and increment correct count in one transaction
                 streaks_service.update_streak(uid, currtime)
-                cursor.execute('''
-                    UPDATE users 
-                    SET uincorrect = 0,
-                        ucorrect = ucorrect + 1
-                    WHERE uid = %s
-                    RETURNING ucorrect
-                ''', (uid,))
-                num_correct = cursor.fetchone()['ucorrect']
-                new_points = 1 * get_multiplier(num_correct)
+            #Step 4: Update Points
+                cursor.execute('UPDATE users SET uincorrect = 0 WHERE uid = %s', (uid,))
+                conn.commit()
+                cursor.execute('select ucorrect from users where uid = %s', (uid,))
+                num_correct = cursor.fetchone()[0]
+                cursor.execute('update users set ucorrect = %s where uid = %s', (num_correct+1, uid,))
+                conn.commit()
+                new_points = 1*get_multiplier(num_correct)
+
+
             else:
                 # Reset correct count and increment incorrect count in one transaction
                 cursor.execute('''
@@ -254,9 +260,9 @@ class QuestionSave:
             # Record analytics asynchronously
             analytics_service.record_question_attempt(int(qid), is_correct, uid)
 
-            # Close connection and return result
-            conn.close()
-            return jsonify({"is_correct": is_correct})
+            conn.commit()
+
+            return {'is_correct': is_correct}
             
         except Exception as e:
             print(f"Error saving response: {e}")

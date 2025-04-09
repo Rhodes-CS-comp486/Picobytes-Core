@@ -465,17 +465,19 @@ def submit_answer():
         if not correctanswer:
             return jsonify({"error": "Question not found"}), 404
 
+        result = question_save_service.save_question(uid, question_id, response)
 
-        is_correct = question_save_service.save_question(uid, question_id, response)
+        # Handle the case where the result is already a Flask response
+        if isinstance(result, tuple) or hasattr(result, 'get_json'):
+            return result
 
-        print(f"Is Correct ({type(is_correct)}: {is_correct})")
+        print(f"Is Correct ({type(result)}: {result})")
 
-        if "error" in is_correct:
-            return is_correct
+        if isinstance(result, dict) and "error" in result:
+            return jsonify(result), 500
 
-        # is_correct : bool = False
-        # if (question_data)
-
+        # Extract is_correct from the result dictionary
+        is_correct = result.get('is_correct', False) if isinstance(result, dict) else False
 
         return jsonify({
             'success': True,

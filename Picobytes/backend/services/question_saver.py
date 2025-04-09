@@ -34,7 +34,9 @@ class QuestionSave:
 
     def _connect(self):
         """Establish and return a database connection."""
-        return psycopg.connect(self.db_url)
+        conn = psycopg.connect(self.db_url)
+        conn.row_factory = dict_row
+        return conn
 
 
     def save_mc_response(self, uid, qid, response):
@@ -143,8 +145,14 @@ class QuestionSave:
                 conn.close()
                 return jsonify({"error": "Question not found"}), 404
 
-            qtype = result['qtype']
-            already_answered = result['already_answered']
+            # Support both dictionary and tuple results
+            try:
+                qtype = result['qtype']
+                already_answered = result['already_answered']
+            except (TypeError, KeyError):
+                # If not a dictionary, assume it's a tuple
+                qtype = result[0]
+                already_answered = result[1]
 
             # If not already answered, insert user response record
             if not already_answered:
@@ -163,7 +171,11 @@ class QuestionSave:
                     conn.close()
                     return jsonify({"error": "Unable to submit"}), 404
                 
-                answer = result['answer']
+                try:
+                    answer = result['answer']
+                except (TypeError, KeyError):
+                    answer = result[0]
+                    
                 if int(response) == int(answer) - 1:  # Compare as integers and adjust for zero-indexing
                     is_correct = True
                 
@@ -178,7 +190,11 @@ class QuestionSave:
                     conn.close()
                     return jsonify({"error": "Unable to submit"}), 404
                 
-                answer = result['correct']
+                try:
+                    answer = result['correct']
+                except (TypeError, KeyError):
+                    answer = result[0]
+                    
                 if response == answer:
                     is_correct = True
                 
@@ -194,7 +210,11 @@ class QuestionSave:
                     conn.close()
                     return jsonify({"error": "Unable to submit"}), 404
                 
-                answer = result['answer']
+                try:
+                    answer = result['answer']
+                except (TypeError, KeyError):
+                    answer = result[0]
+                    
                 if response == answer:
                     is_correct = True
                 
@@ -210,7 +230,10 @@ class QuestionSave:
                     conn.close()
                     return jsonify({"error": "Unable to submit"}), 404
                 
-                answer = result['prof_answer']
+                try:
+                    answer = result['prof_answer']
+                except (TypeError, KeyError):
+                    answer = result[0]
                 
                 if not already_answered:
                     cursor.execute('INSERT INTO user_free_response (uid, qid, uanswer, profanswer) VALUES (%s, %s, %s, %s)',
@@ -226,15 +249,19 @@ class QuestionSave:
             if is_correct:
                 # Update streak, reset incorrect count, and increment correct count in one transaction
                 streaks_service.update_streak(uid, currtime)
-            #Step 4: Update Points
+                #Step 4: Update Points
                 cursor.execute('UPDATE users SET uincorrect = 0 WHERE uid = %s', (uid,))
                 conn.commit()
                 cursor.execute('select ucorrect from users where uid = %s', (uid,))
-                num_correct = cursor.fetchone()[0]
+                result = cursor.fetchone()
+                try:
+                    num_correct = result['ucorrect'] 
+                except (TypeError, KeyError):
+                    num_correct = result[0]
+                    
                 cursor.execute('update users set ucorrect = %s where uid = %s', (num_correct+1, uid,))
                 conn.commit()
                 new_points = 1*get_multiplier(num_correct)
-
 
             else:
                 # Reset correct count and increment incorrect count in one transaction
@@ -245,7 +272,12 @@ class QuestionSave:
                     WHERE uid = %s
                     RETURNING uincorrect
                 ''', (uid,))
-                num_wrong = cursor.fetchone()['uincorrect']
+                result = cursor.fetchone()
+                try:
+                    num_wrong = result['uincorrect']
+                except (TypeError, KeyError):
+                    num_wrong = result[0]
+                    
                 new_points = -1 * get_multiplier(num_wrong)
 
             # Update points in a single query

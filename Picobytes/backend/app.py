@@ -24,6 +24,8 @@ from email_notifications.handle_emails import handle_emails
 import psycopg
 from psycopg.rows import dict_row
 from db_info import *
+from services.code_execution_service import CodeExecutionService
+from config import CODE_EXECUTION_API_URL
 
 
 # Connect to an existing database
@@ -70,6 +72,7 @@ cb_question_service = CB_QuestionFetcher()
 analytics_service = AnalyticsService()
 streak_service = Streaks()
 verification_service = Verification()
+code_execution_service = CodeExecutionService()
 
 
 @app.route('/')
@@ -752,6 +755,30 @@ def delete_question():
     except Exception as e:
         print(f"Error in delete_question endpoint: {e}")
         return jsonify({"error": f"Server error: {str(e)}"}), 500
+
+
+@app.route('/api/test-code-execution', methods=['POST'])
+def test_code_execution():
+    """Test endpoint for the code execution service."""
+    try:
+        data = request.get_json()
+        code = data.get('code')
+        tests = data.get('tests')
+        
+        if not code:
+            return jsonify({"error": "Missing code"}), 400
+        
+        # Execute the code using the service initialized with the config
+        result = code_execution_service.execute_code(code, tests)
+        
+        return jsonify({
+            'success': True,
+            'result': result
+        })
+        
+    except Exception as e:
+        print(f"Error in test_code_execution: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

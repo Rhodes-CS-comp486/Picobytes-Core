@@ -3,6 +3,7 @@ import random
 import os
 from .streak import Streaks
 from .analytics_service import AnalyticsService
+from .code_execution_service import CodeExecutionService
 import time
 from flask import jsonify
 import psycopg
@@ -10,9 +11,9 @@ from psycopg.rows import dict_row
 from db_info import *
 
 
-
 streaks_service = Streaks()
 analytics_service = AnalyticsService()
+code_execution_service = CodeExecutionService()  # Initialize with default URL
 
 
 def get_multiplier(num_correct):
@@ -250,12 +251,38 @@ class QuestionSave:
                     answer = result['answer']
                 except (TypeError, KeyError):
                     answer = result[0]
-                    
-                if response == answer:
-                    is_correct = True
                 
-                cursor.execute('INSERT INTO user_code_blocks (uid, qid, submission, correct) VALUES (%s, %s, %s, %s)',
-                              (uid, qid, response, answer))
+                # Get test code for this question
+                cursor.execute('SELECT tests FROM code_blocks WHERE qid = %s', (qid,))
+                test_result = cursor.fetchone()
+                test_code = None
+                if test_result:
+                    try:
+                        test_code = test_result['tests']
+                    except (TypeError, KeyError):
+                        test_code = test_result[0]
+                
+                # Use code execution service to validate the answer
+                if test_code:
+                    is_correct, execution_results = code_execution_service.validate_code_answer(response, test_code)
+                    
+                    # Store execution results along with the submission
+                    output = execution_results.get('output', '')
+                    compile_status = execution_results.get('compile', False)
+                    run_status = execution_results.get('run', False)
+                    
+                    cursor.execute('''
+                        INSERT INTO user_code_blocks 
+                        (uid, qid, submission, correct, output, compile_status, run_status) 
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ''', (uid, qid, response, answer, output, compile_status, run_status))
+                else:
+                    # Fallback to direct comparison if no test code is available
+                    if response == answer:
+                        is_correct = True
+                    
+                    cursor.execute('INSERT INTO user_code_blocks (uid, qid, submission, correct) VALUES (%s, %s, %s, %s)',
+                                (uid, qid, response, answer))
 
             elif qtype == 'free_response':
                 cursor.execute('SELECT prof_answer FROM free_response WHERE qid = %s', (qid,))

@@ -2,14 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
+import SideBar from "./home/side_bar"; // Import SideBar component
 
 const Question = () => {
-  const [answer, setAnswer] = useState<boolean[] | boolean | string | null>([
-    false,
-    false,
-    false,
-    false,
-  ]);
+  const [answer, setAnswer] = useState<number | boolean | string | null>(null);
   const [question, setQuestion] = useState("Loading question...");
   const [questionType, setQuestionType] = useState<string>("multiple_choice");
   const [correct, setCorrect] = useState<number | boolean>(0);
@@ -26,6 +22,7 @@ const Question = () => {
   const [topic, setTopic] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState(0);
+  const [isCorrect, setIsCorrect] = useState(false);
 
   let params = useParams();
   let id = params.id;
@@ -66,12 +63,14 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
   const fetchQuestion = (questionId: string | undefined) => {
     if (!questionId) return;
     console.log("Fetching question with ID:", index);
-``
+
     // Reset states when fetching a new question
     setFeedback("");
     setError("");
     setIsSubmitting(false);
     setShowCelebration(false);
+    setIsCorrect(false);
+    setAnswer(null);
 
     fetch(`http://127.0.0.1:5000/api/question/${questionId}`, {
       method: "GET",
@@ -85,8 +84,6 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
         setDifficulty(data.question_level);
         setTopic(data.question_topic);
 
-        
-
         if (data.question_type === "multiple_choice") {
           setOptions([
             data.option_1,
@@ -95,11 +92,14 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
             data.option_4,
           ]);
           setCorrect(data.answer);
-          setAnswer([false, false, false, false]);
+          setAnswer(null);
         } else if (data.question_type === "true_false") {
           console.log(data);
           setCorrect(data.correct_answer === 1);
           setAnswer(null); // Initialize as null so no option is selected by default
+        } else if (data.question_type === "free_response") {
+          setCorrect(data.professor_answer);
+          setAnswer("")
         }
       })
       .catch((error) => {
@@ -117,11 +117,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
   };
 
   const updateMCAnswer = (n: number) => {
-    // Create a new array with all false values
-    const newAnswer = [false, false, false, false];
-    // Set the selected option to true
-    newAnswer[n] = true;
-    setAnswer(newAnswer);
+    setAnswer(n);
   };
 
   const updateTFAnswer = (value: boolean) => {
@@ -130,11 +126,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
 
   const submitAnswer = () => {
     // Check if an answer is selected
-    if (
-      (questionType === "multiple_choice" &&
-        !(answer as boolean[]).includes(true)) ||
-      (questionType === "true_false" && answer === null)
-    ) {
+    if (answer === null) {
       setFeedback("Please select an answer");
       return;
     }
@@ -150,7 +142,8 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
         },
         body: JSON.stringify({
           question_id: id,
-          selected_answer: answer,
+          response: answer,
+          uid: localStorage.getItem("uid"),
         }),
       })
         .then((response) => {
@@ -165,17 +158,43 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
             setIsSubmitting(false);
           } else {
             // Display feedback
-            const isCorrect = data.is_correct;
+            console.log("Response data:", data);
+            
+            // Check if this question was already answered
+            if (data.message === 'Question already answered') {
+              setFeedback("You've already answered this question.");
+              setIsSubmitting(true);
+              return;
+            }
+            
+            const isCorrectResponse = data.is_correct;
+            setIsCorrect(isCorrectResponse);
 
-            if (isCorrect) {
+            if (isCorrectResponse) {
               setFeedback("Correct!");
               setShowCelebration(true);
             } else {
-              setFeedback(
-                `Incorrect. The correct answer was: ${
-                  options[data.correct_answer_index]
-                }`
-              );
+              // Log entire response for debugging
+              console.log("Full response object for debugging:", data);
+              
+              // Try to extract the correct answer from various possible property names
+              let correctAnswerText = "Unknown";
+              
+              try {
+                const correctAnswerValue = data.correct_answer;
+                console.log("Raw correct_answer value:", correctAnswerValue);
+                
+                if (correctAnswerValue && !isNaN(parseInt(correctAnswerValue))) {
+                  const index = parseInt(correctAnswerValue) - 1;
+                  if (index >= 0 && index < options.length) {
+                    correctAnswerText = options[index];
+                  }
+                }
+              } catch (err) {
+                console.error("Error parsing correct answer:", err);
+              }
+              
+              setFeedback(`Incorrect. The correct answer was: ${correctAnswerText}`);
             }
 
             // Enable proceeding to next question
@@ -184,16 +203,29 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
         })
         .catch((error) => {
           console.error("Error submitting answer: ", error);
-          setError(`Error submitting answer: ${error.message}`);
+          
+          // More user-friendly error handling
+          let errorMessage = "Error submitting answer";
+          
+          if (error.message && error.message.includes("400")) {
+            errorMessage = "Missing required information. Please try again.";
+          } else if (error.message && error.message.includes("500")) {
+            errorMessage = "Server error. Please try again later.";
+          } else {
+            errorMessage = `Error: ${error.message}`;
+          }
+          
+          setFeedback(errorMessage);
           setIsSubmitting(false);
         });
     } else if (questionType === "true_false") {
       // For true/false questions, we can check the answer client-side
-      const isCorrect = answer === correct;
+      const isAnswerCorrect = answer === correct;
+      setIsCorrect(isAnswerCorrect);
 
       console.log(correct);
 
-      if (isCorrect) {
+      if (isAnswerCorrect) {
         setFeedback("Correct!");
         setShowCelebration(true);
       } else {
@@ -204,16 +236,37 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
 
       // Enable proceeding to next question
       setIsSubmitting(true);
+    } else if (questionType === "free_response") {
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          response: answer,
+          uid: localStorage.getItem("uid"),
+        }),
+      })
+      setFeedback("Placeholder")
     }
   };
 
   // Calculate current progress percentage
   const progressPercentage = id ? ((index+1) / qidArray.length) * 100 : 0;
 
+  // Add toggleDark function for the sidebar
+  const toggleDark = () => {
+    const body = document.body;
+    body.classList.toggle("dark-mode");
+    body.classList.toggle("light-mode");
+  };
+
   if (error !== "") {
     return (
       <div className="duolingo-question-page">
         <Home_Header toggleOverlay={() => {}} />
+        <SideBar toggleDark={toggleDark} />
         <div className="question-content error-content">
           <div className="error-container">
             <div className="error-icon">⚠️</div>
@@ -246,6 +299,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
     return (
       <div className="duolingo-question-page">
         <Home_Header toggleOverlay={() => {}} />
+        <SideBar toggleDark={toggleDark} />
 
         <div className="question-content">
           {/* Progress bar */}
@@ -282,70 +336,69 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
             <h1 className="question-text">{question}</h1>
 
             <div className="options-container">
-              {questionType === "true_false" ? (
-                // True/False options
+              {questionType === "true_false" && (
                 <div className="tf-options">
                   <button
-                    className={`option-button tf-option ${
-                      answer === true ? "selected" : ""
-                    } ${
-                      feedback && answer === true
+                    className={`option-button ${answer === true ? "selected" : ""} ${
+                      isSubmitting
                         ? correct === true
                           ? "correct"
-                          : "incorrect"
+                          : answer === true
+                            ? "incorrect"
+                            : ""
                         : ""
                     }`}
-                    onClick={() => !isSubmitting && updateTFAnswer(true)}
+                    onClick={() => updateTFAnswer(true)}
                     disabled={isSubmitting}
                   >
                     <div className="option-content">
-                      <div className="option-icon">✓</div>
+                      <div className="option-icon">T</div>
                       <div className="option-text">True</div>
                     </div>
                   </button>
                   <button
-                    className={`option-button tf-option ${
-                      answer === false ? "selected" : ""
-                    } ${
-                      feedback && answer === false
+                    className={`option-button ${answer === false ? "selected" : ""} ${
+                      isSubmitting
                         ? correct === false
                           ? "correct"
-                          : "incorrect"
+                          : answer === false
+                            ? "incorrect"
+                            : ""
                         : ""
                     }`}
-                    onClick={() => !isSubmitting && updateTFAnswer(false)}
+                    onClick={() => updateTFAnswer(false)}
                     disabled={isSubmitting}
                   >
                     <div className="option-content">
-                      <div className="option-icon">✗</div>
+                      <div className="option-icon">F</div>
                       <div className="option-text">False</div>
                     </div>
                   </button>
                 </div>
-              ) : questionType === "free_response" ? (
+              )}
+              {questionType === "free_response" ? (
                 <textarea
                   className="fr"
+                  placeholder="Type your answer here..."
+                  value={answer as string}
                   onChange={(e) => setAnswer(e.target.value)}
-                  rows={10}
-                  placeholder="type your short response here"
-                  // style={{height : "max-content%"}}
+                  disabled={isSubmitting}
                 ></textarea>
               ) : (
-                // Multiple choice options
                 <div className="mc-options">
                   {options.map((option, index) => (
                     <button
                       key={index}
-                      className={`option-button mc-option ${
-                        (answer as boolean[])[index] ? "selected" : ""
-                      } ${
-                        feedback && (answer as boolean[])[index]
-                          ? index === (correct as number) - 1
+                      className={`option-button ${answer === index ? "selected" : ""} ${
+                        isSubmitting
+                          ? typeof correct === 'number' && index === (correct - 1)
                             ? "correct"
-                            : "incorrect"
+                            : answer === index
+                              ? "incorrect"
+                              : ""
                           : ""
                       }`}
-                      onClick={() => !isSubmitting && updateMCAnswer(index)}
+                      onClick={() => updateMCAnswer(index)}
                       disabled={isSubmitting}
                     >
                       <div className="option-content">
@@ -396,12 +449,13 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                 className="check-button"
                 onClick={submitAnswer}
                 disabled={
-                  (questionType === "multiple_choice" &&
-                    !(answer as boolean[]).includes(true)) ||
-                  (questionType === "true_false" && answer === null)
+                  isSubmitting || 
+                  (questionType === "multiple_choice" && answer === null) ||
+                  (questionType === "true_false" && answer === null) ||
+                  (questionType === "free_response" && !answer)
                 }
               >
-                Check
+                {isSubmitting ? "Checking..." : "Check Answer"}
               </button>
             ) : (
                 <button

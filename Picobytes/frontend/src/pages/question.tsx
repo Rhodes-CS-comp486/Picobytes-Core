@@ -91,7 +91,7 @@ const Question = ({ toggleDark }: Prop) => {
           setAnswer(null); // Initialize as null so no option is selected by default
         } else if (data.question_type === "free_response") {
           setCorrect(data.professor_answer);
-          setAnswer("")
+          setAnswer("");
         }
       })
       .catch((error) => {
@@ -139,6 +139,16 @@ const Question = ({ toggleDark }: Prop) => {
     setFeedback("");
 
     if (questionType === "multiple_choice") {
+      if (Number(answer) + 1 == correct) {
+        setIsCorrect(true);
+        setFeedback("Correct");
+      } else {
+        setIsCorrect(false);
+        setFeedback(
+          'Incorrect: correct answer was "' + options[Number(correct) - 1] + '"'
+        );
+      }
+
       fetch("http://127.0.0.1:5000/api/submit_answer", {
         method: "POST",
         headers: {
@@ -149,79 +159,23 @@ const Question = ({ toggleDark }: Prop) => {
           response: answer,
           uid: localStorage.getItem("uid"),
         }),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then((data) => {
-          if (data.error) {
-            setError(data.error);
-            setIsSubmitting(false);
-          } else {
-            // Display feedback
-            console.log("Response data:", data);
-            
-            // Check if this question was already answered
-            if (data.message === 'Question already answered') {
-              setFeedback("You've already answered this question.");
-              setIsSubmitting(true);
-              return;
-            }
-            
-            const isCorrectResponse = data.is_correct;
-            setIsCorrect(isCorrectResponse);
+      }).catch((error) => {
+        console.error("Error submitting answer: ", error);
 
-            if (isCorrectResponse) {
-              setFeedback("Correct!");
-              setShowCelebration(true);
-            } else {
-              // Log entire response for debugging
-              console.log("Full response object for debugging:", data);
-              
-              // Try to extract the correct answer from various possible property names
-              let correctAnswerText = "Unknown";
-              
-              try {
-                const correctAnswerValue = data.correct_answer;
-                console.log("Raw correct_answer value:", correctAnswerValue);
-                
-                if (correctAnswerValue && !isNaN(parseInt(correctAnswerValue))) {
-                  const index = parseInt(correctAnswerValue) - 1;
-                  if (index >= 0 && index < options.length) {
-                    correctAnswerText = options[index];
-                  }
-                }
-              } catch (err) {
-                console.error("Error parsing correct answer:", err);
-              }
-              
-              setFeedback(`Incorrect. The correct answer was: ${correctAnswerText}`);
-            }
+        // More user-friendly error handling
+        let errorMessage = "Error submitting answer";
 
-            // Enable proceeding to next question
-            setIsSubmitting(true);
-          }
-        })
-        .catch((error) => {
-          console.error("Error submitting answer: ", error);
-          
-          // More user-friendly error handling
-          let errorMessage = "Error submitting answer";
-          
-          if (error.message && error.message.includes("400")) {
-            errorMessage = "Missing required information. Please try again.";
-          } else if (error.message && error.message.includes("500")) {
-            errorMessage = "Server error. Please try again later.";
-          } else {
-            errorMessage = `Error: ${error.message}`;
-          }
-          
-          setFeedback(errorMessage);
-          setIsSubmitting(false);
-        });
+        if (error.message && error.message.includes("400")) {
+          errorMessage = "Missing required information. Please try again.";
+        } else if (error.message && error.message.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else {
+          errorMessage = `Error: ${error.message}`;
+        }
+
+        setFeedback(errorMessage);
+        setIsSubmitting(false);
+      });
     } else if (questionType === "true_false") {
       // For true/false questions, we can check the answer client-side
       const isAnswerCorrect = answer === correct;
@@ -238,9 +192,35 @@ const Question = ({ toggleDark }: Prop) => {
         );
       }
 
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          response: answer,
+          uid: localStorage.getItem("uid"),
+        }),
+      }).catch((error) => {
+        let errorMessage = "Error submitting answer";
+
+        if (error.message && error.message.includes("400")) {
+          errorMessage = "Missing required information. Please try again.";
+        } else if (error.message && error.message.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else {
+          errorMessage = `Error: ${error.message}`;
+        }
+
+        setFeedback(errorMessage);
+        setIsSubmitting(false);
+      });
+
       // Enable proceeding to next question
       setIsSubmitting(true);
     } else if (questionType === "free_response") {
+      setFeedback("Placeholder");
       fetch("http://127.0.0.1:5000/api/submit_answer", {
         method: "POST",
         headers: {
@@ -250,8 +230,7 @@ const Question = ({ toggleDark }: Prop) => {
           question_id: id,
           selected_answer: answer,
         }),
-      })
-      setFeedback("Placeholder")
+      });
     }
   };
 
@@ -263,7 +242,7 @@ const Question = ({ toggleDark }: Prop) => {
       <div className="duolingo-question-page">
         <Home_Header toggleOverlay={() => {}} />
         <div className="question-content error-content">
-        <SideBar toggleDark={toggleDark}/>
+          <SideBar toggleDark={toggleDark} />
           <div className="error-container">
             <div className="error-icon">⚠️</div>
             <h1>Error</h1>
@@ -294,7 +273,7 @@ const Question = ({ toggleDark }: Prop) => {
     return (
       <div className="duolingo-question-page">
         <Home_Header toggleOverlay={() => {}} />
-        <SideBar toggleDark={toggleDark}/>
+        <SideBar toggleDark={toggleDark} />
 
         <div className="question-content">
           {/* Progress bar */}
@@ -436,7 +415,7 @@ const Question = ({ toggleDark }: Prop) => {
           </div>
 
           {/* Feedback area */}
-          {(feedback && questionType != "free_response") && (
+          {feedback && questionType != "free_response" && (
             <div
               className={`feedback-container ${
                 feedback.includes("Correct")

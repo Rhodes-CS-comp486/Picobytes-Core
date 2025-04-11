@@ -18,6 +18,8 @@ from services.analytics_service import AnalyticsService
 from services.streak import Streaks
 from services.verification import Verification
 import sqlite3
+from routes.coding_questions import coding_questions_bp
+from services.coding_question_service import CodingQuestionService
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from email_notifications.handle_emails import handle_emails
@@ -50,6 +52,9 @@ app = Flask(__name__,
             template_folder=frontend_dir,
             static_folder=public_dir)
 
+# Register blueprints
+app.register_blueprint(coding_questions_bp)
+
 # Update CORS configuration to explicitly allow requests from your frontend
 CORS(app, resources={
     r"/*": {
@@ -73,6 +78,7 @@ analytics_service = AnalyticsService()
 streak_service = Streaks()
 verification_service = Verification()
 code_execution_service = CodeExecutionService()
+coding_question_service = CodingQuestionService()  # Initialize our new service
 
 
 @app.route('/')

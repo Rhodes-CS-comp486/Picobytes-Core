@@ -1,21 +1,133 @@
 @import "tailwindcss";
 
-/* root > html > * */
+/* Root level styles */
+:root {
+  --primary-color: #58cc02;
+  --primary-hover: #46a302;
+  --secondary-color: #1cb0f6;
+  --danger-color: #ff4b4b;
+  --success-color: #58cc02;
+  --warning-color: #ffb800;
+  --text-light: #ffffff;
+  --text-dark: #1f2937;
+  --bg-light: #f1f5f9;
+  --bg-dark: #111827;
+  --sidebar-light: #ffffff;
+  --sidebar-dark: #1f2937;
+  --card-light: #ffffff;
+  --card-dark: #1e293b;
+  --border-light: rgba(0, 0, 0, 0.1);
+  --border-dark: rgba(255, 255, 255, 0.1);
+  --transition-speed: 0.3s;
+}
 
 /* Now by default, everything will take up full page unless specified. */
-
 #root, html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  
   width: 100%;
   height: 100%;
   min-height: 100vh;
+  font-family: 'Nunito', sans-serif;
 }
 
+/* App layout with sidebar and main content */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
 
+/* Theme styles */
+.dark-mode {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
 
+.light-mode {
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+}
+
+/* Main content area - adjust the margin to match sidebar width */
+.main-content {
+  flex: 1;
+  margin-left: 240px; /* Match sidebar width */
+  padding: 16px 24px;
+  transition: margin-left var(--transition-speed) ease;
+  min-height: 100vh;
+  width: calc(100% - 240px);
+}
+
+/* When sidebar is collapsed, adjust main content */
+.sidebar.collapsed ~ .main-content {
+  margin-left: 70px;
+  width: calc(100% - 70px);
+}
+
+/* Card styling */
+.card {
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-light);
+  transition: all var(--transition-speed) ease;
+}
+
+.dark-mode .card {
+  background-color: var(--card-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Button styling */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .sidebar.collapsed ~ .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* Legacy styles */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -42,10 +154,6 @@
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
   }
-}
-
-.card {
-  padding: 2em;
 }
 
 .read-the-docs {

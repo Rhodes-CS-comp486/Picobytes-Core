@@ -10,9 +10,10 @@ import Questions from "./pages/Questions"; //import new Questions component
 import AdminDashboard from "./pages/admin/AdminDashboard"; //import new AdminDashboard component
 import ManageQuestions from "./pages/admin/ManageQuestions"; // import ManageQuestions component
 import AddQuestion from "./pages/admin/AddQuestion"; // import AddQuestion component
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from "react-router-dom";
 import "./App.css";
 import Settings from "./pages/settings";
+import SideBar from "./pages/home/side_bar";
 
 import Leaderboard_All from "./pages/leaderboard/leaderboard_page";
 import Practice_Page from "./pages/practice/practice";
@@ -20,7 +21,8 @@ import Topic_Select from "./pages/topic selection/topic_select";
 import Draggable_Question from "./pages/draggable_question";
 import ForgotPassword from "./pages/ForgotPassword";
 import CodeExecutionPage from "./pages/code_execution/code_execution_page";
-
+import CodingQuestions from "./pages/CodingQuestions"; // Import our new component
+import CodingQuestionPage from "./pages/CodingQuestionPage"; // Import our new component
 
 import Lesson_Progress from "./pages/lesson progress/lesson_progress";
 import QuestionTopic from "./pages/question_topicsort";
@@ -38,6 +40,22 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   }
   
   return <>{children}</>;
+};
+
+// Layout component to wrap all authenticated pages
+interface LayoutProps {
+  toggleDark: () => void;
+}
+
+const Layout = ({ toggleDark }: LayoutProps) => {
+  return (
+    <div className="app-layout">
+      <SideBar toggleDark={toggleDark} />
+      <div className="main-content">
+        <Outlet />
+      </div>
+    </div>
+  );
 };
 
 function App() {
@@ -71,49 +89,53 @@ function App() {
       <div style={{ fontSize: fontSize }}>
         <Router>
           <Routes>
+            {/* Auth routes outside of layout */}
             <Route path="/" element={<Login />} />
-            <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
-            <Route path="/question/:id" element={<Question toggleDark={toggleDark}/>} />
-            <Route path="topic_select" element={<Topic_Select />} />
-            <Route path="/questions" element={<Questions />} />
-            <Route path="/questions" element={<Questions toggleDark={toggleDark} />} />
-            <Route path="/questionsT/:id" element={<QuestionTopic />} />
-            <Route path="/admin/dashboard" element={
-              <AdminRoute>
-                <AdminDashboard />
-              </AdminRoute>
-            } />
-            <Route path="/admin/manage-questions" element={
-              <AdminRoute>
-                <ManageQuestions />
-              </AdminRoute>
-            } />
-            <Route path="/admin/add-question" element={
-              <AdminRoute>
-                <AddQuestion />
-              </AdminRoute>
-            } />
             <Route path="/accountcreate" element={<AccountCreate />} />
-            <Route
-              path="/settings"
-              element={
+            <Route path="/forgot_password" element={<ForgotPassword />} />
+            
+            {/* Main layout with sidebar */}
+            <Route element={<Layout toggleDark={toggleDark} />}>
+              <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
+              <Route path="/question/:id" element={<Question toggleDark={toggleDark} />} />
+              <Route path="topic_select" element={<Topic_Select />} />
+              <Route path="/questions" element={<Questions toggleDark={toggleDark} />} />
+              <Route path="/questionsT/:id" element={<QuestionTopic />} />
+              <Route path="/settings" element={
                 <Settings
                   toggleDark={toggleDark}
                   fontSize={fontSize}
                   setFontSize={setFontSize}
-                ></Settings>
-              }
-            />
-            <Route path="/leaderboard" element={<Leaderboard_All toggleDark={toggleDark}/>}/>
-            <Route path="/practice" element={<Practice_Page toggleDark={toggleDark}/>}/>
-            <Route path="/code-execution" element={<CodeExecutionPage toggleDark={toggleDark}/>}/>
-            <Route
-              path="/questions/:topicName/:questionType"
-              element={<Topic_Select />} // Mount Topic_Select component for this route
-            />
-            <Route path="/draggable_question" element={<Draggable_Question />} />
-            <Route path="/lessons" element={<Lesson_Progress toggleDark={toggleDark}/>}/>
-            <Route path="/forgot_password" element={<ForgotPassword />} />
+                />
+              } />
+              <Route path="/leaderboard" element={<Leaderboard_All toggleDark={toggleDark} />} />
+              <Route path="/practice" element={<Practice_Page toggleDark={toggleDark} />} />
+              <Route path="/code-execution" element={<CodeExecutionPage toggleDark={toggleDark} />} />
+              <Route path="/coding-questions" element={<CodingQuestions toggleDark={toggleDark} />} />
+              <Route path="/coding-question/:qid" element={<CodingQuestionPage toggleDark={toggleDark} />} />
+              <Route path="/questions/:topicName/:questionType" element={<Topic_Select />} />
+              <Route path="/draggable_question" element={<Draggable_Question />} />
+              <Route path="/lessons" element={<Lesson_Progress toggleDark={toggleDark} />} />
+            </Route>
+
+            {/* Admin routes with layout */}
+            <Route element={<Layout toggleDark={toggleDark} />}>
+              <Route path="/admin/dashboard" element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
+              } />
+              <Route path="/admin/manage-questions" element={
+                <AdminRoute>
+                  <ManageQuestions />
+                </AdminRoute>
+              } />
+              <Route path="/admin/add-question" element={
+                <AdminRoute>
+                  <AddQuestion />
+                </AdminRoute>
+              } />
+            </Route>
           </Routes>
         </Router>
       </div>

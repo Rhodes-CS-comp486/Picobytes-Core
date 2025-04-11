@@ -3,12 +3,14 @@
 # Store the PIDs of our processes
 backend_pid=""
 frontend_pid=""
+proxy_pid=""
 
 # Function to kill processes on script exit
 cleanup() {
   echo "Shutting down servers..."
   [ ! -z "$backend_pid" ] && kill $backend_pid
   [ ! -z "$frontend_pid" ] && kill $frontend_pid
+  [ ! -z "$proxy_pid" ] && kill $proxy_pid
   exit
 }
 
@@ -29,7 +31,14 @@ npm run dev &
 frontend_pid=$!
 echo "Frontend PID: $frontend_pid"
 
+# Navigate back to the root directory and start the proxy server
+cd ../..
+echo "Starting proxy server..."
+python simple_proxy.py &
+proxy_pid=$!
+echo "Proxy PID: $proxy_pid"
+
 echo "Servers running. Press Ctrl+C to stop all servers."
 
-# Wait for both background jobs to finish
+# Wait for all background jobs to finish
 wait

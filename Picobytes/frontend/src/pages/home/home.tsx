@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
+import SideBar from "./side_bar";
 
 interface Prop {
   toggleDark: () => void;
@@ -24,21 +25,6 @@ interface Player {
   uid: string;
 }
 
-// Type definitions for topic icons mapping
-interface TopicIcons {
-  [key: string]: string;
-}
-
-// Interface for the header component props
-interface HeaderProps {
-  toggleOverlay: () => void;
-}
-
-// Interface for the overlay component props
-interface OverlayProps {
-  toggleOverlay: () => void;
-}
-
 /// MAIN CONTENT ////////////////////////////////////
 
 const Homepage = ({ toggleDark }: Prop) => {
@@ -58,9 +44,8 @@ const Homepage = ({ toggleDark }: Prop) => {
   );
   const [streak, setStreak] = useState(-1);
   const [points, setPoints] = useState(-1);
-  
   // Function to apply the S-curve positioning
-  const getButtonPosition = (index: number) => {
+  const getButtonPosition = (index) => {
     // Calculate S-curve path
     const curveOffset = 10; // Height offset for each curve step
     const maxCurveOffset = 70; // Maximum offset (how wide the curve should be)
@@ -71,6 +56,7 @@ const Homepage = ({ toggleDark }: Prop) => {
 
     return { transform: `translateY(${curveY}px) translateX(${curveX}px)` };
   };
+
 
   useEffect(() => {
     const lessonFromURL = queryParams.get("lesson");
@@ -201,7 +187,11 @@ const Homepage = ({ toggleDark }: Prop) => {
 
   /// NAVS ///
 
-  const goToQuestion = (id: number) => {
+  const toggleOverlay = () => {
+    setShowOverlay(!showOverlay);
+  };
+
+  const goToQuestion = (id) => {
     navigate(`/question/${id}`);
   };
 
@@ -272,101 +262,335 @@ const Homepage = ({ toggleDark }: Prop) => {
       ? Math.round(Number(answeredQuestions) * 10)
       : 0;
 
-  // Get topic icon for display
-  const getTopicIcon = (topic: string): string => {
-    const icons: TopicIcons = {
-      "C Basics": "🔤",
-      "C Functions": "🧩",
-      "C Memory Management": "💾",
-      "Linux": "🐧",
-      "Programming": "💻",
-    };
-    
-    // Default icon if topic not found
-    return icons[topic] || "📚";
+  // Get topic icon or character for display
+  const getTopicIcon = (topic) => {
+    // Handle C programming related topics
+    if (topic.includes("C Basics")) return "B";
+    if (topic.includes("C Functions")) return "F";
+    if (topic.includes("C Memory")) return "M";
+    if (topic.toLowerCase() === "linux") return "L";
+    if (topic.toLowerCase() === "programming") return "P";
+
+    // For other topics, use first letter
+    return topic.charAt(0).toUpperCase();
   };
+
 
   /// MAIN CONTENT ///
 
   return (
-    <div className="home-container">
-      <Home_Header toggleOverlay={() => setShowOverlay(!showOverlay)} />
-      {showOverlay && <Home_Prof_Overlay toggleOverlay={() => setShowOverlay(!showOverlay)} />}
-      
-      <div className="welcome-section">
-        <h1 className="welcome-heading">{getGreeting()}, {username}!</h1>
+    <div className="duolingo-layout">
+      {/* Mobile Menu is included in Header component */}
+      <Home_Header toggleOverlay={toggleOverlay} />
+      {showOverlay && <Home_Prof_Overlay />}
+
+      <SideBar toggleDark={toggleDark}></SideBar>
+
+      {/* Main Content */}
+      <div className="main-content">
+        <div className="unit-header">
+          <div className="unit-back" onClick={goToLessonProgress}>
+            <span className="material-icon">←</span>
+          </div>
+          <div className="unit-info">
+            <div className="unit-title">Lesson {lessonNumber}</div>
+            <div className="unit-subtitle">See all lesson progress</div>
+          </div>
+          <div className="unit-actions">
+            <button className="guidebook-button" onClick={goToAllQuestions}>
+              <span className="material-icon">📖</span>
+              <span>All Questions</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Enhanced Learning Path */}
+        <div className="learning-path">
+          <h1 className="welcome-heading">
+            {getGreeting()}, {username}!
+          </h1>
+          <div className="progress-info">
+            <div className="progress-label">
+              Your progress: {overallProgress}%
+            </div>
+            <div className="progress-bar">
+              <div
+                className="progress-filled"
+                style={{ width: `${overallProgress}%` }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="daily-streak">
+            <div className="daily-streak-title">
+              <span className="streak-flame">🔥</span>
+              Daily Streak
+            </div>
+            <div className="streak-days">{streak} days</div>
+          </div>
+
         
-        <div className="card stats-card">
-          <div className="stats-grid">
+          {/*
+          {isTopicsLoading ? (
+            <div style={{ textAlign: "center", margin: "30px 0" }}>
+              Loading topics...
+            </div>
+          ) : (
+            <div className="topic-path-container">
+              <div className="path-line"></div>
+              <div className="topic-nodes">
+                {topicsList.map((topic, index) => {
+                  const status = getTopicStatus(index);
+                  const topicIcon = getTopicIcon(topic);
+                  return (
+                    <div
+                      className="topic-node"
+                      key={index}
+                      onClick={() =>
+                        status !== "locked" && goToQuestion(index + 1)
+                      }
+                    >
+                      <div className={`node-circle ${status}`}>
+                        {status === "completed"
+                          ? "✓"
+                          : status === "locked"
+                          ? "🔒"
+                          : topicIcon}
+                      </div>
+                      <div className="node-label">{topic}</div>
+                    </div>
+                  );
+                })}
+                <div className="treasure-chest">🏆</div>
+              </div>
+            </div>
+          )}
+            */}
+
+
+          {/* MASCOT */}
+          <div className="mascot-container">
+            <div className="mascot-speech">
+              {overallProgress > 0
+                ? "Great progress! Ready to continue learning C programming?"
+                : "Ready to start learning C programming?"}
+            </div>
+            <div className="mascot-character">🤖</div>
+          </div>
+
+          <button
+            className="start-learning-button"
+            onClick={handleStartLearning}
+          >
+            {overallProgress > 0 ? "CONTINUE" : "START"}
+          </button>
+          
+          
+          {/* QUESTIONS PATH */}
+          <div id="home-questions-vscroll">
+            {[...Array(questionStats.totalQuestions)].map((_, index) => {
+              const questionId = index + 1;
+              const isCompleted =
+                questionId <= questionStats.completedQuestions;
+
+              // Get the dynamic positioning for each button
+              const buttonPosition = getButtonPosition(index);
+
+              return (
+                <div key={questionId} id="home-question-button-container" style={buttonPosition}>
+                  <button
+                    className={`home-question-button ${
+                      isCompleted ? "completed" : ""
+                    }`}
+                    onClick={() => goToQuestion(questionId)}
+                  >
+                    <span className="home-question-text">{isCompleted ? "✓ " : ""}{questionId}</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          
+          
+
+       
+
+          {/* All Questions Section */}
+        {/*
+          <div className="all-questions-section">
+            <h2>All Questions</h2>
+            <div className="questions-grid">
+              {[...Array(questionStats.totalQuestions)].map((_, index) => {
+                const questionId = index + 1;
+                const isCompleted =
+                  questionId <= questionStats.completedQuestions;
+
+                return (
+                  <div key={questionId} className="question-button-container">
+                    <button
+                      className={`question-button ${
+                        isCompleted ? "completed" : ""
+                      }`}
+                      onClick={() => goToQuestion(questionId)}
+                    >
+                      {isCompleted ? "✓ " : ""} Question {questionId}
+                    </button>
+                  </div>
+                );
+              })}
+              
+            </div>
+          </div> 
+        */}
+        </div>
+      </div>
+
+      {/* Right Sidebar */}
+      <div className="right-sidebar">
+        {/* User Profile Card */}
+        <div className="user-profile-card">
+          <div className="user-profile-header">
+            <div className="user-avatar">
+              {username.charAt(0).toUpperCase()}
+            </div>
+            <div className="user-info">
+              <div className="user-name">{username}</div>
+              <div className="user-level">Bronze</div>
+            </div>
+          </div>
+
+          <div className="user-stats-container">
+            <div className="stat-item">
+              <div className="stat-icon">🏆</div>
+              <div className="stat-value">{points}</div>
+              <div className="stat-label">Points</div>
+            </div>
+
             <div className="stat-item">
               <div className="stat-icon">🔥</div>
               <div className="stat-value">{streak}</div>
               <div className="stat-label">Day Streak</div>
             </div>
+
             <div className="stat-item">
               <div className="stat-icon">⭐</div>
-              <div className="stat-value">{points}</div>
-              <div className="stat-label">Points</div>
-            </div>
-            <div className="stat-item">
-              <div className="stat-icon">📚</div>
-              <div className="stat-value">{Object.keys(topicProgress).length}</div>
-              <div className="stat-label">Topics</div>
+              <div className="stat-value">
+                {
+                  Object.keys(topicProgress).filter(
+                    (topic) => topicProgress[topic] >= 100
+                  ).length
+                }
+                {/* {questionStats.completedQuestions || -1} */}
+              </div>
+              <div className="stat-label">Completed</div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="learning-path-section">
-        <h2>Continue Learning</h2>
-        <div className="topic-cards">
-          {Object.entries(topicProgress).map(([topic, progress]) => (
-            <div 
-              key={topic} 
-              className="card topic-card"
-              onClick={() => navigate(`/practice?topic=${encodeURIComponent(topic)}`)}
-            >
-              <div className="topic-icon">{getTopicIcon(topic)}</div>
-              <div className="topic-info">
-                <h3>{topic}</h3>
+
+        {/* Overall Progress Section */}
+        <div className="progress-section">
+          <div className="section-header">
+            <div className="section-title">Your Progress</div>
+            <div className="view-all-link" onClick={goToAllQuestions}>
+              VIEW ALL
+            </div>
+          </div>
+
+          <div className="progress-percentage">{overallProgress}%</div>
+
+          <div className="progress-bar">
+            <div
+              className="progress-filled"
+              style={{ width: `${overallProgress}%` }}
+            ></div>
+          </div>
+
+          <div className="progress-label">
+            {answeredQuestions} of 10 questions completed
+          </div>
+        </div>
+
+        {/* Topic Progress Section */}
+        <div className="topic-progress-section">
+          <div className="section-header">
+            <div className="section-title">Topic Progress</div>
+            <div className="view-all-link" onClick={goToTopicSelection}>
+              VIEW
+            </div>
+          </div>
+
+          {isTopicsLoading ? (
+            <div style={{ textAlign: "center", padding: "20px 0" }}>
+              Loading topics...
+            </div>
+          ) : (
+            Object.entries(topicProgress).map(([topic, progress]) => (
+              <div className="topic-item" key={topic}>
+                <div className="topic-header">
+                  <div className="topic-name">
+                    <div className="topic-icon">{getTopicIcon(topic)}</div>
+                    {topic}
+                  </div>
+                  <div className="topic-percentage">{progress}%</div>
+                </div>
                 <div className="progress-bar">
-                  <div 
-                    className="progress-filled" 
-                    style={{width: `${progress}%`}}
+                  <div
+                    className="progress-filled"
+                    style={{ width: `${progress}%` }}
                   ></div>
                 </div>
-                <div className="progress-percentage">{progress}% complete</div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Daily Goals Section */}
+        <div className="daily-goals-section">
+          <div className="section-header">
+            <div className="section-title">Daily Goals</div>
+          </div>
+
+          <div className="goal-item">
+            <div className="goal-icon">📝</div>
+            <div className="goal-details">
+              <div className="goal-title">Complete 5 questions</div>
+              <div className="goal-progress-bar">
+                <div
+                  className="goal-progress-filled"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      (questionStats.completedQuestions / 5) * 100
+                    )}%`,
+                  }}
+                ></div>
               </div>
             </div>
-          ))}
+          </div>
+
+          <div className="goal-item">
+            <div className="goal-icon">🎯</div>
+            <div className="goal-details">
+              <div className="goal-title">Study 2 topics</div>
+              <div className="goal-progress-bar">
+                <div
+                  className="goal-progress-filled"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      (Object.keys(topicProgress).filter(
+                        (t) => topicProgress[t] > 0
+                      ).length /
+                        2) *
+                        100
+                    )}%`,
+                  }}
+                ></div>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <button className="btn btn-primary" onClick={goToTopicSelection}>
-          View All Topics
-        </button>
-      </div>
-      
-      <div className="card recent-questions-card">
-        <h2>Recently Added Questions</h2>
-        <div className="recent-questions-list">
-          {/* Simulated recent questions */}
-          <div className="question-item" onClick={() => goToQuestion(1)}>
-            <div className="question-title">Question #1</div>
-            <div className="question-preview">What is the output of printf("%d", 5/2)?</div>
-          </div>
-          <div className="question-item" onClick={() => goToQuestion(2)}>
-            <div className="question-title">Question #2</div>
-            <div className="question-preview">How do you declare a pointer to an integer in C?</div>
-          </div>
-          <div className="question-item" onClick={() => goToQuestion(3)}>
-            <div className="question-title">Question #3</div>
-            <div className="question-preview">What is the difference between malloc and calloc?</div>
-          </div>
-        </div>
-        
-        <button className="btn btn-secondary" onClick={goToAllQuestions}>
-          Browse All Questions
-        </button>
       </div>
     </div>
   );

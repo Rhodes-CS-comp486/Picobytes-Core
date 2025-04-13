@@ -2,31 +2,18 @@
 import "./home_prof_overlay.css";
 import { useNavigate } from "react-router-dom";
 
-interface OverlayProps {
-  toggleOverlay: () => void;
-}
-
-const Home_Prof_Overlay: React.FC<OverlayProps> = ({ toggleOverlay }) => {
+const Home_Prof_Overlay = () => {
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("uid");
-    localStorage.removeItem("username");
     navigate("/"); // Navigate to the login page
-    toggleOverlay(); // Close the overlay
-  };
-
-  const goToSettings = () => {
-    navigate("/settings");
-    toggleOverlay(); // Close the overlay
   };
 
   return (
-    <div className="overlay-container">
-      <div className="overlay-background" onClick={toggleOverlay}></div>
+    <div>
       <ul className="overlay-home">
         <li>
-          <button onClick={goToSettings}>Settings</button>
+          <button onClick={() => navigate("/settings")}>Settings</button>
         </li>
         <li>
           <button onClick={logout}>Logout</button>

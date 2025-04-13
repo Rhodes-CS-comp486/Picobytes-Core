@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 /// INTERFACE ///////////////////////////////////////
 
@@ -12,24 +12,10 @@ interface Prop {
 const SideBar = ({ toggleDark }: Prop) => {
   /// CONSTANTS /////////////////////////////////////
   const navigate = useNavigate();
-  const location = useLocation();
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") !== "false");
-  
-  // Update dark mode state when it changes in localStorage
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setDarkMode(localStorage.getItem("darkMode") !== "false");
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
+  const [isVisible, setIsVisible] = useState(true);
 
   const toggleSidebar = () => {
-    setIsExpanded(!isExpanded);
+    setIsVisible(!isVisible); // Toggle visibility on Picobytes click
   };
 
   const handleLogout = () => {
@@ -38,83 +24,71 @@ const SideBar = ({ toggleDark }: Prop) => {
     navigate("/");
   };
 
-  // Navigation items configuration
-  const navItems = [
-    { path: "/homepage", icon: "🏠", label: "Home" },
-    { path: "/questions", icon: "📝", label: "Questions" },
-    { path: "/coding-questions", icon: "💻", label: "Coding Questions" },
-    { path: "/leaderboard", icon: "🏆", label: "Leaderboard" },
-    { path: "/practice", icon: "📚", label: "Topics" },
-    { path: "/code-execution", icon: "⌨️", label: "Code Lab" },
-    { path: "/settings", icon: "⚙️", label: "Settings" },
-  ];
 
-  // Admin-only navigation
-  const adminNavItems = [
-    { path: "/admin/dashboard", icon: "👑", label: "Admin" },
-  ];
-
-  // Check if a path is active (current page)
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
 
   /// MAIN CONTENT /////////////////////////////////////
   return (
-    <div className={`sidebar ${isExpanded ? "expanded" : "collapsed"}`}>
+    <div className={`sidebar ${isVisible ? "expanded" : "collapsed"}`}>
       <div className="logo-container" onClick={toggleSidebar}>
-        {isExpanded ? (
-          <h1 className="logo-text">Picobytes</h1>
-        ) : (
-          <h1 className="logo-icon">PB</h1>
-        )}
+        <h1 className="logo-text">Picobytes</h1>
       </div>
 
       
       <nav className="sidebar-nav">
-        {navItems.map((item) => (
-          <div
-            key={item.path}
-            className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-            onClick={() => navigate(item.path)}
-          >
-            <span className="material-icon">{item.icon}</span>
-            {isExpanded && <span className="nav-label">{item.label}</span>}
-          </div>
-        ))}
-        
+        <div
+          className={`nav-item ${window.location.pathname === '/homepage' ? 'active' : ''}`}
+          onClick={() => {
+            const lastLesson = localStorage.getItem("selectedLesson");
+            if (lastLesson) {
+              navigate(`/homepage?lesson=${lastLesson}`);
+            } else {
+              navigate("/homepage"); // Default homepage if no lesson was selected
+            }
+          }}
+        >
+          <span className="material-icon">🏠</span>
+          <span>Home</span>
+        </div>
+        <div className={`nav-item ${window.location.pathname === '/questions' ? 'active' : ''}`} onClick={() => navigate("/questions")}>
+          <span className="material-icon">📝</span>
+          <span>Questions</span>
+        </div>
+        <div className={`nav-item ${window.location.pathname === '/leaderboard' ? 'active' : ''}`} onClick={() => navigate("/leaderboard")}>
+          <span className="material-icon">🏆</span>
+          <span>Leaderboard</span>
+        </div>
+        <div className={`nav-item ${window.location.pathname === '/practice' ? 'active' : ''}`} onClick={() => navigate("/practice")}>
+          <span className="material-icon">📚</span>
+          <span>Topics</span>
+        </div>
+        <div className={`nav-item ${window.location.pathname === '/code-execution' ? 'active' : ''}`} onClick={() => navigate("/code-execution")}>
+          <span className="material-icon">💻</span>
+          <span>Code Lab</span>
+        </div>
+        <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate("/settings")}>
+          <span className="material-icon">⚙️</span>
+          <span>Settings</span>
+        </div>
         {/* Admin section if user is admin */}
         {localStorage.getItem("isAdmin") === "true" && (
-          <>
-            <div className="nav-section-divider">
-              {isExpanded && <span>Admin</span>}
-            </div>
-            
-            {adminNavItems.map((item) => (
-              <div
-                key={item.path}
-                className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-                onClick={() => navigate(item.path)}
-              >
-                <span className="material-icon">{item.icon}</span>
-                {isExpanded && <span className="nav-label">{item.label}</span>}
-              </div>
-            ))}
-          </>
+          <div
+            className={`nav-item ${window.location.pathname === '/admnin/dashboard' ? 'active' : ''}`}
+            onClick={() => navigate("/admin/dashboard")}
+          >
+            <span className="material-icon">👑</span>
+            <span>Admin</span>
+          </div>
         )}
-        
-        <div 
-          className="nav-item theme-toggle" 
-          onClick={() => toggleDark()}
-        >
-          <span className="material-icon">{darkMode ? "☀️" : "🌙"}</span>
-          {isExpanded && <span className="nav-label">Theme</span>}
+        <div className="nav-item" onClick={() => toggleDark()}>
+          <span className="material-icon">☾</span>
+          <span>Theme</span>
         </div>
+        
 
         <div className="sidebar-footer">
           <div className="nav-item" onClick={handleLogout}>
             <span className="material-icon">🚪</span>
-            {isExpanded && <span className="nav-label">Logout</span>}
+            <span>Logout</span>
           </div>
         </div>
       </nav>

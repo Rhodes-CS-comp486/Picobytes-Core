@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./home_header.css";
 import reactLogo from "../../assets/react.svg";
 
-interface HomeHeaderProps {
-  toggleOverlay: () => void;
-}
-
-const Home_Header: React.FC<HomeHeaderProps> = ({ toggleOverlay }) => {
+const Home_Header = ({ toggleOverlay }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -15,7 +11,7 @@ const Home_Header: React.FC<HomeHeaderProps> = ({ toggleOverlay }) => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const navigateTo = (path: string) => {
+  const navigateTo = (path) => {
     navigate(path);
     setIsMenuOpen(false);
   };
@@ -30,6 +26,8 @@ const Home_Header: React.FC<HomeHeaderProps> = ({ toggleOverlay }) => {
 
   return (
     <>
+  
+
       {/* Mobile menu for small screens */}
       <div className="mobile-menu-container">
         <button 

@@ -97,6 +97,8 @@ def create_table():
             CREATE TABLE IF NOT EXISTS coding (
                 qid INTEGER PRIMARY KEY,
                 starter TEXT NOT NULL,
+                testcases TEXT NOT NULL,
+                correctcode TEXT NOT NULL,
                 FOREIGN KEY (qid) REFERENCES questions(qid) ON DELETE CASCADE
             );""")
 
@@ -152,7 +154,9 @@ def create_table():
             CREATE TABLE IF NOT EXISTS user_coding (
                 uid TEXT NOT NULL,
                 qid INTEGER NOT NULL,
-                code TEXT NOT NULL,
+                usercode TEXT NOT NULL,
+                compile_status TEXT NOT NULL,
+                run_status TEXT NOT NULL,
                 PRIMARY KEY (uid, qid)
             );""")
 

@@ -19,7 +19,7 @@ import Practice_Page from "./pages/practice/practice";
 import Topic_Select from "./pages/topic selection/topic_select";
 import Draggable_Question from "./pages/draggable_question";
 import ForgotPassword from "./pages/ForgotPassword";
-
+import CodeExecutionPage from "./pages/code_execution/code_execution_page";
 
 
 import Lesson_Progress from "./pages/lesson progress/lesson_progress";
@@ -106,6 +106,7 @@ function App() {
             />
             <Route path="/leaderboard" element={<Leaderboard_All toggleDark={toggleDark}/>}/>
             <Route path="/practice" element={<Practice_Page toggleDark={toggleDark}/>}/>
+            <Route path="/code-execution" element={<CodeExecutionPage toggleDark={toggleDark}/>}/>
             <Route
               path="/questions/:topicName/:questionType"
               element={<Topic_Select />} // Mount Topic_Select component for this route

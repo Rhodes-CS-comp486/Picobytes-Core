@@ -39,8 +39,22 @@ class CodeExecutionService:
                 "perTestTimeout": 5  # Per-test timeout in seconds
             }
             
+            # Debug: Print the URL we're using
+            request_url = f"{self.api_url}/submit"
+            print(f"Making request to: {request_url}")
+            logger.info(f"Making request to: {request_url}")
+            
             # Submit to the execute-test API
-            response = requests.post(f"{self.api_url}/submit", json=json_payload)
+            response = requests.post(request_url, json=json_payload)
+            
+            # Debug: Print the response status code
+            print(f"Response status code: {response.status_code}")
+            logger.info(f"Response status code: {response.status_code}")
+            
+            # Debug: Print the response text if there's an error
+            if response.status_code != 200:
+                print(f"Error response: {response.text}")
+                logger.error(f"Error response: {response.text}")
             
             # Check if request was successful
             if response.status_code == 200:

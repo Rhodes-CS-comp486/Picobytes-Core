@@ -15,6 +15,15 @@
 
   --side-bar-width1: 220px 1fr 350px;
   --side-bar-width2: 220px 1fr;
+
+
+  --font-size-min: 10px;
+  --font-size-max: 50px;
+  --font-size-small: 14px;
+  --font-size-medium: 18px; /* TO be used for questions */
+  --font-size-title: 40px;
+  --font-size-general: 14px;
+
 }
 
 a {
@@ -33,6 +42,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-size: var(--font-size-general);
 }
 
 h1 {

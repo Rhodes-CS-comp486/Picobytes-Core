@@ -211,7 +211,7 @@
 }
 
 .unit-subtitle {
-  font-size: 16px;
+  font-size: var(--font-size-subtitle);
   opacity: 0.9;
 }
 

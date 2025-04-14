@@ -153,4 +153,18 @@
   .slider-container {
     width: 150px;
   }
-} 
+}
+
+/*** FONT SIZES STUFF ***/
+.setting-font-container {
+  display: flex;
+  flex-direction: column;
+}
+
+#settings-font-general {
+  font-size: var(--font-size-general);
+}
+
+#settings-font-medium {
+  font-size: var(--font-size-medium);
+}

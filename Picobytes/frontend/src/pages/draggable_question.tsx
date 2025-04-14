@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router";
 import './draggable_question.css';
 
 const Draggable_Question = () => {
   const [answer, setAnswer] = useState<boolean[] | boolean | null>([false, false, false, false]);
   const [questionType, setQuestionType] = useState<string>("multiple_choice");
   const [correct, setCorrect] = useState<number | boolean>(0);
-  const [options, setOptions] = useState([
-    "Option 1",
-    "Option 2",
-    "Option 3",
-    "Option 4",
-    "Option 5",
-    "Option 6",
-    "Option 7",
-    "Option 8",
-    "Option 9",
-    "Option 10",
-  ]);
+  const[question, setQuestion] = useState<string>("Question 1");
+  
   const [error, setError] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [topic, setTopic] = useState("");
-  const [totalQuestions, setTotalQuestions] = useState(0);
   const [draggedItem, setDraggedItem] = useState<HTMLElement | null>(null);
   const [questionText, setQuestionText] = useState("");
-  const [questions, setQuestion] = useState(["Question 1", "A 2", "Question 3", "Question 4", "Question 5"]);
+  const [questions, setQuestions] = useState(["Question 1", "A 2", "Question 3", "Question 4", "Question 5"]);
   const [draggedWords, setDraggedWords] = useState<string[]>([]); // New state for dragged words
-  const [uid, setUid] = useState<string | null>(null); // State to store the UID
+
+  let params = useParams();
+  let id:any = params.id;
+  
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: HTMLElement) => {
     setDraggedItem(item);
@@ -54,14 +47,10 @@ const Draggable_Question = () => {
     }
   };
 
-  const userid = localStorage.getItem("uid");
-  
-
-
 
   const questionPull = async (qid: number) => {
     try {
-      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}/${userid}`);
+      const response = await fetch(`http://127.0.0.1:5000/api/question/${qid}`);
       const data = await response.json();
 
       if (data.error) throw new Error(data.error);
@@ -83,10 +72,10 @@ const Draggable_Question = () => {
         data.block9,
         data.block10,
       ];
-      questions = questions.filter((item) => item !== -1000);
+      questions = questions.filter((item) => item !== "-1000");
 
       if (data.question_type === "code_blocks") {
-        setQuestion(questions);
+        setQuestions(questions);
 
         setCorrect(data.answer ?? "");
       }
@@ -95,6 +84,10 @@ const Draggable_Question = () => {
       setError(err.message);
     }
   };
+
+  useEffect(() => {
+    questionPull(id);
+  })
 
 
   return (
@@ -119,7 +112,7 @@ const Draggable_Question = () => {
           </div>
         ))}
       </div>
-      <button onClick={() => questionPull(29)}>Pull Question 1</button>
+      
     </div>
   );
 };

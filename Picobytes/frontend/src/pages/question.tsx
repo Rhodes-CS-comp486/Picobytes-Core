@@ -4,6 +4,7 @@ import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 
 import SideBar from "./home/side_bar";
+import Draggable_Question from "./draggable_question";
 
 interface Prop {
   toggleDark: () => void;
@@ -91,6 +92,10 @@ const Question = ({ toggleDark }: Prop) => {
           setAnswer(null); // Initialize as null so no option is selected by default
         } else if (data.question_type === "free_response") {
           setCorrect(data.professor_answer);
+          setAnswer("")
+        }
+        else if (data.question_type === "code_blocks"){
+          setCorrect(data.answer);
           setAnswer("")
         }
       })
@@ -399,7 +404,7 @@ const Question = ({ toggleDark }: Prop) => {
                   rows={10}
                   placeholder="type your short response here"
                 ></textarea>
-              ) : (
+              ) : questionType === "multiple_choice" ?(
                 // Multiple choice options
                 <div className="mc-options">
                   {options.map((option, index) => (
@@ -426,7 +431,10 @@ const Question = ({ toggleDark }: Prop) => {
                     </button>
                   ))}
                 </div>
-              )}
+              ) : (
+                // Code blocks question
+                <Draggable_Question />
+                )}
             </div>
             {feedback && questionType == "free_response" && (
               <div className="feedback-message">

@@ -12,6 +12,13 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --font-size-small: 16px;
+  --font-size-medium: 25px;
+  --font-size-title: 40px;
+
+  --font-size-subtitle: var(--font-size-small)
+
 }
 
 a {

@@ -40,7 +40,7 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
 
 function App() {
   const [dark, setDark] = useState(true);
-  const [fontSize, setFontSize] = useState(14);
+  const [fontSizeSmall, setFontSizeSmall] = useState(16);
 
   // Load dark mode from local storage.
   
@@ -66,7 +66,7 @@ function App() {
   return (
     // <SomeContext.Provider value={{ dark, setDark }}>
     <html className={dark ? "dark-mode" : "light-mode"}>
-      <div style={{ fontSize: fontSize }}>
+      <div /*style={{ fontSize: fontSize }}*/>
         <Router>
           <Routes>
             <Route path="/" element={<Login />} />
@@ -95,8 +95,8 @@ function App() {
               element={
                 <Settings
                   toggleDark={toggleDark}
-                  fontSize={fontSize}
-                  setFontSize={setFontSize}
+                  fontSizeSmall={fontSizeSmall}
+                  setFontSizeSmall={setFontSizeSmall}
                 ></Settings>
               }
             />

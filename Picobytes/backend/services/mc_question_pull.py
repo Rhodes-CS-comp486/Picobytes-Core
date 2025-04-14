@@ -1,9 +1,9 @@
-
 import random
 import os
 import psycopg
 from psycopg.rows import dict_row
 from db_info import *
+
 
 class MC_QuestionFetcher:
 
@@ -31,7 +31,6 @@ class MC_QuestionFetcher:
                 WHERE q.qtype = 'multiple_choice' AND q.qactive = True
             """)
             all_questions = cursor.fetchall()
-            print(all_questions)
             conn.close()
             return all_questions
         except Exception as e:

@@ -21,7 +21,9 @@ import Draggable_Question from "./pages/draggable_question";
 import ForgotPassword from "./pages/ForgotPassword";
 
 
+
 import Lesson_Progress from "./pages/lesson progress/lesson_progress";
+import QuestionTopic from "./pages/question_topicsort";
 
 // Protected route component for admin routes
 interface AdminRouteProps {
@@ -71,9 +73,11 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
-            <Route path="/question/:id" element={<Question />} />
+            <Route path="/question/:id" element={<Question toggleDark={toggleDark}/>} />
             <Route path="topic_select" element={<Topic_Select />} />
             <Route path="/questions" element={<Questions />} />
+            <Route path="/questions" element={<Questions toggleDark={toggleDark} />} />
+            <Route path="/questionsT/:id" element={<QuestionTopic />} />
             <Route path="/admin/dashboard" element={
               <AdminRoute>
                 <AdminDashboard />

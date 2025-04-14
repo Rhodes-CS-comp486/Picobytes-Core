@@ -2,19 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
 import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
+import SideBar from "./home/side_bar"; // Import SideBar component
 
-import SideBar from "./home/side_bar";
-
-interface Prop {
-  toggleDark: () => void;
-}
-
-/// MAIN CONTENT //////////
-
-const Question = ({ toggleDark }: Prop) => {
+const Question = () => {
   const [answer, setAnswer] = useState<number | boolean | string | null>(null);
-  const [isCorrect, setIsCorrect] = useState<boolean>(false);
-
   const [question, setQuestion] = useState("Loading question...");
   const [questionType, setQuestionType] = useState<string>("multiple_choice");
   const [correct, setCorrect] = useState<number | boolean>(0);
@@ -31,13 +22,29 @@ const Question = ({ toggleDark }: Prop) => {
   const [topic, setTopic] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState(0);
+  const [isCorrect, setIsCorrect] = useState(false);
 
   let params = useParams();
   let id = params.id;
   const navigate = useNavigate();
+  const qidArray = localStorage.getItem("qidArray")
+  ? JSON.parse(localStorage.getItem("qidArray")!)
+  : null;
+
+const useQuestionIndex = () => {
+    const [index, setIndex] = useState(0);
+
+    const incrementIndex = () => setIndex((prev) => prev + 1);
+    const decrementIndex = () => setIndex((prev) => Math.max(prev - 1, 0));
+
+    return { index, setIndex, incrementIndex, decrementIndex };
+};
+
+const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
 
   // Fetch total number of questions
   useEffect(() => {
+    setIndex(qidArray.indexOf(parseInt(id!)));
     fetch("http://127.0.0.1:5000/api/questions")
       .then((response) => response.json())
       .then((data) => {
@@ -55,6 +62,7 @@ const Question = ({ toggleDark }: Prop) => {
 
   const fetchQuestion = (questionId: string | undefined) => {
     if (!questionId) return;
+    console.log("Fetching question with ID:", index);
 
     // Reset states when fetching a new question
     setFeedback("");
@@ -91,7 +99,7 @@ const Question = ({ toggleDark }: Prop) => {
           setAnswer(null); // Initialize as null so no option is selected by default
         } else if (data.question_type === "free_response") {
           setCorrect(data.professor_answer);
-          setAnswer("");
+          setAnswer("")
         }
       })
       .catch((error) => {
@@ -101,7 +109,7 @@ const Question = ({ toggleDark }: Prop) => {
   };
 
   const navToQuestion = (qid: number) => {
-    navigate(`/question/${qid}`);
+    navigate(`/questionsT/${qid}`);
   };
 
   const goToHomepage = () => {
@@ -109,10 +117,6 @@ const Question = ({ toggleDark }: Prop) => {
   };
 
   const updateMCAnswer = (n: number) => {
-    // // Create a new array with all false values
-    // const newAnswer = [false, false, false, false];
-    // // Set the selected option to true
-    // newAnswer[n] = true;
     setAnswer(n);
   };
 
@@ -122,14 +126,6 @@ const Question = ({ toggleDark }: Prop) => {
 
   const submitAnswer = () => {
     // Check if an answer is selected
-    // if (
-    //   (questionType === "multiple_choice" &&
-    //     // !(answer as boolean[]).includes(true)) ||
-    //   // (questionType === "true_false" && answer === null)
-    // ) {
-    //   setFeedback("Please select an answer");
-    //   return;
-    // }
     if (answer === null) {
       setFeedback("Please select an answer");
       return;
@@ -139,16 +135,6 @@ const Question = ({ toggleDark }: Prop) => {
     setFeedback("");
 
     if (questionType === "multiple_choice") {
-      if (Number(answer) + 1 == correct) {
-        setIsCorrect(true);
-        setFeedback("Correct");
-      } else {
-        setIsCorrect(false);
-        setFeedback(
-          'Incorrect: correct answer was "' + options[Number(correct) - 1] + '"'
-        );
-      }
-
       fetch("http://127.0.0.1:5000/api/submit_answer", {
         method: "POST",
         headers: {
@@ -159,23 +145,79 @@ const Question = ({ toggleDark }: Prop) => {
           response: answer,
           uid: localStorage.getItem("uid"),
         }),
-      }).catch((error) => {
-        console.error("Error submitting answer: ", error);
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if (data.error) {
+            setError(data.error);
+            setIsSubmitting(false);
+          } else {
+            // Display feedback
+            console.log("Response data:", data);
+            
+            // Check if this question was already answered
+            if (data.message === 'Question already answered') {
+              setFeedback("You've already answered this question.");
+              setIsSubmitting(true);
+              return;
+            }
+            
+            const isCorrectResponse = data.is_correct;
+            setIsCorrect(isCorrectResponse);
 
-        // More user-friendly error handling
-        let errorMessage = "Error submitting answer";
+            if (isCorrectResponse) {
+              setFeedback("Correct!");
+              setShowCelebration(true);
+            } else {
+              // Log entire response for debugging
+              console.log("Full response object for debugging:", data);
+              
+              // Try to extract the correct answer from various possible property names
+              let correctAnswerText = "Unknown";
+              
+              try {
+                const correctAnswerValue = data.correct_answer;
+                console.log("Raw correct_answer value:", correctAnswerValue);
+                
+                if (correctAnswerValue && !isNaN(parseInt(correctAnswerValue))) {
+                  const index = parseInt(correctAnswerValue) - 1;
+                  if (index >= 0 && index < options.length) {
+                    correctAnswerText = options[index];
+                  }
+                }
+              } catch (err) {
+                console.error("Error parsing correct answer:", err);
+              }
+              
+              setFeedback(`Incorrect. The correct answer was: ${correctAnswerText}`);
+            }
 
-        if (error.message && error.message.includes("400")) {
-          errorMessage = "Missing required information. Please try again.";
-        } else if (error.message && error.message.includes("500")) {
-          errorMessage = "Server error. Please try again later.";
-        } else {
-          errorMessage = `Error: ${error.message}`;
-        }
-
-        setFeedback(errorMessage);
-        setIsSubmitting(false);
-      });
+            // Enable proceeding to next question
+            setIsSubmitting(true);
+          }
+        })
+        .catch((error) => {
+          console.error("Error submitting answer: ", error);
+          
+          // More user-friendly error handling
+          let errorMessage = "Error submitting answer";
+          
+          if (error.message && error.message.includes("400")) {
+            errorMessage = "Missing required information. Please try again.";
+          } else if (error.message && error.message.includes("500")) {
+            errorMessage = "Server error. Please try again later.";
+          } else {
+            errorMessage = `Error: ${error.message}`;
+          }
+          
+          setFeedback(errorMessage);
+          setIsSubmitting(false);
+        });
     } else if (questionType === "true_false") {
       // For true/false questions, we can check the answer client-side
       const isAnswerCorrect = answer === correct;
@@ -192,6 +234,9 @@ const Question = ({ toggleDark }: Prop) => {
         );
       }
 
+      // Enable proceeding to next question
+      setIsSubmitting(true);
+    } else if (questionType === "free_response") {
       fetch("http://127.0.0.1:5000/api/submit_answer", {
         method: "POST",
         headers: {
@@ -202,65 +247,46 @@ const Question = ({ toggleDark }: Prop) => {
           response: answer,
           uid: localStorage.getItem("uid"),
         }),
-      }).catch((error) => {
-        let errorMessage = "Error submitting answer";
-
-        if (error.message && error.message.includes("400")) {
-          errorMessage = "Missing required information. Please try again.";
-        } else if (error.message && error.message.includes("500")) {
-          errorMessage = "Server error. Please try again later.";
-        } else {
-          errorMessage = `Error: ${error.message}`;
-        }
-
-        setFeedback(errorMessage);
-        setIsSubmitting(false);
-      });
-
-      // Enable proceeding to next question
-      setIsSubmitting(true);
-    } else if (questionType === "free_response") {
-      setFeedback("Placeholder");
-      fetch("http://127.0.0.1:5000/api/submit_answer", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          question_id: id,
-          selected_answer: answer,
-        }),
-      });
+      })
+      setFeedback("Placeholder")
     }
   };
 
   // Calculate current progress percentage
-  const progressPercentage = id ? (parseInt(id) / totalQuestions) * 100 : 0;
+  const progressPercentage = id ? ((index+1) / qidArray.length) * 100 : 0;
+
+  // Add toggleDark function for the sidebar
+  const toggleDark = () => {
+    const body = document.body;
+    body.classList.toggle("dark-mode");
+    body.classList.toggle("light-mode");
+  };
 
   if (error !== "") {
     return (
       <div className="duolingo-question-page">
         <Home_Header toggleOverlay={() => {}} />
+        <SideBar toggleDark={toggleDark} />
         <div className="question-content error-content">
-          <SideBar toggleDark={toggleDark} />
           <div className="error-container">
             <div className="error-icon">⚠️</div>
             <h1>Error</h1>
             <p>{error}</p>
             <p>Question ID: {id}</p>
             <div className="question-nav">
-              <button
-                className="nav-button"
-                onClick={() => navToQuestion(parseInt(id!) - 1)}
-              >
-                Previous Question
-              </button>
               <button className="nav-button home-button" onClick={goToHomepage}>
                 Go to Homepage
               </button>
               <button
                 className="nav-button"
-                onClick={() => navToQuestion(parseInt(id!) + 1)}
+                onClick={() => {
+                    if (qidArray) {
+                      incrementIndex();
+                      navToQuestion(parseInt(qidArray[index]));
+                    } else {
+                      console.error("qidArray is null");
+                    }
+                  }}
               >
                 Next Question
               </button>
@@ -279,43 +305,22 @@ const Question = ({ toggleDark }: Prop) => {
           {/* Progress bar */}
           <div className="question-progress">
             <div className="progress-info">
-              <span>
-                Question {id} of {totalQuestions}
-              </span>
-              <span>{Math.round(progressPercentage)}% Complete</span>
+              <span>Question {index + 1} of {qidArray.length}</span>
             </div>
             <div className="progress-bar">
               <div
                 className="progress-filled"
                 style={{ width: `${progressPercentage}%` }}
               ></div>
-              {totalQuestions > 0 &&
-                Array.from(
-                  { length: Math.min(totalQuestions, 20) },
-                  (_, index) => {
-                    const questionPosition =
-                      ((index + 1) / totalQuestions) * 100;
-                    const isCurrentQuestion = parseInt(id!) === index + 1;
-                    const isCompletedQuestion = parseInt(id!) > index + 1;
-                    return (
-                      <div
-                        key={index}
-                        className={`progress-marker ${
-                          isCurrentQuestion ? "current" : ""
-                        } ${isCompletedQuestion ? "completed" : ""}`}
-                        style={{ left: `${questionPosition}%` }}
-                        title={`Question ${index + 1}`}
-                        onClick={() => navToQuestion(index + 1)}
-                      />
-                    );
-                  }
-                )}
             </div>
           </div>
 
           {/* Home button at top */}
           <div className="top-nav">
-            <button className="home-button" onClick={goToHomepage}>
+            <button
+              className="home-button"
+              onClick={goToHomepage}
+            >
               Home
             </button>
           </div>
@@ -331,69 +336,70 @@ const Question = ({ toggleDark }: Prop) => {
             <h1 className="question-text">{question}</h1>
 
             <div className="options-container">
-              {questionType === "true_false" ? (
-                // True/False options
+              {questionType === "true_false" && (
                 <div className="tf-options">
                   <button
-                    className={`option-button tf-option ${
-                      answer === true ? "selected" : ""
-                    } ${
-                      feedback && answer === true
+                    className={`option-button ${answer === true ? "selected" : ""} ${
+                      isSubmitting
                         ? correct === true
                           ? "correct"
-                          : "incorrect"
+                          : answer === true
+                            ? "incorrect"
+                            : ""
                         : ""
                     }`}
-                    onClick={() => !isSubmitting && updateTFAnswer(true)}
+                    onClick={() => updateTFAnswer(true)}
                     disabled={isSubmitting}
                   >
                     <div className="option-content">
-                      <div className="option-icon">✓</div>
+                      <div className="option-icon">T</div>
                       <div className="option-text">True</div>
                     </div>
                   </button>
                   <button
-                    className={`option-button tf-option ${
-                      answer === false ? "selected" : ""
-                    } ${
-                      feedback && answer === false
+                    className={`option-button ${answer === false ? "selected" : ""} ${
+                      isSubmitting
                         ? correct === false
                           ? "correct"
-                          : "incorrect"
+                          : answer === false
+                            ? "incorrect"
+                            : ""
                         : ""
                     }`}
-                    onClick={() => !isSubmitting && updateTFAnswer(false)}
+                    onClick={() => updateTFAnswer(false)}
                     disabled={isSubmitting}
                   >
                     <div className="option-content">
-                      <div className="option-icon">✗</div>
+                      <div className="option-icon">F</div>
                       <div className="option-text">False</div>
                     </div>
                   </button>
                 </div>
-              ) : questionType === "free_response" ? (
+              )}
+              {questionType === "free_response" && (
                 <textarea
                   className="fr"
+                  placeholder="Type your answer here..."
+                  value={answer as string}
                   onChange={(e) => setAnswer(e.target.value)}
-                  rows={10}
-                  placeholder="type your short response here"
+                  disabled={isSubmitting}
                 ></textarea>
-              ) : (
-                // Multiple choice options
+              )}
+              {questionType === "multiple_choice" && (
                 <div className="mc-options">
                   {options.map((option, index) => (
                     <button
                       key={index}
-                      className={`option-button mc-option ${
-                        answer === index ? "selected" : ""
-                      } ${
-                        feedback && answer === index
-                          ? isCorrect
+                      className={`option-button ${answer === index ? "selected" : ""} ${
+                        isSubmitting
+                          ? typeof correct === 'number' && index === (correct - 1)
                             ? "correct"
-                            : "incorrect"
+                            : answer === index
+                              ? "incorrect"
+                              : ""
                           : ""
                       }`}
-                      onClick={() => !isSubmitting && updateMCAnswer(index)}
+                      onClick={() => updateMCAnswer(index)}
                       disabled={isSubmitting}
                     >
                       <div className="option-content">
@@ -407,15 +413,10 @@ const Question = ({ toggleDark }: Prop) => {
                 </div>
               )}
             </div>
-            {feedback && questionType == "free_response" && (
-              <div className="feedback-message">
-                <b>Correct Answer:</b> {correct}
-              </div>
-            )}
           </div>
 
           {/* Feedback area */}
-          {feedback && questionType != "free_response" && (
+          {feedback && (
             <div
               className={`feedback-container ${
                 feedback.includes("Correct")
@@ -449,43 +450,74 @@ const Question = ({ toggleDark }: Prop) => {
                 className="check-button"
                 onClick={submitAnswer}
                 disabled={
+                  isSubmitting || 
                   (questionType === "multiple_choice" && answer === null) ||
-                  (questionType === "true_false" && answer === null)
+                  (questionType === "true_false" && answer === null) ||
+                  (questionType === "free_response" && !answer)
                 }
               >
-                Check
+                {isSubmitting ? "Checking..." : "Check Answer"}
               </button>
             ) : (
-              <button
-                className="continue-button"
-                onClick={() => navToQuestion(parseInt(id!) + 1)}
-              >
-                Continue
-              </button>
+                <button
+                  className="continue-button"
+                  onClick={() => {
+                    if (qidArray) {
+                      incrementIndex(); // Increment the index
+                      setTimeout(() => {
+                        navToQuestion(parseInt(qidArray[index + 1])); // Navigate to the next question
+                      }, 0); // Ensure navigation happens after state update
+                    } else {
+                      console.error("qidArray is null");
+                    }
+                  }}
+                  disabled={index >= qidArray.length - 1}
+                >
+                  Continue
+                </button>
+              
             )}
           </div>
 
           {/* Bottom navigation */}
           <div className="bottom-nav">
             <button
-              className="skip-button"
-              onClick={() => navToQuestion(parseInt(id!) - 1)}
-              disabled={parseInt(id!) <= 1}
-            >
-              Previous
+                className="skip-button"
+                onClick={() => {
+                    if (qidArray) {
+                    decrementIndex(); // Decrement the index
+                    setTimeout(() => {
+                        navToQuestion(parseInt(qidArray[index - 1])); // Navigate to the previous question
+                    }, 0); // Ensure navigation happens after state update
+                    } else {
+                    console.error("qidArray is null");
+                    }
+                }}
+                disabled={index <= 0}
+                >
+                Previous
             </button>
             <div className="nav-center">
               <div className="question-counter">
-                Question {id} of {totalQuestions}
+                Question {index + 1} of {qidArray.length}
               </div>
             </div>
             <button
-              className="skip-button"
-              onClick={() => navToQuestion(parseInt(id!) + 1)}
-              disabled={parseInt(id!) >= totalQuestions}
-            >
-              Skip
-            </button>
+                className="skip-button"
+                onClick={() => {
+                    if (qidArray) {
+                    incrementIndex(); // Increment the index
+                    setTimeout(() => {
+                        navToQuestion(parseInt(qidArray[index + 1])); // Navigate to the next question
+                    }, 0); // Ensure navigation happens after state update
+                    } else {
+                    console.error("qidArray is null");
+                    }
+                }}
+                disabled={index >= qidArray.length - 1}
+                >
+                Skip
+                </button>
           </div>
         </div>
       </div>

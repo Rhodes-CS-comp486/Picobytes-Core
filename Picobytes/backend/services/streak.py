@@ -7,6 +7,7 @@ import psycopg
 from psycopg.rows import dict_row
 from db_info import *
 
+
 class Streaks:
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
@@ -14,41 +15,36 @@ class Streaks:
 
     def _connect(self):
         """Establish and return a database connection."""
-        #return psycopg.connect(self.db_url, row_factory=dict_row)
-        return psycopg.connect(self.db_url)
+        conn = psycopg.connect(self.db_url)
+        conn.row_factory = dict_row
+        return conn
 
 
-    def update_streak(self, uid, time):
+    def update_streak(self, uid, current_time):
         try:
             conn = self._connect()
             cursor = conn.cursor()
+            
+            # Calculate streak update in a single operation (PostgreSQL)
             cursor.execute("""
-                       select ulastanswertime, ustreak from users where uid=%s
-                   """, (uid,))
-
-            u = cursor.fetchone()
-
-            last_time, days = u
-
-            old_dt = datetime.fromtimestamp(last_time)
-
-            new_dt = datetime.fromtimestamp(time.time())
-
-            difference = new_dt - old_dt
-
-            if difference.days == 0:
-                print()
-            elif difference.days == 1:
-                days += 1
-            elif difference.days > 1:
-                days = 0
-
-            cursor.execute("""UPDATE users SET ulastanswertime = %s, ustreak = %s WHERE id = ?""", (time, days, uid,))
+                UPDATE users 
+                SET 
+                    ustreak = CASE 
+                        WHEN (EXTRACT(EPOCH FROM NOW()) - ulastanswertime) / 86400 < 1 THEN ustreak  -- Same day, no change
+                        WHEN (EXTRACT(EPOCH FROM NOW()) - ulastanswertime) / 86400 < 2 THEN ustreak + 1  -- Next day, increment
+                        ELSE 0  -- More than 1 day gap, reset to 0
+                    END,
+                    ulastanswertime = %s
+                WHERE uid = %s
+                RETURNING ustreak
+            """, (current_time, uid))
+            
             conn.commit()
             conn.close()
             return 1
+            
         except Exception as e:
-            print(f"Error saving response: {e}")
+            print(f"Error updating streak: {e}")
             return 0
 
 
@@ -62,9 +58,11 @@ class Streaks:
                    """, (uid,))
 
             streak = cursor.fetchone()
-
-            conn.close()
-            return streak
+            
+            try:
+                return streak['ustreak']
+            except (TypeError, KeyError):
+                return streak[0]
         except Exception as e:
             print(f"Error getting streak: {e}")
             return -1
@@ -81,7 +79,11 @@ class Streaks:
 
             conn.close()
 
-            last_time, days = u
+            try:
+                last_time = u['ulastanswertime']
+                days = u['ustreak']
+            except (TypeError, KeyError):
+                last_time, days = u
 
             old_dt = datetime.fromtimestamp(last_time)
 
@@ -104,9 +106,11 @@ class Streaks:
                    """, (uid,))
 
             points = cursor.fetchone()
-
-            conn.close()
-            return points
+            
+            try:
+                return points['upoints']
+            except (TypeError, KeyError):
+                return points[0]
         except Exception as e:
             print(f"getting streak: {e}")
             return -1
@@ -125,7 +129,28 @@ class Streaks:
             cursor.execute("""
                         SELECT uname, uid, upoints FROM users WHERE uadmin = 0 ORDER BY upoints DESC LIMIT 10;
                                """)
-            top10 = cursor.fetchall()
+            results = cursor.fetchall()
+            conn.close()
+            
+            # Convert results to a list of dictionaries to ensure proper JSON serialization
+            top10 = []
+            for row in results:
+                try:
+                    # Try to access as dictionary
+                    user_data = {
+                        'uname': row['uname'],
+                        'uid': row['uid'],
+                        'upoints': row['upoints']
+                    }
+                except (TypeError, KeyError):
+                    # If it's a tuple
+                    user_data = {
+                        'uname': row[0],
+                        'uid': row[1],
+                        'upoints': row[2]
+                    }
+                top10.append(user_data)
+                
             return jsonify({'top10': top10})
         except Exception as e:
             print(f"Error getting top 10: {e}")

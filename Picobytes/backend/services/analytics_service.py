@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import psycopg
 from psycopg.rows import dict_row
 from db_info import *
+
 class AnalyticsService:
     '''def __init__(self, db_path="pico.db",):
         self.db_path = db_path
@@ -33,20 +34,20 @@ class AnalyticsService:
             is_correct: Whether the answer was correct
             uid: User ID (optional)
         """
-        conn = self._get_db_connection()
         try:
+            conn = self._get_db_connection()
             cursor = conn.cursor()
+            # If timestamp is auto-generated in the database schema, we don't need to include it
             cursor.execute(
-                "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (?, ?, ?)",
+                "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (%s, %s, %s)",
                 (qid, uid, is_correct)
             )
             conn.commit()
+            conn.close()
             return True
         except Exception as e:
             print(f"Error recording question attempt: {e}")
             return False
-        finally:
-            conn.close()
     
     def get_most_attempted_questions(self, limit: int = 5) -> List[Dict[str, Any]]:
         """
@@ -63,7 +64,7 @@ class AnalyticsService:
                 FROM question_analytics 
                 GROUP BY qid 
                 ORDER BY attempts DESC
-                LIMIT ?
+                LIMIT %s
             """, (limit,))
             
             attempt_data = cursor.fetchall()
@@ -74,7 +75,7 @@ class AnalyticsService:
                 attempts = row['attempts']
                 
                 question_cursor = conn.execute(
-                    "SELECT qtext FROM questions WHERE qid = ?", 
+                    "SELECT qtext FROM questions WHERE qid = %s", 
                     (qid,)
                 )
                 question_row = question_cursor.fetchone()
@@ -113,7 +114,7 @@ class AnalyticsService:
                 GROUP BY qid 
                 HAVING COUNT(*) >= 5
                 ORDER BY success_rate ASC
-                LIMIT ?
+                LIMIT %s
             """, (limit,))
             
             problematic_data = cursor.fetchall()
@@ -125,7 +126,7 @@ class AnalyticsService:
                 success_rate = row['success_rate']
                 
                 question_cursor = conn.execute(
-                    "SELECT qtext FROM questions WHERE qid = ?", 
+                    "SELECT qtext FROM questions WHERE qid = %s", 
                     (qid,)
                 )
                 question_row = question_cursor.fetchone()
@@ -158,12 +159,14 @@ class AnalyticsService:
             cursor = conn.execute("""
                 SELECT 
                     COUNT(*) as total_attempts,
-                    SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) * 100.0 / COUNT(*) as completion_rate
+                    SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0) as completion_rate
                 FROM question_analytics 
             """)
             
             overall_stats = cursor.fetchone()
-            completion_rate = round(overall_stats['completion_rate'], 1) if overall_stats else 0
+            completion_rate = 0
+            if overall_stats and overall_stats['completion_rate'] is not None:
+                completion_rate = round(overall_stats['completion_rate'], 1)
             
             # Daily completions over the last 7 days
             daily_completions = []
@@ -175,8 +178,8 @@ class AnalyticsService:
                 cursor = conn.execute("""
                     SELECT COUNT(*) as count
                     FROM question_analytics
-                    WHERE is_correct = 1
-                    AND timestamp BETWEEN ? AND ?
+                    WHERE is_correct = TRUE
+                    AND timestamp BETWEEN %s AND %s
                 """, (start_time, end_time))
                 
                 count_row = cursor.fetchone()

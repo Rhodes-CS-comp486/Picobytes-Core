@@ -36,6 +36,11 @@ const Topic_Select = () => {
                 if (data.topics && data.topics.length > 0) {
                     setQuestions(data.topics); // Set the questions from the topics array
                     console.log(data.topics);
+
+                    // Extract an array of qid values
+                    const qidArray = data.topics.map((item: any) => item.question_id);
+                    console.log("Array of qid values:", qidArray);
+                    localStorage.setItem('qidArray', JSON.stringify(qidArray));
                 } else {
                     setError("No questions found for this topic.");
                 }
@@ -55,7 +60,7 @@ const Topic_Select = () => {
     // Handle answer selection
     const handleAnswerSelect = (qid: number, answer: boolean | number) => {
         // Navigate to the question page with the selected answer
-        navigate(`/question/${qid}`);
+        navigate(`/questionsT/${qid}`);
     };
 
     const goToTopicSelect = () => {
@@ -127,7 +132,7 @@ const Topic_Select = () => {
                         <div 
                             key={question.question_id} 
                             className="question-item"
-                            onClick={() => navigate(`/question/${question.question_id}`)}
+                            onClick={() => navigate(`/questionsT/${question.question_id}`)}
                             style={{ cursor: 'pointer' }}
                         >
                             <div className="question-text">{question.question_text}</div>

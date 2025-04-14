@@ -1,6 +1,7 @@
 import psycopg
 from psycopg.rows import dict_row
 from db_info import *
+
 class QuestionAdder:
     def __init__(self, db_filename="pico.db"):
         """Initialize the connection to the SQLite database located one directory above."""
@@ -21,6 +22,10 @@ class QuestionAdder:
             qtopic = question_data.get('qtopic')
             qactive = question_data.get('qactive', True)
             
+            # Print debug information
+            print(f"Question data: {question_data}")
+            print(f"Question type: {qtype}")
+            
             # Validate required fields
             if not qtext or not qtype or not qlevel or not qtopic:
                 return {"error": "Missing required question fields"}, 400
@@ -40,7 +45,7 @@ class QuestionAdder:
             """, (qtext, qtype, qlevel, qtopic, qactive))
             
             # Get the new question ID
-            qid = cursor.fetchone()[0]
+            qid = cursor.fetchone()['qid']
             
             # Insert type-specific data
             if qtype == 'multiple_choice':
@@ -67,17 +72,29 @@ class QuestionAdder:
                 # Extract true/false data
                 correct = question_data.get('correct')
                 
+                # Print debug information for true/false
+                print(f"TF correct value: {correct}, type: {type(correct)}")
+                
                 # Validate required fields
                 if correct is None:
                     # Roll back the transaction
                     connection.rollback()
                     return {"error": "Missing required true/false field"}, 400
-                    
+                
+                # Convert to boolean if it's not already a boolean
+                if not isinstance(correct, bool):
+                    if isinstance(correct, str):
+                        correct = correct.lower() == 'true'
+                    else:
+                        correct = bool(correct)
+                
+                print(f"Converted correct value: {correct}, type: {type(correct)}")
+                
                 # Insert into true_false table
                 cursor.execute("""
                     INSERT INTO true_false (qid, correct)
-                    VALUES (%s, %s)
-                """, (qid, 1 if correct else 0))
+                    VALUES (%s, %s::boolean)
+                """, (qid, correct))
 
             elif qtype == 'code_blocks':
                 # Extract code blocks data
@@ -103,7 +120,7 @@ class QuestionAdder:
                 cursor.execute("""
                     INSERT INTO code_blocks (qid, block1, block2, block3, block4, block5, 
                                             block6, block7, block8, block9, block10, answer)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, (qid, block1, block2, block3, block4, block5, 
                      block6, block7, block8, block9, block10, answer))
             
@@ -120,6 +137,9 @@ class QuestionAdder:
         except Exception as e:
             # Log the error for debugging
             print(f"Error adding question: {e}")
+            print(f"Exception type: {type(e)}")
+            import traceback
+            traceback.print_exc()
             
             # Roll back the transaction if connection exists
             if connection:

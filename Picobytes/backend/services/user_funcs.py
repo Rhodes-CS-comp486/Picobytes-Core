@@ -8,6 +8,7 @@ from psycopg.rows import dict_row
 from db_info import *
 
 
+
 class UserFuncs:
 
     def __init__(self, db_filename="pico.db"):

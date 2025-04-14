@@ -13,6 +13,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  --side-bar-width1: 220px 1fr 350px;
+  --side-bar-width2: 220px 1fr;
+
   --font-size-small: 16px;
   --font-size-medium: 25px;
   --font-size-title: 40px;

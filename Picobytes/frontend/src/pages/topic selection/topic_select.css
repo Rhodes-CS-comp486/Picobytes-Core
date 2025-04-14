@@ -89,7 +89,7 @@
 }
 
 .question-text {
-  font-size: 18px;
+  font-size: var(--font-size-medium);
   font-weight: 600;
   margin-bottom: 15px;
   line-height: 1.4;
@@ -128,7 +128,7 @@
   border-radius: 12px;
   background-color: var(--third-bg-color);
   border: 2px solid transparent;
-  font-size: 16px;
+  font-size: var(--font-size-medium)
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

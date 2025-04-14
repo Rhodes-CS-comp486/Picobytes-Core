@@ -42,9 +42,9 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
 
 function App() {
   const [dark, setDark] = useState(true);
-  const [fontSizeSmall, setFontSizeSmall] = useState(16);
-
-  // Load dark mode from local storage.
+  
+  const [fontSizeGeneral, setFontSizeGeneral] = useState(14);
+  const [fontSizeMedium, setFontSizeMedium] = useState(18);
   
 
   // Load dark mode from localStorage when the app loads
@@ -75,7 +75,6 @@ function App() {
             <Route path="/homepage" element={<Homepage toggleDark={toggleDark} />} />
             <Route path="/question/:id" element={<Question toggleDark={toggleDark}/>} />
             <Route path="topic_select" element={<Topic_Select />} />
-            <Route path="/questions" element={<Questions />} />
             <Route path="/questions" element={<Questions toggleDark={toggleDark} />} />
             <Route path="/questionsT/:id" element={<QuestionTopic />} />
             <Route path="/admin/dashboard" element={
@@ -99,8 +98,10 @@ function App() {
               element={
                 <Settings
                   toggleDark={toggleDark}
-                  fontSizeSmall={fontSizeSmall}
-                  setFontSizeSmall={setFontSizeSmall}
+                  fontSizeGeneral={fontSizeGeneral}
+                  setFontSizeGeneral={setFontSizeGeneral}
+                  fontSizeMedium={fontSizeMedium}
+                  setFontSizeMedium={setFontSizeMedium}
                 ></Settings>
               }
             />

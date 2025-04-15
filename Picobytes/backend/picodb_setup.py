@@ -170,7 +170,8 @@ def create_table():
                 uid TEXT NOT NULL,
                 qid INTEGER NOT NULL,
                 submission TEXT NOT NULL,
-                correct TEXT NOT NULL,
+                correct_answer TEXT NOT NULL,
+                is_correct BOOLEAN NOT NULL,
                 PRIMARY KEY (uid, qid)
             );""")
 

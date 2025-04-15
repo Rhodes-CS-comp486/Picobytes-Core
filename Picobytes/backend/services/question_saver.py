@@ -1,4 +1,5 @@
-import sqlite3
+
+
 import random
 import os
 from .streak import Streaks
@@ -155,7 +156,7 @@ class QuestionSave:
             correct_code = cursor.fetchone()
 
             cursor.execute("""
-                INSERT INTO user_code_blocks (uid, qid, usercode, compilestatus, runstatus)
+                INSERT INTO user_coding (uid, qid, usercode, compilestatus, runstatus)
                 VALUES (%s, %s, %s, %s)
              """, (uid, qid, response, compilestat, runstat,))
 
@@ -164,13 +165,12 @@ class QuestionSave:
             return 1
         except Exception as e:
             print(f"Error saving response2: {e}")
-            return 0
+            return jsonify({"error": "Unable to submit"})
 
 
 
 
-    def save_question(self, uid, qid, response, compilestat=None, runstat=None):
-        if compilestat == None and runstat == None:
+    def save_question(self, uid, qid, response):
             try:
                 #Step 1. Save Answer - Use a single database connection for all operations
                 conn = self._connect()
@@ -292,25 +292,25 @@ class QuestionSave:
                     cursor.execute('INSERT INTO user_true_false (uid, qid, response, correct) VALUES (%s, %s, %s, %s)',
                                   (uid, qid, response, answer))
 
-                elif qtype == 'code_blocks':
-                    cursor.execute('SELECT answer FROM code_blocks WHERE qid = %s', (qid,))
+                elif qtype == 'coding':
+                    cursor.execute('SELECT correctcode FROM coding WHERE qid = %s', (qid,))
                     result = cursor.fetchone()
                     if result is None:
                         conn.close()
                         return jsonify({"error": "Unable to submit"}), 404
 
                     try:
-                        answer = result['answer']
+                        answer = result['correctcode']
                     except (TypeError, KeyError):
                         answer = result[0]
 
                     # Get test code for this question
-                    cursor.execute('SELECT tests FROM code_blocks WHERE qid = %s', (qid,))
+                    cursor.execute('SELECT testcases FROM coding WHERE qid = %s', (qid,))
                     test_result = cursor.fetchone()
                     test_code = None
                     if test_result:
                         try:
-                            test_code = test_result['tests']
+                            test_code = test_result['testcases']
                         except (TypeError, KeyError):
                             test_code = test_result[0]
 
@@ -324,17 +324,33 @@ class QuestionSave:
                         run_status = execution_results.get('run', False)
 
                         cursor.execute('''
-                            INSERT INTO user_code_blocks 
-                            (uid, qid, submission, correct, output, compile_status, run_status) 
-                            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                            INSERT INTO user_coding 
+                            (uid, qid, usercode, compile_status, run_status) 
+                            VALUES (%s, %s, %s, %s, %s)
                         ''', (uid, qid, response, answer, output, compile_status, run_status))
                     else:
-                        # Fallback to direct comparison if no test code is available
-                        if response == answer:
-                            is_correct = True
+                        return jsonify({"error": "Unable to submit"}), 404
 
-                        cursor.execute('INSERT INTO user_code_blocks (uid, qid, submission, correct) VALUES (%s, %s, %s, %s)',
-                                    (uid, qid, response, answer))
+                elif qtype == 'code_blocks':
+                    cursor.execute('SELECT correct FROM code_blocks WHERE qid = %s', (qid,))
+                    result = cursor.fetchone()
+                    if result is None:
+                        conn.close()
+                        return jsonify({"error": "Unable to submit"}), 404
+                    try:
+                        answer = result['answer']
+                    except (TypeError, KeyError):
+                        answer = result[0]
+
+                    if response == answer:
+                        is_correct = True
+                    else :
+                        is_correct = False
+
+                    cursor.execute(
+                        'INSERT INTO user_code_blocks (uid, qid, submission, correct_answer, is_correct) VALUES (%s, %s, %s, %s, %s)',
+                        (uid, qid, response, answer, is_correct))
+
 
                 elif qtype == 'free_response':
                     cursor.execute('SELECT prof_answer FROM free_response WHERE qid = %s', (qid,))
@@ -392,14 +408,5 @@ class QuestionSave:
             except Exception as e:
                 print(f"Error saving response: {e}")
                 return jsonify({"error": str(e)})
-
-
-        else:
-
-
-
-
-
-
 
 

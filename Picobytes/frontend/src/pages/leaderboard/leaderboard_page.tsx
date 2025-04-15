@@ -64,9 +64,9 @@ const Leaderboard_All = ({ toggleDark }: Prop) => {
         const data = await response.json();
         if (response.ok) {
           const formattedPlayers = data.top10.map((player: any) => ({
-            username: player.uname || player[0],
-            uid: player.uid || player[1],
-            points: player.upoints || player[2],
+            username: player[0],
+            uid: player[1],
+            points: player[2],
           }));
           setPlayers(formattedPlayers || []);
         } else {

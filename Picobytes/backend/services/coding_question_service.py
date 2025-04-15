@@ -130,6 +130,7 @@ int main() {
     def validate_coding_submission(self, qid, user_code):
         """
         Validate a user's coding submission using the CodeExecutionService.
+        Also stores the result in the database if user is authenticated.
         
         Args:
             qid (int): The question ID
@@ -171,6 +172,12 @@ int main() {
                 # If it's just a valgrind error, the code might still be correct
                 is_correct = execution_results.get("compile", False) and not execution_results.get("failed_tests", [])
             
+            # Save submission to database if user ID is provided in the session
+            from flask import session
+            if 'user_id' in session:
+                uid = session.get('user_id')
+                self._save_coding_submission(uid, qid, user_code, is_correct, execution_results)
+            
             return {
                 "is_correct": is_correct,
                 "execution_results": execution_results
@@ -181,4 +188,69 @@ int main() {
             return {
                 "error": str(e),
                 "is_correct": False
-            } 
+            }
+            
+    def _save_coding_submission(self, uid, qid, code, is_correct, execution_results=None):
+        """
+        Save the coding submission to the database.
+        
+        Args:
+            uid (str): User ID
+            qid (int): Question ID
+            code (str): Submitted code
+            is_correct (bool): Whether the submission was correct
+            execution_results (dict, optional): Full execution results with compile_status, etc.
+        """
+        try:
+            # Connect to database
+            conn = self._connect()
+            cursor = conn.cursor()
+            
+            # Extract execution details
+            compile_status = True  # Default to True
+            run_status = is_correct  # Default to is_correct
+            output = ""
+            
+            if execution_results:
+                compile_status = execution_results.get("compile", True)
+                output = execution_results.get("output", "")
+                if "error" in execution_results:
+                    output += "\n" + execution_results.get("error", "")
+            
+            # Check if a submission already exists
+            cursor.execute(
+                "SELECT uid FROM user_coding WHERE uid = %s AND qid = %s", 
+                (uid, qid)
+            )
+            
+            if cursor.fetchone():
+                # Update existing record
+                cursor.execute(
+                    """UPDATE user_coding 
+                       SET code = %s, 
+                           compile_status = %s, 
+                           run_status = %s, 
+                           output = %s 
+                       WHERE uid = %s AND qid = %s""", 
+                    (code, compile_status, run_status, output, uid, qid)
+                )
+            else:
+                # Insert new record
+                cursor.execute(
+                    """INSERT INTO user_coding 
+                       (uid, qid, code, compile_status, run_status, output) 
+                       VALUES (%s, %s, %s, %s, %s, %s)""", 
+                    (uid, qid, code, compile_status, run_status, output)
+                )
+            
+            # Also update the question_analytics table for tracking success rates
+            cursor.execute(
+                "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (%s, %s, %s)",
+                (qid, uid, is_correct)
+            )
+            
+            conn.commit()
+            conn.close()
+            
+        except Exception as e:
+            logger.error(f"Error saving coding submission to database: {e}") 

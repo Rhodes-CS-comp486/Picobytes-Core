@@ -53,9 +53,6 @@ def submit_coding_answer(qid):
         if 'user_id' not in session:
             return jsonify({"error": "User not authenticated"}), 401
             
-        # Get user ID from session
-        user_id = session.get('user_id')
-        
         # Get submitted code from request
         data = request.get_json()
         if not data or 'code' not in data:
@@ -63,7 +60,7 @@ def submit_coding_answer(qid):
             
         user_code = data.get('code')
         
-        # Validate the submission
+        # Validate the submission - this will also save to the database
         validation_result = coding_question_service.validate_coding_submission(qid, user_code)
         
         # Return validation result
@@ -72,6 +69,14 @@ def submit_coding_answer(qid):
     except Exception as e:
         logger.error(f"Error submitting answer for coding question {qid}: {e}")
         return jsonify({"error": str(e)}), 500
+
+# Also add a compatibility route for older frontend versions
+@coding_questions_bp.route('/coding_questions/<int:qid>/submit', methods=['POST'])
+def submit_coding_answer_compat(qid):
+    """
+    Compatibility route for older frontends using the old URL format.
+    """
+    return submit_coding_answer(qid)
 
 # Testing endpoint that doesn't require authentication
 @coding_questions_bp.route('/api/coding-questions/<int:qid>/test', methods=['POST'])
@@ -96,4 +101,26 @@ def test_coding_answer(qid):
         
     except Exception as e:
         logger.error(f"Error testing answer for coding question {qid}: {e}")
-        return jsonify({"error": str(e)}), 500 
+        return jsonify({"error": str(e)}), 500
+
+# Add compatibility routes for other endpoints
+@coding_questions_bp.route('/coding_questions', methods=['GET'])
+def get_coding_questions_compat():
+    """
+    Compatibility route for older frontends using the old URL format.
+    """
+    return get_coding_questions()
+
+@coding_questions_bp.route('/coding_questions/<int:qid>', methods=['GET'])
+def get_coding_question_compat(qid):
+    """
+    Compatibility route for older frontends using the old URL format.
+    """
+    return get_coding_question(qid)
+
+@coding_questions_bp.route('/coding_questions/<int:qid>/test', methods=['POST'])
+def test_coding_answer_compat(qid):
+    """
+    Compatibility route for older frontends using the old URL format.
+    """
+    return test_coding_answer(qid) 

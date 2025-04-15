@@ -32,6 +32,7 @@ const Question = ({ toggleDark }: Prop) => {
   const [topic, setTopic] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState(0);
+  const [draggedIds, setDraggedIds] = useState<string[]>([]); // State to store IDs from Draggable_Question
 
   let params = useParams();
   let id = params.id;
@@ -258,6 +259,38 @@ const Question = ({ toggleDark }: Prop) => {
       })
       setFeedback("Placeholder")
     }
+    else if (questionType === "code_blocks") {
+      // Convert draggedIds array to a comma-separated string
+      const draggedIdsString = draggedIds.join(",");
+      console.log("Dragged IDs:", draggedIdsString);
+  
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          response: draggedIdsString, // Send the comma-separated string
+          uid: localStorage.getItem("uid"),
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            setError(data.error);
+          } else {
+            setFeedback(data.message || "Answer submitted successfully!");
+          }
+          setIsSubmitting(false);
+        })
+        .catch((error) => {
+          console.error("Error submitting answer: ", error);
+          setFeedback("Error submitting answer. Please try again.");
+          setIsSubmitting(false);
+        });
+        setIsSubmitting(true);
+    }
   };
 
   // Calculate current progress percentage
@@ -432,8 +465,7 @@ const Question = ({ toggleDark }: Prop) => {
                   ))}
                 </div>
               ) : (
-                // Code blocks question
-                <Draggable_Question />
+                <Draggable_Question onUpdateAnswer={setDraggedIds} />
                 )}
             </div>
             {feedback && questionType == "free_response" && (
@@ -479,7 +511,8 @@ const Question = ({ toggleDark }: Prop) => {
                 onClick={submitAnswer}
                 disabled={
                   (questionType === "multiple_choice" && answer === null) ||
-                  (questionType === "true_false" && answer === null)
+                  (questionType === "true_false" && answer === null) ||
+                  (questionType === "code_blocks" && answer === null)
                 }
               >
                 Check

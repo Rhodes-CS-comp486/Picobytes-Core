@@ -206,17 +206,6 @@ int main() {
             conn = self._connect()
             cursor = conn.cursor()
             
-            # Extract execution details
-            compile_status = True  # Default to True
-            run_status = is_correct  # Default to is_correct
-            output = ""
-            
-            if execution_results:
-                compile_status = execution_results.get("compile", True)
-                output = execution_results.get("output", "")
-                if "error" in execution_results:
-                    output += "\n" + execution_results.get("error", "")
-            
             # Check if a submission already exists
             cursor.execute(
                 "SELECT uid FROM user_coding WHERE uid = %s AND qid = %s", 
@@ -224,23 +213,16 @@ int main() {
             )
             
             if cursor.fetchone():
-                # Update existing record
+                # Update existing record - only update the code
                 cursor.execute(
-                    """UPDATE user_coding 
-                       SET code = %s, 
-                           compile_status = %s, 
-                           run_status = %s, 
-                           output = %s 
-                       WHERE uid = %s AND qid = %s""", 
-                    (code, compile_status, run_status, output, uid, qid)
+                    "UPDATE user_coding SET code = %s WHERE uid = %s AND qid = %s", 
+                    (code, uid, qid)
                 )
             else:
-                # Insert new record
+                # Insert new record - only with code
                 cursor.execute(
-                    """INSERT INTO user_coding 
-                       (uid, qid, code, compile_status, run_status, output) 
-                       VALUES (%s, %s, %s, %s, %s, %s)""", 
-                    (uid, qid, code, compile_status, run_status, output)
+                    "INSERT INTO user_coding (uid, qid, code) VALUES (%s, %s, %s)", 
+                    (uid, qid, code)
                 )
             
             # Also update the question_analytics table for tracking success rates

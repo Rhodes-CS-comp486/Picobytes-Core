@@ -78,58 +78,6 @@ def update_database_schema():
             print("Added 'run_status' column to user_code_blocks table")
         else:
             print("'run_status' column already exists in user_code_blocks table")
-            
-        # Now update the user_coding table to add similar columns
-        # Check if output column exists
-        cursor.execute("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='user_coding' AND column_name='output'
-        """)
-        
-        if not cursor.fetchone():
-            print("Adding 'output' column to user_coding table...")
-            cursor.execute("""
-                ALTER TABLE user_coding 
-                ADD COLUMN output TEXT
-            """)
-            print("Added 'output' column to user_coding table")
-        else:
-            print("'output' column already exists in user_coding table")
-        
-        # Check if compile_status column exists
-        cursor.execute("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='user_coding' AND column_name='compile_status'
-        """)
-        
-        if not cursor.fetchone():
-            print("Adding 'compile_status' column to user_coding table...")
-            cursor.execute("""
-                ALTER TABLE user_coding 
-                ADD COLUMN compile_status BOOLEAN
-            """)
-            print("Added 'compile_status' column to user_coding table")
-        else:
-            print("'compile_status' column already exists in user_coding table")
-        
-        # Check if run_status column exists
-        cursor.execute("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='user_coding' AND column_name='run_status'
-        """)
-        
-        if not cursor.fetchone():
-            print("Adding 'run_status' column to user_coding table...")
-            cursor.execute("""
-                ALTER TABLE user_coding 
-                ADD COLUMN run_status BOOLEAN
-            """)
-            print("Added 'run_status' column to user_coding table")
-        else:
-            print("'run_status' column already exists in user_coding table")
         
         # Commit changes
         conn.commit()

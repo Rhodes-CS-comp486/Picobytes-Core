@@ -459,37 +459,20 @@ def submit_answer():
             return jsonify({"error": "Missing uid"}), 400
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
-        if not response:
-            return jsonify({"error": "Missing response"}), 400
+        #if not response:
+            #return jsonify({"error": "Missing user response"}), 400
 
         # Get the question to verify the correct answer
         correctanswer = question_fetcher_service.get_answer(question_id)
         
-        # Debug the correct answer
-        print(f"Question ID: {question_id}, Correct answer from DB: {correctanswer}, Type: {type(correctanswer)}")
-        
-        if correctanswer is None:
-            print(f"Warning: No correct answer found for question {question_id}")
-            # Default to a value rather than returning error
-            correctanswer = "Not available"
 
-        result = question_save_service.save_question(uid, question_id, response)
 
-        # Handle the case where the result is already a Flask response
-        if isinstance(result, tuple) or hasattr(result, 'get_json'):
-            return result
+        correct = question_save_service.save_question(uid, question_id, response)
 
-        print(f"Is Correct ({type(result)}: {result})")
-
-        if isinstance(result, dict) and "error" in result:
-            return jsonify(result), 500
-
-        # Extract is_correct from the result dictionary
-        is_correct = result.get('is_correct', False) if isinstance(result, dict) else False
 
         response_data = {
             'success': True,
-            'is_correct': is_correct,
+            'is_correct': correct,
             'correct_answer': str(correctanswer)  # Ensure it's always a string
         }
         print(f"Sending response: {response_data}")

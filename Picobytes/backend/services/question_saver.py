@@ -145,24 +145,21 @@ class QuestionSave:
         try:
             with self._connect() as conn:
                 cur = conn.cursor()
-                cur.execute("SELECT 1 FROM user_responses WHERE uid = %s AND qid = %s", (uid, qid))
-                if cur.fetchone():
-                    return {'message': 'Question already answered'}
                 cur.execute("SELECT qtype FROM questions WHERE qid = %s", (qid,))
                 row = cur.fetchone()
                 if not row:
                     return {'error': 'Question not found'}
                 qtype = row['qtype']
             if qtype == 'multiple_choice':
-                return {self.save_mc_response(uid, qid, response)}
+                return self.save_mc_response(uid, qid, response)
             elif qtype == 'true_false':
-                return { self.save_tf_response(uid, qid, response)}
+                return self.save_tf_response(uid, qid, response)
             elif qtype == 'free_response':
-                return { self.save_free_response(uid, qid, response)}
+                return self.save_free_response(uid, qid, response)
             elif qtype == 'code_blocks':
-                return {self.save_cb_response(uid, qid, response)}
+                return self.save_cb_response(uid, qid, response)
             elif qtype == 'coding':
-                return {self.save_coding_response(uid, qid, response)}
+                return self.save_coding_response(uid, qid, response)
             else:
                 return {'error': f'Unsupported question type: {qtype}'}
         except Exception as e:

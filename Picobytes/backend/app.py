@@ -464,6 +464,14 @@ def submit_answer():
 
         # Get the question to verify the correct answer
         correctanswer = question_fetcher_service.get_answer(question_id)
+
+        db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+        conn = psycopg.connect(db_url, row_factory=dict_row)
+        cur = conn.cursor()
+
+        cur.execute("SELECT 1 FROM user_responses WHERE uid = %s AND qid = %s", (uid, question_id))
+        if cur.fetchone():
+            return jsonify({'error': 'Question already answered'})
         
 
 
@@ -475,7 +483,7 @@ def submit_answer():
             'is_correct': correct,
             'correct_answer': str(correctanswer)  # Ensure it's always a string
         }
-        print(f"Sending response: {response_data}")
+        print(f"Sending response: response_data")
         return jsonify(response_data)
 
     except Exception as e:

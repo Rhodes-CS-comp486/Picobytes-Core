@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useSidebar } from "./side_bar_context";
 import { useNavigate } from "react-router-dom";
 
 /// INTERFACE ///////////////////////////////////////
@@ -12,11 +12,8 @@ interface Prop {
 const SideBar = ({ toggleDark }: Prop) => {
   /// CONSTANTS /////////////////////////////////////
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(true);
+  const { isVisible, toggleSidebar } = useSidebar();
 
-  const toggleSidebar = () => {
-    setIsVisible(!isVisible); // Toggle visibility on Picobytes click
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("uid");

@@ -4,6 +4,8 @@ import Home_Header from "../home/home_header";
 import Home_Prof_Overlay from "../home/home_prof_overlay";
 import SideBar from "../home/side_bar";
 
+import { useSidebar } from "../home/side_bar_context";
+
 import './practice.css';
 
 interface Prop {
@@ -26,6 +28,8 @@ const Practice_Page = ({ toggleDark }: Prop) => {
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
     };
+
+    const { isVisible } = useSidebar();
 
      
 
@@ -84,16 +88,9 @@ const Practice_Page = ({ toggleDark }: Prop) => {
         topic.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    function goToAllQuestions(): void {
-        navigate('/questions');
-    }
-
-    function goToTopicSelection(): void {
-        navigate('/practice');
-    }
 
     return (
-        <div className="practice-layout">
+        <div className={`practice-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
             {/* Mobile Menu is included in Header component */}
             <Home_Header toggleOverlay={toggleOverlay} />
             {showOverlay && <Home_Prof_Overlay />}
@@ -102,7 +99,7 @@ const Practice_Page = ({ toggleDark }: Prop) => {
             <SideBar toggleDark={toggleDark}></SideBar>
 
             {/* MIDDLE CONTENTS */}
-            <div className="main-content">
+            <div className="practice-layout-content">
                 {/* Search Bar */}
                 <input
                     type="text"

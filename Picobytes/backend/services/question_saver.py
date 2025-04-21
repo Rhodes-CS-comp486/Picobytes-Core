@@ -59,12 +59,12 @@ class QuestionSave:
             with self._connect() as conn:
                 cur = conn.cursor()
                 cur.execute("INSERT INTO user_responses (uid, qid) VALUES (%s, %s)", (uid, qid))
-                cur.execute("SELECT answer FROM true_false WHERE qid = %s", (qid,))
+                cur.execute("SELECT correct FROM true_false WHERE qid = %s", (qid,))
                 row = cur.fetchone()
                 if not row:
                     return False
-                correct_answer = row['answer']  # Already a boolean
-                new_response = bool(response)
+                correct_answer = row['correct']  # Already a boolean
+                new_response = int(response)
                 is_correct = (new_response == correct_answer)
                 cur.execute(
                     "INSERT INTO user_true_false (uid, qid, response, correct) VALUES (%s, %s, %s, %s)",

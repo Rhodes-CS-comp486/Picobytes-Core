@@ -228,8 +228,35 @@ const Question = ({ toggleDark }: Prop) => {
         },
         body: JSON.stringify({
           question_id: id,
-          selected_answer: answer,
+          response: answer,
+          uid: localStorage.getItem("uid")
         }),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Response data:", data);
+        setFeedback("Answer submitted!");
+        setIsSubmitting(true);
+      })
+      .catch(error => {
+        console.error("Error submitting answer:", error);
+        let errorMessage = "Error submitting answer";
+        
+        if (error.message && error.message.includes("400")) {
+          errorMessage = "Missing required information. Please try again.";
+        } else if (error.message && error.message.includes("500")) {
+          errorMessage = "Server error. Please try again later.";
+        } else {
+          errorMessage = `Error: ${error.message}`;
+        }
+        
+        setFeedback(errorMessage);
+        setIsSubmitting(false);
       });
     }
   };

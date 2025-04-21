@@ -271,18 +271,34 @@ class QuestionSave:
                     compile_status = execution_results.get('compile', False)
                     run_status = execution_results.get('run', False)
                     
-                    cursor.execute('''
-                        INSERT INTO user_code_blocks 
-                        (uid, qid, submission, correct, output, compile_status, run_status) 
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    ''', (uid, qid, response, answer, output, compile_status, run_status))
+                    try:
+                        cursor.execute('''
+                            INSERT INTO user_code_blocks 
+                            (uid, qid, submission, correct, output, compile_status, run_status) 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                        ''', (uid, qid, response, answer, output, compile_status, run_status))
+                    except psycopg.Error as e:
+                        print(f"Column mismatch error: {e}, trying fallback insert")
+                        # Fallback to basic schema if extended columns aren't available
+                        cursor.execute('''
+                            INSERT INTO user_code_blocks 
+                            (uid, qid, submission, correct) 
+                            VALUES (%s, %s, %s, %s)
+                        ''', (uid, qid, response, answer))
                 else:
                     # Fallback to direct comparison if no test code is available
                     if response == answer:
                         is_correct = True
                     
-                    cursor.execute('INSERT INTO user_code_blocks (uid, qid, submission, correct) VALUES (%s, %s, %s, %s)',
-                                (uid, qid, response, answer))
+                    try:
+                        cursor.execute('''
+                            INSERT INTO user_code_blocks 
+                            (uid, qid, submission, correct) 
+                            VALUES (%s, %s, %s, %s)
+                        ''', (uid, qid, response, answer))
+                    except Exception as e:
+                        print(f"Error inserting code_blocks: {e}")
+                        return jsonify({"error": "Database error"}), 500
 
             elif qtype == 'free_response':
                 cursor.execute('SELECT prof_answer FROM free_response WHERE qid = %s', (qid,))
@@ -296,8 +312,12 @@ class QuestionSave:
                 except (TypeError, KeyError):
                     answer = result[0]
                 
-                cursor.execute('INSERT INTO user_free_response (uid, qid, uanswer, profanswer) VALUES (%s, %s, %s, %s)',
-                              (uid, qid, response, answer))
+                try:
+                    cursor.execute('INSERT INTO user_free_response (uid, qid, uanswer, profanswer) VALUES (%s, %s, %s, %s)',
+                                (uid, qid, response, answer))
+                except Exception as e:
+                    print(f"Error inserting free_response: {e}")
+                    return jsonify({"error": "Database error"}), 500
 
             # Update user stats in a more efficient way
             # First record the analytics data

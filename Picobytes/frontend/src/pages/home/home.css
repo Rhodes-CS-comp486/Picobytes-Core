@@ -56,9 +56,10 @@
   font-family: 'Nunito', sans-serif;
   font-weight: 800;
   font-size: 24px;
+  color: var(--primary-theme-color)
 }
 
-
+/*
 .dark-mode .logo-text {
   color: #ffffff;
 }
@@ -66,6 +67,7 @@
 .light-mode .logo-text {
   color: #58cc02;
 }
+*/
 
 /*edit */
 .sidebar {

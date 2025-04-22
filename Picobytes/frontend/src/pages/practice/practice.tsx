@@ -41,7 +41,7 @@ const Practice_Page = ({ toggleDark }: Prop) => {
         { name: 'Linux', types: ['ALL','MC','TF'] },
         { name: 'Programming', types: ['ALL','MC','TF'] },
     ];
-    const realTopics: Topic[] = [];
+    
 
     // Function to handle fetching data on topic and type selection
     const handleTopicClick = async (topicName: string, questionType: string) => {

@@ -65,6 +65,10 @@ const SideBar = ({ toggleDark }: Prop) => {
           <span className="material-icon">💻</span>
           <span>Code Lab</span>
         </div>
+        <div className={`nav-item ${window.location.pathname.startsWith('/coding-question') ? 'active' : ''}`} onClick={() => navigate("/coding-questions")}>
+          <span className="material-icon">🧩</span>
+          <span>Coding Questions</span>
+        </div>
         <div className={`nav-item ${window.location.pathname === '/settings' ? 'active' : ''}`} onClick={() => navigate("/settings")}>
           <span className="material-icon">⚙️</span>
           <span>Settings</span>

@@ -20,7 +20,8 @@ import Topic_Select from "./pages/topic selection/topic_select";
 import Draggable_Question from "./pages/draggable_question";
 import ForgotPassword from "./pages/ForgotPassword";
 import CodeExecutionPage from "./pages/code_execution/code_execution_page";
-
+import CodingQuestions from "./pages/CodingQuestions"; // Import the CodingQuestions component
+import CodingQuestionPage from "./pages/CodingQuestionPage"; // Import the individual CodingQuestionPage component
 
 import Lesson_Progress from "./pages/lesson progress/lesson_progress";
 import QuestionTopic from "./pages/question_topicsort";
@@ -115,6 +116,10 @@ function App() {
             <Route path="/draggable_question" element={<Draggable_Question />} />
             <Route path="/lessons" element={<Lesson_Progress toggleDark={toggleDark}/>}/>
             <Route path="/forgot_password" element={<ForgotPassword />} />
+            
+            {/* Add new routes for coding questions */}
+            <Route path="/coding-questions" element={<CodingQuestions toggleDark={toggleDark} />} />
+            <Route path="/coding-question/:qid" element={<CodingQuestionPage toggleDark={toggleDark} />} />
           </Routes>
         </Router>
       </div>

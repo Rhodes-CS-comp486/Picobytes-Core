@@ -45,6 +45,22 @@ class Topic_Puller:
         except Exception as e:
             print(f"Error fetching CB questions: {e}")
             return []
+        
+    def get_cd_by_topic(self, topic):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(
+                "select qid, qtype, qtext, starter, testcases, correctcode, qlevel"
+                " from coding natural join questions where qactive = True and qtopic = %s",
+                (topic,))
+            question = cursor.fetchall()
+            conn.close()
+            return question
+        except Exception as e:
+            print(f"Error fetching CB questions: {e}")
+            return []
+        
 
     def get_mc_by_topic(self, topic):
         try:
@@ -113,9 +129,15 @@ class Topic_Puller:
                 (topic,))
             fr_questions = cursor.fetchall()
 
+            cursor.execute(
+                "select qid, qtype, qtext, starter, testcases, correctcode, qlevel"
+                " from coding natural join questions where qactive = True and qtopic = %s",
+                (topic,))
+            cd_questions = cursor.fetchall()
+
 
             # Combine both lists
-            all_questions = mc_questions + tf_questions + fr_questions + cb_questions
+            all_questions = mc_questions + tf_questions + fr_questions + cb_questions + cd_questions
 
             # Optional: Sort questions by qid or any other order you need
             all_questions = sorted(all_questions, key=lambda x: x[0])  # Sorting by qid

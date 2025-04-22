@@ -65,7 +65,7 @@ const Practice_Page = ({ toggleDark }: Prop) => {
                     if (!topicsSet.has(topic)) {
                         topicsSet.add(topic);
                         topicProgressData[topic]=0;
-                        updatedTopics.push({ name: topic, types: ['ALL', 'MC', 'TF','FR','CB'] });
+                        updatedTopics.push({ name: topic, types: ['ALL', 'MC', 'TF','FR','CB','CD'] });
                     }
                 });
                 setTopics(updatedTopics);

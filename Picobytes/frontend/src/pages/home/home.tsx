@@ -18,6 +18,7 @@ interface Topic {
 interface PlayerStats {
   streak: number;
   points: number;
+  progress: number;
 }
 
 interface Player {
@@ -38,7 +39,7 @@ const Homepage = ({ toggleDark }: Prop) => {
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const [lessonNumber, setLessonNumber] = useState<string | null>(null);
+  // const [lessonNumber, setLessonNumber] = useState<string | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<string | null>(
     null
   );
@@ -58,17 +59,17 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
 
-  useEffect(() => {
-    const lessonFromURL = queryParams.get("lesson");
-    const answeredFromURL = queryParams.get("answered");
+  // useEffect(() => {
+  //   const lessonFromURL = queryParams.get("lesson");
+  //   const answeredFromURL = queryParams.get("answered");
 
-    if (lessonFromURL) {
-      setLessonNumber(lessonFromURL);
-    }
-    if (answeredFromURL) {
-      setAnsweredQuestions(answeredFromURL);
-    }
-  }, [location]);
+  //   if (lessonFromURL) {
+  //     setLessonNumber(lessonFromURL);
+  //   }
+  //   if (answeredFromURL) {
+  //     setAnsweredQuestions(answeredFromURL);
+  //   }
+  // }, [location]);
 
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
@@ -172,13 +173,13 @@ const Homepage = ({ toggleDark }: Prop) => {
         const response = await fetch(`http://localhost:5000/api/get_user_stats/${uid}`);
         const data = await response.json();
         if (response.status === 200 && data.streak !== undefined && data.points !== undefined) {
-          setPlayerStats({ [uid]: { streak: data.streak, points: data.points } });
+          setPlayerStats({ [uid]: { streak: data.streak, points: data.points, progress: 0} });
         } else {
-          setPlayerStats({ [uid]: { streak: 0, points: 0 } });
+          setPlayerStats({ [uid]: { streak: 0, points: 0 , progress : 0} });
         }
       } catch (error) {
         console.error(`Error fetching stats for ${uid}:`, error);
-        setPlayerStats({ [uid]: { streak: 0, points: 0 } });
+        setPlayerStats({ [uid]: { streak: 0, points: 0 , progress : 0} });
       }
     };
   
@@ -199,9 +200,9 @@ const Homepage = ({ toggleDark }: Prop) => {
     navigate("/practice");
   };
 
-  const goToLessonProgress = () => {
-    navigate("/lessons");
-  };
+  // const goToLessonProgress = () => {
+  //   navigate("/lessons");
+  // };
 
   const goToAllQuestions = () => {
     navigate("/questions");
@@ -257,10 +258,10 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   // Calculate overall progress percentage
-  const overallProgress =
-    lessonNumber && answeredQuestions
-      ? Math.round(Number(answeredQuestions) * 10)
-      : 0;
+  const overallProgress = 20
+    // 20 && answeredQuestions
+    //   ? Math.round(Number(answeredQuestions) * 10)
+    //   : 0;
 
   // Get topic icon or character for display
   const getTopicIcon = (topic) => {
@@ -288,21 +289,22 @@ const Homepage = ({ toggleDark }: Prop) => {
 
       {/* Main Content */}
       <div className="main-content">
+        {/*
         <div className="unit-header">
           <div className="unit-back" onClick={goToLessonProgress}>
             <span className="material-icon">←</span>
-          </div>
+          </div> 
           <div className="unit-info">
             <div className="unit-title">Lesson {lessonNumber}</div>
             <div className="unit-subtitle">See all lesson progress</div>
-          </div>
+          </div> 
           <div className="unit-actions">
             <button className="guidebook-button" onClick={goToAllQuestions}>
               <span className="material-icon">📖</span>
               <span>All Questions</span>
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Enhanced Learning Path */}
         <div className="learning-path">

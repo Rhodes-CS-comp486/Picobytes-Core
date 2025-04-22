@@ -23,7 +23,7 @@ class CB_QuestionFetcher:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT q.qid, q.qtext, q.topic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer
+                SELECT q.qid, q.qtext, q.qtopic, q.qlevel, c.block1, c.block2, c.block3, c.block4, c.block5, c.block6, c.block7, c.block8, c.block9, c.block10, c.answer
                 FROM questions q NATURAL JOIN code_blocks c
                 WHERE q.qtype = 'code_blocks' AND q.qactive = True
             """)
@@ -31,7 +31,7 @@ class CB_QuestionFetcher:
             conn.close()
             return all_questions
         except Exception as e:
-            print(f"Error fetching MC questions: {e}")
+            print(f"Error fetching CB questions: {e}")
             return []
 
     def get_question_by_id(self, question_id):

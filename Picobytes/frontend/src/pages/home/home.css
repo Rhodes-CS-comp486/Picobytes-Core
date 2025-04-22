@@ -499,6 +499,8 @@
   font-size: 60px;
   display: inline-block;
   animation: bounce 2s infinite;
+  width: 50px;
+  height: auto;
 }
 
 @keyframes bounce {

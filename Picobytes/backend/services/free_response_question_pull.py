@@ -21,7 +21,7 @@ class FR_QuestionFetcher:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT q.qid, q.qtext, q.topic, q.qlevel 
+                SELECT q.qid, q.qtext, q.qtopic, q.qlevel 
                 FROM questions q 
                 WHERE q.qtype = 'free_response' AND q.qactive = True
             """)

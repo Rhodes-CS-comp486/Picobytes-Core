@@ -4,6 +4,7 @@
     display: flex;
     flex-direction: column;
     padding-left: 5%;
+    
 }
 
 #ld-grid-hbox {
@@ -32,20 +33,51 @@
     background-color: var(--first-bg-color);
 }
 
+.ld-all-container {
+    display: flex;
+    flex-direction: row;
+
+    background-color: var(--first-bg-color);
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    margin: 0px;
+
+}
+
+#ld-main-container {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 20px;
+
+    width: 100%;
+    padding: 30px;
+
+    margin-top: 3em;
+
+    margin-left: 20px;
+    transition: margin-left 0.3s ease;
+    
+}
+
+
 
 #ld-all-content {
     padding: 20px;
-    /*display: flex;
-    flex-direction: column;*/
+   
     height: 100%;
+    width: 100%;
 
     position: relative;
     overflow: hidden;
     border: 1px solid var(--border-color);
     background-color: var(--card-color);
     border-radius: 16px;
-    margin-left: 30px;
+    
 }
+
 
 #ld-all-title {
     font-size: 30px;
@@ -60,6 +92,11 @@
     
     border-bottom: 2px solid var(--border-color);
     width: 100%;
+    
+}
+
+#ld-all-subtitle {
+    color: rgb(229, 183, 57);
 }
 
 
@@ -119,12 +156,14 @@
     background-color: var(--card-color);
     border-radius: 16px;
     padding: 20px;
-    position: relative;
-    overflow: hidden;
+
+    width: 100%;
+
     border: 1px solid var(--border-color);
-    height: 50%;
+    height: 60%;
     display: flex;
     flex-direction: column;
+
 }
 
 #ld-all-user-header {

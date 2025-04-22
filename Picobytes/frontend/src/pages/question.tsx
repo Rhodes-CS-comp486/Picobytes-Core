@@ -4,6 +4,7 @@ import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 
 import SideBar from "./home/side_bar";
+import Draggable_Question from "./draggable_question";
 
 interface Prop {
   toggleDark: () => void;
@@ -31,6 +32,9 @@ const Question = ({ toggleDark }: Prop) => {
   const [topic, setTopic] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState(0);
+  const [draggedIds, setDraggedIds] = useState<string[]>([]); // State to store IDs from Draggable_Question
+  const [loading, setLoading] = useState<boolean>(true); // New loading state
+
 
   let params = useParams();
   let id = params.id;
@@ -63,6 +67,7 @@ const Question = ({ toggleDark }: Prop) => {
     setShowCelebration(false);
     setIsCorrect(false);
     setAnswer(null);
+    setLoading(true);
 
     fetch(`http://127.0.0.1:5000/api/question/${questionId}`, {
       method: "GET",
@@ -87,16 +92,23 @@ const Question = ({ toggleDark }: Prop) => {
           setAnswer(null);
         } else if (data.question_type === "true_false") {
           console.log(data);
-          setCorrect(data.correct_answer === 1);
+          setCorrect(data.correct_answer === true);
           setAnswer(null); // Initialize as null so no option is selected by default
         } else if (data.question_type === "free_response") {
           setCorrect(data.professor_answer);
           setAnswer("");
         }
+        else if (data.question_type === "code_blocks"){
+          setCorrect(data.answer);
+          setAnswer("")
+        }
+        
+        setLoading(false); // Set loading to false after fetching the question
       })
       .catch((error) => {
         console.error("Error fetching question: ", error);
         setError(error);
+        setLoading(false);
       });
   };
 
@@ -179,6 +191,8 @@ const Question = ({ toggleDark }: Prop) => {
     } else if (questionType === "true_false") {
       // For true/false questions, we can check the answer client-side
       const isAnswerCorrect = answer === correct;
+      console.log("Answer:", answer);
+      console.log("Correct:", correct);
       setIsCorrect(isAnswerCorrect);
 
       console.log(correct);
@@ -191,6 +205,32 @@ const Question = ({ toggleDark }: Prop) => {
           `Incorrect. The correct answer was: ${correct ? "True" : "False"}`
         );
       }
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          response: answer,
+          uid: localStorage.getItem("uid"),
+        }),
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          setError(data.error);
+          setIsSubmitting(false);
+        } else {
+          // Display feedback
+          console.log("Response data:", data);
+        }
+      });
 
       fetch("http://127.0.0.1:5000/api/submit_answer", {
         method: "POST",
@@ -232,10 +272,46 @@ const Question = ({ toggleDark }: Prop) => {
         }),
       });
     }
+    else if (questionType === "code_blocks") {
+      // Convert draggedIds array to a comma-separated string
+      const draggedIdsString = draggedIds.join(",");
+      
+      console.log("Dragged IDs:", draggedIdsString);
+  
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          response: draggedIdsString, // Send the comma-separated string
+          uid: localStorage.getItem("uid"),
+          correct: correct
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            setError(data.error);
+          } else {
+            setFeedback(data.message || "Answer submitted successfully!");
+          }
+          setIsSubmitting(false);
+        })
+        .catch((error) => {
+          console.error("Error submitting answer: ", error);
+          setFeedback("Error submitting answer. Please try again.");
+          setIsSubmitting(false);
+        });
+        setIsSubmitting(true);
+    }
   };
 
   // Calculate current progress percentage
   const progressPercentage = id ? (parseInt(id) / totalQuestions) * 100 : 0;
+
+  
 
   if (error !== "") {
     return (
@@ -378,7 +454,7 @@ const Question = ({ toggleDark }: Prop) => {
                   rows={10}
                   placeholder="type your short response here"
                 ></textarea>
-              ) : (
+              ) : questionType === "multiple_choice" ?(
                 // Multiple choice options
                 <div className="mc-options">
                   {options.map((option, index) => (
@@ -405,7 +481,9 @@ const Question = ({ toggleDark }: Prop) => {
                     </button>
                   ))}
                 </div>
-              )}
+              ) : (
+                <Draggable_Question onUpdateAnswer={setDraggedIds} />
+                )}
             </div>
             {feedback && questionType == "free_response" && (
               <div className="feedback-message">
@@ -450,7 +528,8 @@ const Question = ({ toggleDark }: Prop) => {
                 onClick={submitAnswer}
                 disabled={
                   (questionType === "multiple_choice" && answer === null) ||
-                  (questionType === "true_false" && answer === null)
+                  (questionType === "true_false" && answer === null) ||
+                  (questionType === "code_blocks" && answer === null)
                 }
               >
                 Check

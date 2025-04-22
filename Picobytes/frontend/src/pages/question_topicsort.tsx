@@ -234,6 +234,33 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
         );
       }
 
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          response: answer,
+          uid: localStorage.getItem("uid"),
+        }),
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          setError(data.error);
+          setIsSubmitting(false);
+        } else {
+          // Display feedback
+          console.log("Response data:", data);
+        }
+      });
+
       // Enable proceeding to next question
       setIsSubmitting(true);
     } else if (questionType === "free_response") {

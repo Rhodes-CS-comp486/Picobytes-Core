@@ -152,97 +152,64 @@ int main() {
                 if question["qid"] == qid:
                     return question
             return None
+        
+def validate_coding_submission(self, qid, user_code):
+    """
+    Validate a user's coding submission using the CodeExecutionService.
     
-    def validate_coding_submission(self, qid, user_code):
-        """
-        Validate a user's coding submission using the CodeExecutionService.
+    Args:
+        qid (int): The question ID
+        user_code (str): The user's submitted code
         
-        Args:
-            qid (int): The question ID
-            user_code (str): The user's submitted code
-            
-        Returns:
-            dict: Result of validation including compile status, test results, etc.
-        """
-        # Get the question and extract its test code
-        question = self.get_coding_question(qid)
-        if not question:
+    Returns:
+        dict: Result of validation including compile status, test results, etc.
+    """
+    # Get the question and extract its test code
+    question = self.get_coding_question(qid)
+    if not question:
+        return {
+            "error": f"Question with ID {qid} not found",
+            "is_correct": False
+        }
+    
+    # Check if the user code matches the starter code
+    if user_code.strip() == question["function_template"].strip():
+        return {
+            "is_correct": False,
+            "error": "Submission is identical to the starter code. Please add your implementation.",
+        }
+    
+    # Execute the code using our service
+    try:
+        # Append the user's code to the test code
+        execution_results = self.code_execution_service.execute_code(
+            user_code, 
+            question["test_code"]
+        )
+        
+        # Ensure compilation errors are explicitly reported
+        if not execution_results.get("compile", False):
             return {
-                "error": f"Question with ID {qid} not found",
-                "is_correct": False
+                "is_correct": False,
+                "execution_results": execution_results,
+                "error": "Compilation failed. Please fix the errors and try again.",
             }
         
-        # Add special validation for factorial problem
-        if "factorial" in user_code and "factorial" in question.get("qtext", "").lower():
-            # Check if the user has actually implemented the factorial function
-            # Look for key implementation indicators
-            has_implementation = False
-            
-            # Check for loop structures
-            if ("for" in user_code and "i" in user_code and "++" in user_code) or "while" in user_code:
-                has_implementation = True
-            # Check for recursion implementation
-            elif "return" in user_code and "factorial" in user_code and "*" in user_code:
-                has_implementation = True
-            # Check for multiplication operations
-            elif "*=" in user_code or ("result" in user_code and "*" in user_code):
-                has_implementation = True
-            # Check if there's a return with calculation rather than just a simple return
-            elif "return" in user_code and any(op in user_code for op in ["*", "+", "-", "/"]):
-                has_implementation = True
-            
-            # If user hasn't actually implemented the function, it's not correct
-            if not has_implementation:
-                return {
-                    "is_correct": False,
-                    "execution_results": {
-                        "compile": True,
-                        "run": True,
-                        "output": "Your function appears to be incomplete. Please implement the factorial calculation.",
-                        "failed_tests": ["Implementation check"]
-                    }
-                }
+        # Determine if the submission is correct
+        is_correct = (
+            execution_results.get("compile", False) and 
+            not execution_results.get("failed_tests", []) and
+            "error" not in execution_results
+        )
         
-        # Execute the code using our service
-        try:
-            # We append the user's code to the test code
-            # This allows the test code to call the user's function
-            execution_results = self.code_execution_service.execute_code(
-                user_code, 
-                question["test_code"]
-            )
-            
-            # If the code failed to compile, return the actual compiler error
-            if not execution_results.get("compile", False):
-                return {
-                    "is_correct": False,
-                    "execution_results": execution_results
-                }
-            
-            # Determine if the submission is correct
-            # A submission is correct if:
-            # 1. It compiles successfully
-            # 2. All tests pass (no test failures)
-            # 3. There are no critical errors (valgrind errors are ignored)
-            is_correct = (
-                execution_results.get("compile", False) and 
-                not execution_results.get("failed_tests", []) and
-                "error" not in execution_results
-            )
-            
-            # Handle the case where there's a valgrind error but tests pass
-            if not is_correct and "error" in execution_results and "valgrind" in execution_results.get("error", "").lower():
-                # If it's just a valgrind error, the code might still be correct
-                is_correct = execution_results.get("compile", False) and not execution_results.get("failed_tests", [])
-            
-            return {
-                "is_correct": is_correct,
-                "execution_results": execution_results
-            }
-            
-        except Exception as e:
-            logger.error(f"Error validating coding submission: {e}")
-            return {
-                "error": str(e),
-                "is_correct": False
-            } 
+        return {
+            "is_correct": is_correct,
+            "execution_results": execution_results
+        }
+        
+    except Exception as e:
+        logger.error(f"Error validating coding submission: {e}")
+        return {
+            "error": str(e),
+            "is_correct": False
+        }

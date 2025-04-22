@@ -11,6 +11,7 @@
     flex-direction: row; /* Change to row to place sidebar and content side by side */
     min-height: 100vh;
     background-color: var(--first-bg-color);
+    margin: 0px;
 }
 
 
@@ -19,11 +20,10 @@
     display: flex;
     flex-direction: column;
 
-    padding: 20px;
+    padding: 30px;
    
     flex: 1;
     max-width: 100%;
-    /*margin-left: 200px;*/
    
 }
 
@@ -38,24 +38,20 @@
     max-width: 1000px;
     margin: 0 auto; /* Keep it centered */
     position: absolute; /* Position it independently */
-    
-    left: 21%; /* Center it horizontally */
+    top: 15px;
+    left: 20%; /* Center it horizontally */
     
 }
 
 
 .topics-list {
-    padding-top: 80px;
+    margin-top: 4em;
     width: 100%;
+    
+    margin-right: 30px;
 }
 
-.sidebar-expanded .topics-list {
-    margin-left: 30px; /* Adjust according to your sidebar width */
-}
 
-.sidebar-collapsed .topics-list {
-    margin-left: auto; /* Adjust if sidebar collapses to icons */
-}
 
 .topic-item {
     padding: 20px;

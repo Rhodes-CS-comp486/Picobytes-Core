@@ -137,7 +137,6 @@
   display: flex;
   flex-direction: column;
   min-width: 0; /* Prevents flex children from overflowing */
-  margin-bottom: 20px;
 }
 
 .editor-container h3 {
@@ -167,7 +166,7 @@
   display: flex;
   justify-content: center;
   margin-bottom: 30px;
-  margin-top: 20px;
+  margin-top: 0px; /* Reduced top margin */
 }
 
 .submit-button {
@@ -228,6 +227,7 @@
   box-shadow: var(--box-shadow-default);
   border: 1px solid rgba(128, 128, 128, 0.1);
   width: 100%;
+  margin-top: 20px;
 }
 
 .execution-results h3 {
@@ -488,7 +488,7 @@
   }
   
   .code-editor {
-    height: 200px;
+    height: 250px; /* Slightly larger height for mobile */
     font-size: 14px;
   }
   
@@ -564,21 +564,10 @@ html.dark-mode .coding-lab-tab:hover {
   margin-bottom: 10px;
 }
 
-.code-editor-section {
+.codelab-panel-content {
   display: flex;
-  gap: 24px;
-  margin-bottom: 24px;
+  flex-direction: column;
   width: 100%;
-}
-
-@media (min-width: 769px) {
-  .coding-question-content {
-    margin-bottom: 40px;
-  }
-  
-  #code-execution-content {
-    margin-bottom: 40px;
-  }
 }
 
 /* Loading Spinner */

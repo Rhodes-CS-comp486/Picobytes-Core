@@ -4,7 +4,6 @@ import Home_Header from './home/home_header';
 import SideBar from './home/side_bar';
 import './Questions.css';
 import './CodingQuestion.css'; // Import the new CSS file
-import './code_execution/code_execution.css'; // Import Code Lab CSS
 
 interface Prop {
   toggleDark: () => void;
@@ -306,8 +305,8 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
         )}
         
         {!tabLoading && activeTab === 'codelab' && (
-          <div key="codelab-panel" data-testid="codelab-panel" id="code-execution-content">
-            <div id="code-execution-title">
+          <div key="codelab-panel" data-testid="codelab-panel" className="codelab-panel-content">
+            <div className="coding-question-header">
               <h2>💻 Free Code Lab</h2>
               <div className="question-count">Write, test, and execute C code</div>
             </div>
@@ -325,7 +324,7 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
                   className="code-editor"
                   value={code}
                   onChange={onCodeChange}
-                  placeholder="Write your C code here..."
+                  placeholder="// Write your C code here..."
                   disabled={isSubmitting}
                 ></textarea>
               </div>
@@ -336,7 +335,7 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
                   className="code-editor"
                   value={tests}
                   onChange={onTestsChange}
-                  placeholder="Write test assertions here (optional)..."
+                  placeholder="// Write test assertions here (optional)...\n// Example: assert(sum(2, 3) == 5);"
                   disabled={isSubmitting}
                 ></textarea>
               </div>
@@ -383,7 +382,7 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
                 {result.compile && result.output && (
                   <div className="output-container">
                     <h4>Output:</h4>
-                    <pre className="output-display">{result.output}</pre>
+                    <pre className="output-display">{result.output || '(No output)'}</pre>
                   </div>
                 )}
 

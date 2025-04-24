@@ -101,8 +101,14 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
             {/* MAIN CONTENT */}
             <div id="code-execution-content">
                 <div id="code-execution-title">
-                    💻 Code Execution
+                    💻 Free Code Lab
                     <div>Write, test, and execute C code</div>
+                </div>
+
+                <div id="code-instructions">
+                    <h3>Instructions</h3>
+                    <p>Write C code in the editor below. The code will be compiled and executed on the server. You can also write test cases to verify your code works correctly.</p>
+                    <p><strong>Note:</strong> Do not include a main function in your code. Functions will be called automatically based on your test cases.</p>
                 </div>
 
                 <div id="code-editor-section">
@@ -112,7 +118,16 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
                             id="code-editor"
                             value={code}
                             onChange={onCodeChange}
-                            placeholder="Write your C code here..."
+                            placeholder="// Write your C code here
+// Do not include a main function
+
+int sum(int a, int b) {
+    return a + b;
+}
+
+int multiply(int a, int b) {
+    return a * b;
+}"
                             disabled={isSubmitting}
                         ></textarea>
                     </div>
@@ -123,7 +138,10 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
                             id="test-editor"
                             value={tests}
                             onChange={onTestsChange}
-                            placeholder="Write test assertions here (optional)..."
+                            placeholder="// Write test cases here (optional)
+// Examples:
+// assert(sum(2, 3) == 5);
+// assert(multiply(4, 5) == 20);"
                             disabled={isSubmitting}
                         ></textarea>
                     </div>

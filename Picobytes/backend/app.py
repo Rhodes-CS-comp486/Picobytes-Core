@@ -817,6 +817,30 @@ def test_database():
             conn.close()
 
 
+
+
+
+@app.route('/api/daily_goals', methods=['POST'])
+def get_daily_goals():
+    try:
+        data = request.get_json()
+        uid = data.get('uid')  # Extract UID from request
+
+        if not uid:
+            return jsonify({"error": "Missing uid"}), 400
+
+        # Get the question to verify the correct answer
+        curr_status = streak_service.get_daily_goals(uid)
+
+
+        return jsonify(curr_status), 200
+
+    except Exception as e:
+        print(f"Error in submit_answer: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+
 if __name__ == '__main__':
     # with app.app_context():
     # print(topic_selection("MC", "Science"))

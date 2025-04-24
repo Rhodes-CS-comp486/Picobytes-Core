@@ -18,14 +18,12 @@ class QuestionService:
         try:
             conn = self._connect()
             c = conn.cursor()
-            c.execute('''
-                SELECT q.qid, q.qtext, q.qlevel, tf.correct 
-                FROM questions q 
-                JOIN true_false tf ON q.qid = tf.qid 
-                WHERE q.qtype = 'tf' AND q.qactive = True
-            ''')
+            c.execute(
+                "SELECT qid, qtext, qlevel, qtopic"
+                " FROM true_false NATURAL JOIN questions where qactive = True")
             questions = c.fetchall()
             conn.close()
+            print(f"Found {len(questions)} TF questions")
             return questions
         
         except Exception as e:

@@ -31,8 +31,8 @@ interface Player {
 
 interface QuestionData {
   questions: {
-    // id, question, level, correct
-    tf: [number, string, string, number][];
+    // id, question, level, topic
+    tf: [number, string, string, string][];
     // id, question, topic, op1, op2, op3, op4, answer_id, difficulty
     mc: [
       number,
@@ -59,6 +59,7 @@ interface Question {
   prompt: string;
   difficulty: string;
   topic: string;
+  answered: boolean;
 }
 
 /// MAIN CONTENT ////////////////////////////////////
@@ -100,6 +101,7 @@ const Homepage = ({ toggleDark }: Prop) => {
         prompt: q[1],
         difficulty: q[3],
         topic: q[2],
+        answered: false,
       };
       qlist = [...qlist, question];
     });
@@ -111,6 +113,7 @@ const Homepage = ({ toggleDark }: Prop) => {
         prompt: q.qtext,
         difficulty: q.qlevel,
         topic: q.qtopic,
+        answered: false,
       };
       qlist = [...qlist, question];
     });
@@ -123,6 +126,7 @@ const Homepage = ({ toggleDark }: Prop) => {
         prompt: q[1],
         difficulty: q[8],
         topic: q[2],
+        answered: false,
       };
       qlist = [...qlist, question];
     });
@@ -133,15 +137,16 @@ const Homepage = ({ toggleDark }: Prop) => {
         type: "True False",
         prompt: q[1],
         difficulty: q[2],
-        topic: "?", /// I think it tf request needs to be modified
+        topic: q[3],
+        answered: false,
       };
       qlist = [...qlist, question];
     });
 
-    // sorting list so it goes in order of id
-    // qlist = qlist.sort((a) => {
-    //   return -a.id;
-    // });
+    // sorting list
+    qlist = qlist.sort((a, b) => {
+      return a.id-b.id;
+    })
     setQuestions(qlist);
   };
 
@@ -358,11 +363,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           <div id="home-questions-vscroll">
             <h1>All Question List</h1>
             <ul>
-              {questions
-                .sort((a, b) => {
-                  return a.id-b.id;
-                })
-                .map((q, i) => {
+              {questions.map((q, i) => {
                   return (
                     <li
                       // key={q.id}

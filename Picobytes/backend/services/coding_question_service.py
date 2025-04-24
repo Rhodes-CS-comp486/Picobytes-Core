@@ -35,97 +35,28 @@ class CodingQuestionService:
         Returns:
             list: A list of coding question dictionaries
         """
-        # This is a temporary implementation until we update the database schema
-        # In a real implementation, we would fetch from the database
-        return [
-            {
-                "qid": 1001,
-                "qtext": "Write a function that reverses a string in-place",
-                "difficulty": "Medium",
-                "topic": "Strings",
-                "function_template": "void strrev(char *str) {\n    // Your code here\n}",
-                "test_code": """
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-
-// Test cases
-int main() {
-    // Test case 1: Basic string
-    char str1[] = "hello";
-    strrev(str1);
-    assert(strcmp(str1, "olleh") == 0);
-    
-    // Test case 2: Empty string
-    char str2[] = "";
-    strrev(str2);
-    assert(strcmp(str2, "") == 0);
-    
-    // Test case 3: Single character
-    char str3[] = "a";
-    strrev(str3);
-    assert(strcmp(str3, "a") == 0);
-    
-    // Test case 4: Even length string
-    char str4[] = "abcd";
-    strrev(str4);
-    assert(strcmp(str4, "dcba") == 0);
-    
-    printf("All tests passed!\\n");
-    return 0;
-}
-"""
-            },
-            {
-                "qid": 1002,
-                "qtext": "Implement a function to find the maximum element in an array",
-                "difficulty": "Easy",
-                "topic": "Arrays",
-                "function_template": "int find_max(int arr[], int size) {\n    // Your code here\n}",
-                "test_code": """
-#include <stdio.h>
-#include <assert.h>
-
-int main() {
-    // Test case 1: Basic array
-    int arr1[] = {1, 3, 5, 2, 4};
-    assert(find_max(arr1, 5) == 5);
-    
-    // Test case 2: Array with negative numbers
-    int arr2[] = {-1, -3, -5, -2, -4};
-    assert(find_max(arr2, 5) == -1);
-    
-    // Test case 3: Array with one element
-    int arr3[] = {42};
-    assert(find_max(arr3, 1) == 42);
-    
-    // Test case 4: Array with duplicate max
-    int arr4[] = {10, 5, 10, 3, 7};
-    assert(find_max(arr4, 5) == 10);
-    
-    printf("All tests passed!\\n");
-    return 0;
-}
-"""
-            }
-        ]
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT q.qid, q.qtext, q.topic, q.qlevel 
+                FROM questions q 
+                WHERE q.qtype = 'coding' AND q.qactive = True
+            """)
+            all_questions = cursor.fetchall()
+            conn.close()
+            return all_questions
+        except Exception as e:
+            print(f"Error fetching FR questions: {e}")
+            return []
     
     def get_coding_question(self, qid):
-        """
-        Fetch a specific coding question by its ID.
-        
-        Args:
-            qid (int): The question ID to fetch
-            
-        Returns:
-            dict: The coding question data or None if not found
-        """
-        # Find the question in our hard-coded list for now
-        questions = self.get_coding_questions()
-        for question in questions:
-            if question["qid"] == qid:
-                return question
-        return None
+        conn = self._connect()
+        cursor = conn.cursor()
+        cursor.execute("select qid, qtype, qtext, qtopic, starter, testcases, correctcode, qlevel  from questions natural join coding where qactive = True and qid = %s", (qid,))
+        question = cursor.fetchone()
+        conn.close()
+        return question
     
     def validate_coding_submission(self, qid, user_code):
         """

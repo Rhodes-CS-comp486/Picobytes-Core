@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Home_Header from './home/home_header';
 import SideBar from './home/side_bar';
@@ -48,7 +48,16 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
   const [tabLoading, setTabLoading] = useState(false); // New state for tab switching loading
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'questions' | 'codelab'>('questions');
+  
+  // Initialize the activeTab state based on URL parameters
+  const initialTab = new URLSearchParams(location.search).get('tab') === 'codelab' ? 'codelab' : 'questions';
+  const [activeTab, setActiveTab] = useState<'questions' | 'codelab'>(initialTab);
+  const activeTabRef = useRef(activeTab);
+  
+  // Update ref when activeTab changes
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
   
   // Code Lab States
   const [code, setCode] = useState('// Write your C code here\n// Do not include a main function\n\n');
@@ -57,22 +66,43 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState('');
 
+  // Monitor URL parameter changes
   useEffect(() => {
-    // Check URL parameters for active tab
     const queryParams = new URLSearchParams(location.search);
     const tabParam = queryParams.get('tab');
     
-    if (tabParam === 'codelab') {
-      setActiveTab('codelab');
-    } else {
-      setActiveTab('questions');
+    // Only update the active tab if the URL parameter explicitly indicates a tab
+    if (tabParam === 'codelab' || tabParam === 'questions') {
+      if (tabParam !== activeTab) {
+        setActiveTab(tabParam as 'codelab' | 'questions');
+      }
     }
-
-    // Update URL when tab changes
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set('tab', activeTab);
-    window.history.replaceState({}, '', newUrl);
   }, [location, activeTab]);
+
+  // Update URL when tab changes using router navigation instead of history API
+  const updateUrl = (tab: string) => {
+    // Use navigate to change the URL without a full page reload
+    navigate(`?tab=${tab}`, { replace: true });
+  };
+
+  // Handle tab switching
+  const handleTabChange = (tab: 'questions' | 'codelab') => {
+    if (tab === activeTab) return;
+    
+    // Start loading animation
+    setTabLoading(true);
+    
+    // Update state
+    setActiveTab(tab);
+    
+    // Update URL
+    updateUrl(tab);
+    
+    // Finish loading after a short delay for UI smoothness
+    setTimeout(() => {
+      setTabLoading(false);
+    }, 300);
+  };
 
   // Load saved code and tests from localStorage when component mounts
   useEffect(() => {
@@ -88,14 +118,16 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
     }
   }, []);
 
+  // Load data for the active tab
   useEffect(() => {
+    // Fetch questions when on the questions tab
     if (activeTab === 'questions') {
-      setTabLoading(true); // Start loading
+      setTabLoading(true);
       fetchCodingQuestions().finally(() => {
-        setTabLoading(false); // End loading
+        setTabLoading(false);
       });
     }
-  }, [activeTab]);
+  }, [activeTab]); // Only run when activeTab changes
 
   // Save code and tests to localStorage when they change
   useEffect(() => {
@@ -107,6 +139,8 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
   }, [tests]);
 
   const fetchCodingQuestions = (retryCount = 0) => {
+    if (activeTab !== 'questions') return Promise.resolve(); // Don't fetch if not on questions tab
+    
     setLoading(true);
     return fetch('http://127.0.0.1:5000/api/coding-questions')
       .then(response => {
@@ -215,22 +249,6 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
     }
   };
 
-  // Handle tab switching with loading state
-  const handleTabChange = (tab: 'questions' | 'codelab') => {
-    setTabLoading(true);
-    setActiveTab(tab);
-    
-    // Use a small timeout to show the loading state for a smoother transition
-    setTimeout(() => {
-      setTabLoading(false);
-    }, 300);
-    
-    // Update URL
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set('tab', tab);
-    window.history.replaceState({}, '', newUrl);
-  };
-
   return (
     <div className="coding-question-container">
       <Home_Header toggleOverlay={() => {}} />
@@ -240,12 +258,14 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
           <div 
             className={`coding-lab-tab ${activeTab === 'questions' ? 'active' : ''}`} 
             onClick={() => handleTabChange('questions')}
+            data-testid="questions-tab"
           >
             Practice Questions
           </div>
           <div 
             className={`coding-lab-tab ${activeTab === 'codelab' ? 'active' : ''}`} 
             onClick={() => handleTabChange('codelab')}
+            data-testid="codelab-tab"
           >
             Free Coding
           </div>
@@ -254,7 +274,7 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
         {tabLoading && <LoadingSpinner />}
         
         {!tabLoading && activeTab === 'questions' && (
-          <>
+          <div key="questions-panel" data-testid="questions-panel">
             <div className="coding-question-header">
               <h2>Coding Practice Questions</h2>
               {data && <div className="question-count">{data.total_questions} available questions</div>}
@@ -282,11 +302,11 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
                 ))}
               </ul>
             )}
-          </>
+          </div>
         )}
         
         {!tabLoading && activeTab === 'codelab' && (
-          <div id="code-execution-content">
+          <div key="codelab-panel" data-testid="codelab-panel" id="code-execution-content">
             <div id="code-execution-title">
               💻 Free Code Lab
               <div>Write, test, and execute C code</div>

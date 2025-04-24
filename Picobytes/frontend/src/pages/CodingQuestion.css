@@ -429,6 +429,37 @@
   .question-text {
     font-size: 14px;
   }
+  
+  /* Improved tab navigation for mobile */
+  .coding-lab-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .coding-lab-tab {
+    padding: 10px 16px;
+    flex-grow: 1;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  /* Adjust code editor for mobile */
+  #code-editor-section {
+    flex-direction: column;
+  }
+  
+  .editor-container {
+    margin-bottom: 16px;
+  }
+  
+  #code-editor, #test-editor {
+    height: 200px;
+    font-size: 14px;
+  }
+  
+  #execution-controls {
+    margin-top: 16px;
+  }
 }
 
 /* Tab Navigation for Coding Lab */
@@ -471,4 +502,39 @@ html.dark-mode .coding-lab-tab:hover {
 /* Ensure proper styling for both tabs */
 #code-execution-content {
   width: 100%;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+html.dark-mode .spinner {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary-color);
+}
+
+/* Improved error output styling */
+.error-output {
+  color: #e53e3e;
+  background-color: rgba(229, 62, 62, 0.05);
 } 

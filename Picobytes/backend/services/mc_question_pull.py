@@ -24,7 +24,7 @@ class MC_QuestionFetcher:
             conn = self._connect()
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT q.qid, q.qtext, mc.option1, mc.option2, mc.option3, mc.option4, 
+                SELECT q.qid, q.qtext, q.qtopic, mc.option1, mc.option2, mc.option3, mc.option4, 
                     mc.answer, q.qlevel 
                 FROM questions q 
                 JOIN multiple_choice mc ON q.qid = mc.qid 

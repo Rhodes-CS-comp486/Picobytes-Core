@@ -146,15 +146,21 @@ def api_get_questions():
     try:
         tf_questions = tf_question_service.pull_questions()
         mc_questions = mc_question_service.get_all_mc_questions()  # Changed to use the correct method
+        #free response, code blocks, coding
+        fr_questions = fr_question_service.get_all_fr_questions()
+        cb_questions = cb_question_service.get_all_cd_questions()
+
 
         questions = {
             'tf': tf_questions,
-            'mc': mc_questions
+            'mc': mc_questions,
+            'fr': fr_questions,
+            'cb': cb_questions
         }
 
         response = {
             'questions': questions,
-            'total_questions': len(tf_questions) + len(mc_questions)
+            'total_questions': len(tf_questions) + len(mc_questions) + len(fr_questions) + len(cb_questions)
         }
 
         return jsonify(response)

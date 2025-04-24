@@ -1,20 +1,21 @@
 /* Code Execution Page Styles */
 
-#code-execution-container {
+.code-execution-container {
     display: flex;
     flex-direction: row; /* Change to row to place sidebar and content side by side */
     min-height: 100vh;
-    padding-top: 70px; /* Account for fixed header */
+    
 }
 
-#code-execution-content {
+.code-execution-content {
     display: flex;
     flex-direction: column;
     padding: 20px;
     flex: 1;
-    max-width: 1200px;
-    margin-left: 220px; /* Adjusted margin for sidebar */
+    max-width: 1400px;
 }
+
+
 
 #code-execution-title {
     font-size: 2rem;
@@ -22,6 +23,9 @@
     margin-top: 10px;
     margin-bottom: 30px;
     color: var(--theme-main-color);
+
+    position: absolute;
+    left: 21%;
 }
 
 #code-execution-title div {
@@ -29,6 +33,7 @@
     font-weight: normal;
     margin-top: 5px;
     color: var(--theme-secondary-color);
+    
 }
 
 #code-editor-section {
@@ -36,6 +41,16 @@
     flex-direction: column;
     gap: 20px;
     margin-bottom: 20px;
+    margin-top: 10em;
+    margin-right: 30px;
+}
+
+.sidebar-expanded #code-editor-section {
+    margin-left: 30px; /* Adjust according to your sidebar width */
+}
+
+.sidebar-collapsed #code-editor-section{
+    margin-left: 5px; 
 }
 
 @media (min-width: 768px) {

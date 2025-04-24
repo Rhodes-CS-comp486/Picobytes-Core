@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 import SideBar from "./home/side_bar"; // Import SideBar component
+import Draggable_Question from "./draggable_question";
 
 const Question = () => {
   const [answer, setAnswer] = useState<number | boolean | string | null>(null);
@@ -23,6 +24,7 @@ const Question = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [draggedIds, setDraggedIds] = useState<string[]>([]); // State to store IDs from Draggable_Question
 
   let params = useParams();
   let id = params.id;
@@ -126,7 +128,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
 
   const submitAnswer = () => {
     // Check if an answer is selected
-    if (answer === null) {
+    if (answer === null && draggedIds.length === 0) {
       setFeedback("Please select an answer");
       return;
     }
@@ -276,6 +278,48 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
         }),
       })
       setFeedback("Placeholder")
+    }
+    else if (questionType === "code_blocks") {
+      // Convert draggedIds array to a comma-separated string
+      const draggedIdsString = draggedIds.join(",");
+
+      console.log("Dragged IDs:", draggedIdsString);
+
+      fetch("http://127.0.0.1:5000/api/submit_answer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question_id: id,
+          response: draggedIdsString, // Send the comma-separated string
+          uid: localStorage.getItem("uid"),
+          correct: correct,
+        }),
+      })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          setError(data.error);
+          setIsSubmitting(false);
+        } else {
+          // Display feedback
+          console.log("Response data:", data);
+          if(data.is_correct){
+            setFeedback("Correct!");
+            setShowCelebration(true);
+          }
+          else{
+            setFeedback("Incorrect.");
+          }
+        }
+      });
+      setIsSubmitting(true);
     }
   };
 
@@ -439,6 +483,11 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                   ))}
                 </div>
               )}
+              {questionType === "code_blocks" && (
+                <div className="option-content">
+                  <Draggable_Question onUpdateAnswer={setDraggedIds} />
+                </div>
+              )}
             </div>
           </div>
 
@@ -480,7 +529,8 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                   isSubmitting || 
                   (questionType === "multiple_choice" && answer === null) ||
                   (questionType === "true_false" && answer === null) ||
-                  (questionType === "free_response" && !answer)
+                  (questionType === "free_response" && !answer) ||
+                  (questionType === "code_blocks" && draggedIds.length === 0)
                 }
               >
                 {isSubmitting ? "Checking..." : "Check Answer"}

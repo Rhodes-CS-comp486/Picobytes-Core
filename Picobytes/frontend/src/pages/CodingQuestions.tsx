@@ -2,8 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Home_Header from './home/home_header';
 import SideBar from './home/side_bar';
+import { useSidebar } from './home/side_bar_context';
 import './Questions.css';
-import './CodingQuestion.css'; // Import the new CSS file
+import './CodingQuestion.css';
 
 interface Prop {
   toggleDark: () => void;
@@ -44,9 +45,10 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
   const [data, setData] = useState<CodingQuestionData | null>(null);
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(true);
-  const [tabLoading, setTabLoading] = useState(false); // New state for tab switching loading
+  const [tabLoading, setTabLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isVisible } = useSidebar();
   
   // Initialize the activeTab state based on URL parameters
   const initialTab = new URLSearchParams(location.search).get('tab') === 'codelab' ? 'codelab' : 'questions';
@@ -249,173 +251,179 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
   };
 
   return (
-    <div className="coding-question-container">
-      <Home_Header toggleOverlay={() => {}} />
-      <SideBar toggleDark={toggleDark}/>
-      <div className="coding-question-content">
-        <div className="coding-lab-tabs">
-          <div 
-            className={`coding-lab-tab ${activeTab === 'questions' ? 'active' : ''}`} 
-            onClick={() => handleTabChange('questions')}
-            data-testid="questions-tab"
-          >
-            Practice Questions
-          </div>
-          <div 
-            className={`coding-lab-tab ${activeTab === 'codelab' ? 'active' : ''}`} 
-            onClick={() => handleTabChange('codelab')}
-            data-testid="codelab-tab"
-          >
-            Free Coding
-          </div>
-        </div>
+    <div className={`coding-question-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
+      {/* Left Sidebar */}
+      <SideBar toggleDark={toggleDark} />
+      
+      <div className="right-content-wrapper">
+        {/* Header */}
+        <Home_Header toggleOverlay={() => {}} />
         
-        {tabLoading && <LoadingSpinner />}
-        
-        {!tabLoading && activeTab === 'questions' && (
-          <div key="questions-panel" data-testid="questions-panel">
-            <div className="coding-question-header">
-              <h2>Coding Practice Questions</h2>
-              {data && <div className="question-count">{data.total_questions} available questions</div>}
+        <div className="coding-question-content">
+          <div className="coding-lab-tabs">
+            <div 
+              className={`coding-lab-tab ${activeTab === 'questions' ? 'active' : ''}`} 
+              onClick={() => handleTabChange('questions')}
+              data-testid="questions-tab"
+            >
+              Practice Questions
             </div>
-            
-            {loading && <div className="loading-state">Loading questions...</div>}
-            {error && <div className="error-state">Error: {error}</div>}
-            
-            {!loading && !error && data && (
-              <ul className="questions-list">
-                {data.questions.map((question) => (
-                  <li key={question.qid} className="question-item" onClick={() => goToQuestion(question.qid)}>
-                    <div className="question-title">
-                      <strong>Question {question.qid}</strong>
-                      
-                      <div className="question-meta">
-                        <span className="topic">{question.topic}</span>
-                        <span className={`difficulty ${question.difficulty.toLowerCase()}`}>
-                          {question.difficulty}
+            <div 
+              className={`coding-lab-tab ${activeTab === 'codelab' ? 'active' : ''}`} 
+              onClick={() => handleTabChange('codelab')}
+              data-testid="codelab-tab"
+            >
+              Free Coding
+            </div>
+          </div>
+          
+          {tabLoading && <LoadingSpinner />}
+          
+          {!tabLoading && activeTab === 'questions' && (
+            <div key="questions-panel" data-testid="questions-panel">
+              <div className="coding-question-header">
+                <h2>Coding Practice Questions</h2>
+                {data && <div className="question-count">{data.total_questions} available questions</div>}
+              </div>
+              
+              {loading && <div className="loading-state">Loading questions...</div>}
+              {error && <div className="error-state">Error: {error}</div>}
+              
+              {!loading && !error && data && (
+                <ul className="questions-list">
+                  {data.questions.map((question) => (
+                    <li key={question.qid} className="question-item" onClick={() => goToQuestion(question.qid)}>
+                      <div className="question-title">
+                        <strong>Question {question.qid}</strong>
+                        
+                        <div className="question-meta">
+                          <span className="topic">{question.topic}</span>
+                          <span className={`difficulty ${question.difficulty.toLowerCase()}`}>
+                            {question.difficulty}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="question-text">{question.qtext}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+          
+          {!tabLoading && activeTab === 'codelab' && (
+            <div key="codelab-panel" data-testid="codelab-panel" className="codelab-panel-content">
+              <div className="coding-question-header">
+                <h2>💻 Free Code Lab</h2>
+                <div className="question-count">Write, test, and execute C code</div>
+              </div>
+
+              <div className="problem-statement">
+                <h3>Instructions</h3>
+                <p>Write C code in the editor below. The code will be compiled and executed on the server. You can also write test cases to verify your code works correctly.</p>
+                <p>Note: Do not include a main function in your code. Functions will be called automatically based on your test cases.</p>
+              </div>
+
+              <div className="code-editor-section">
+                <div className="editor-container">
+                  <h3>Code Editor</h3>
+                  <textarea
+                    className="code-editor"
+                    value={code}
+                    onChange={onCodeChange}
+                    placeholder="// Write your C code here..."
+                    disabled={isSubmitting}
+                  ></textarea>
+                </div>
+
+                <div className="editor-container">
+                  <h3>Test Cases (Optional)</h3>
+                  <textarea
+                    className="code-editor"
+                    value={tests}
+                    onChange={onTestsChange}
+                    placeholder="// Write test assertions here (optional)...\n// Example: assert(sum(2, 3) == 5);"
+                    disabled={isSubmitting}
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="execution-controls">
+                <button 
+                  className="submit-button"
+                  onClick={() => executeCode(0)}
+                  disabled={isSubmitting || !code.trim()}
+                >
+                  {isSubmitting ? 'Executing...' : 'Execute Code'}
+                </button>
+              </div>
+
+              {isSubmitting && <LoadingSpinner />}
+
+              {feedback && (
+                <div className={`execution-feedback ${feedback.includes('successfully') ? 'success-feedback' : 'error-feedback'}`}>
+                  {feedback}
+                </div>
+              )}
+
+              {result && (
+                <div className="execution-results">
+                  <h3>Execution Results</h3>
+                  <div className="result-status">
+                    <div className="status-item">
+                      <span className="status-label">Compilation:</span>
+                      <span className={`status-value ${result.compile ? "status-success" : "status-error"}`}>
+                        {result.compile ? "Successful" : "Failed"}
+                      </span>
+                    </div>
+                    {result.compile && (
+                      <div className="status-item">
+                        <span className="status-label">Execution:</span>
+                        <span className={`status-value ${!result.error ? "status-success" : "status-error"}`}>
+                          {!result.error ? "Successful" : "Failed"}
                         </span>
                       </div>
-                    </div>
-                    <div className="question-text">{question.qtext}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-        
-        {!tabLoading && activeTab === 'codelab' && (
-          <div key="codelab-panel" data-testid="codelab-panel" className="codelab-panel-content">
-            <div className="coding-question-header">
-              <h2>💻 Free Code Lab</h2>
-              <div className="question-count">Write, test, and execute C code</div>
-            </div>
-
-            <div className="problem-statement">
-              <h3>Instructions</h3>
-              <p>Write C code in the editor below. The code will be compiled and executed on the server. You can also write test cases to verify your code works correctly.</p>
-              <p>Note: Do not include a main function in your code. Functions will be called automatically based on your test cases.</p>
-            </div>
-
-            <div className="code-editor-section">
-              <div className="editor-container">
-                <h3>Code Editor</h3>
-                <textarea
-                  className="code-editor"
-                  value={code}
-                  onChange={onCodeChange}
-                  placeholder="// Write your C code here..."
-                  disabled={isSubmitting}
-                ></textarea>
-              </div>
-
-              <div className="editor-container">
-                <h3>Test Cases (Optional)</h3>
-                <textarea
-                  className="code-editor"
-                  value={tests}
-                  onChange={onTestsChange}
-                  placeholder="// Write test assertions here (optional)...\n// Example: assert(sum(2, 3) == 5);"
-                  disabled={isSubmitting}
-                ></textarea>
-              </div>
-            </div>
-
-            <div className="execution-controls">
-              <button 
-                className="submit-button"
-                onClick={() => executeCode(0)}
-                disabled={isSubmitting || !code.trim()}
-              >
-                {isSubmitting ? 'Executing...' : 'Execute Code'}
-              </button>
-            </div>
-
-            {isSubmitting && <LoadingSpinner />}
-
-            {feedback && (
-              <div className={`execution-feedback ${feedback.includes('successfully') ? 'success-feedback' : 'error-feedback'}`}>
-                {feedback}
-              </div>
-            )}
-
-            {result && (
-              <div className="execution-results">
-                <h3>Execution Results</h3>
-                <div className="result-status">
-                  <div className="status-item">
-                    <span className="status-label">Compilation:</span>
-                    <span className={`status-value ${result.compile ? "status-success" : "status-error"}`}>
-                      {result.compile ? "Successful" : "Failed"}
-                    </span>
+                    )}
                   </div>
-                  {result.compile && (
-                    <div className="status-item">
-                      <span className="status-label">Execution:</span>
-                      <span className={`status-value ${!result.error ? "status-success" : "status-error"}`}>
-                        {!result.error ? "Successful" : "Failed"}
-                      </span>
+
+                  {result.compile && result.output && (
+                    <div className="output-container">
+                      <h4>Output:</h4>
+                      <pre className="output-display">{result.output || '(No output)'}</pre>
+                    </div>
+                  )}
+
+                  {result.error && (
+                    <div className="output-container">
+                      <h4>Errors:</h4>
+                      <pre className="output-display error-output">{result.error}</pre>
+                    </div>
+                  )}
+
+                  {result.failed_tests && result.failed_tests.length > 0 && (
+                    <div className="failed-tests">
+                      <h4>Failed Tests ({result.failed_tests.length}):</h4>
+                      <ul>
+                        {result.failed_tests.map((test, index) => (
+                          <li key={index}>{test}</li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>
-
-                {result.compile && result.output && (
-                  <div className="output-container">
-                    <h4>Output:</h4>
-                    <pre className="output-display">{result.output || '(No output)'}</pre>
-                  </div>
-                )}
-
-                {result.error && (
-                  <div className="output-container">
-                    <h4>Errors:</h4>
-                    <pre className="output-display error-output">{result.error}</pre>
-                  </div>
-                )}
-
-                {result.failed_tests && result.failed_tests.length > 0 && (
-                  <div className="failed-tests">
-                    <h4>Failed Tests ({result.failed_tests.length}):</h4>
-                    <ul>
-                      {result.failed_tests.map((test, index) => (
-                        <li key={index}>{test}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
+          )}
+          
+          <div className="navigation-buttons">
+            <button className="home-button" onClick={goToHomepage}>
+              Back to Home
+            </button>
           </div>
-        )}
-        
-        <div className="navigation-buttons">
-          <button className="home-button" onClick={goToHomepage}>
-            Back to Home
-          </button>
         </div>
       </div>
     </div>
   );
 };
 
-export default CodingQuestions; 
+export default CodingQuestions;

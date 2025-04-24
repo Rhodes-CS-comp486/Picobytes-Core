@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Home_Header from './home/home_header';
 import SideBar from './home/side_bar';
-import './code_execution/code_execution.css'; // Reuse existing code execution styles
-import './CodingQuestion.css'; // Import the new CSS file we'll create
+import { useSidebar } from './home/side_bar_context';
+import './code_execution/code_execution.css';
+import './CodingQuestion.css';
 
 interface Prop {
   toggleDark: () => void;
@@ -36,6 +37,7 @@ interface ExecutionResult {
 const CodingQuestionPage = ({ toggleDark }: Prop) => {
   const { qid } = useParams<{ qid: string }>();
   const navigate = useNavigate();
+  const { isVisible } = useSidebar();
   
   const [question, setQuestion] = useState<CodingQuestion | null>(null);
   const [code, setCode] = useState<string>('');
@@ -108,67 +110,39 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
     }
   };
   
-  if (loading) {
-    return (
-      <div className="coding-question-container">
-        <Home_Header toggleOverlay={() => {}} />
-        <SideBar toggleDark={toggleDark} />
-        <div className="coding-question-content">
-          <div className="coding-question-header">
-            <h2>Coding Question</h2>
-          </div>
-          <div className="loading-state">Loading question...</div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (error) {
-    return (
-      <div className="coding-question-container">
-        <Home_Header toggleOverlay={() => {}} />
-        <SideBar toggleDark={toggleDark} />
-        <div className="coding-question-content">
-          <div className="coding-question-header">
-            <h2>Coding Question</h2>
-          </div>
+  const renderContent = () => {
+    if (loading) {
+      return <div className="loading-state">Loading question...</div>;
+    }
+    
+    if (error) {
+      return (
+        <>
           <div className="error-state">Error: {error}</div>
           <div className="navigation-buttons">
             <button className="home-button" onClick={() => navigate('/coding-questions')}>
               Back to Coding Questions
             </button>
           </div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (!question) {
-    return (
-      <div className="coding-question-container">
-        <Home_Header toggleOverlay={() => {}} />
-        <SideBar toggleDark={toggleDark} />
-        <div className="coding-question-content">
-          <div className="coding-question-header">
-            <h2>Coding Question</h2>
-          </div>
+        </>
+      );
+    }
+    
+    if (!question) {
+      return (
+        <>
           <div className="error-state">Question not found</div>
           <div className="navigation-buttons">
             <button className="home-button" onClick={() => navigate('/coding-questions')}>
               Back to Coding Questions
             </button>
           </div>
-        </div>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="coding-question-container">
-      <Home_Header toggleOverlay={() => {}} />
-      <SideBar toggleDark={toggleDark} />
-      
-      <div className="coding-question-content">
+        </>
+      );
+    }
+    
+    return (
+      <>
         <div className="coding-question-header">
           <h2>Coding Question #{qid}</h2>
           <div className="question-meta">
@@ -260,9 +234,25 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
             Back to Coding Questions
           </button>
         </div>
+      </>
+    );
+  };
+  
+  return (
+    <div className={`coding-question-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
+      {/* Left Sidebar */}
+      <SideBar toggleDark={toggleDark} />
+      
+      <div className="right-content-wrapper">
+        {/* Header */}
+        <Home_Header toggleOverlay={() => {}} />
+        
+        <div className="coding-question-content">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
 };
 
-export default CodingQuestionPage; 
+export default CodingQuestionPage;

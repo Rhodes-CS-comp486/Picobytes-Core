@@ -1,37 +1,49 @@
 /* Coding Question Page Styles */
 
-/* Fix sidebar styling to ensure consistency */
+/* Layout structure */
 .coding-question-container {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
-  padding-top: 70px; /* Account for fixed header */
+  width: 100%;
+  position: relative;
   font-family: 'Nunito', sans-serif;
-  position: relative; /* Added for proper positioning */
-  background-color: var(--first-bg-color); /* Match app theme */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  background-color: var(--first-bg-color);
+  overflow-x: hidden;
 }
 
+/* Make the sidebar in coding question pages match other pages */
 .coding-question-container .sidebar {
-  position: fixed; 
+  position: fixed;
+  height: 100vh;
+  top: 0;
   left: 0;
-  top: 70px; 
-  height: calc(100vh - 70px); 
+  z-index: 100;
   width: 250px;
-  z-index: 10;
-  overflow-y: auto;
+  min-height: 100vh;
   border-right: 1px solid rgba(128, 128, 128, 0.2);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.coding-question-container .sidebar.collapsed .sidebar-nav {
-  opacity: 0; /* Hide when collapsed */
+.coding-question-container .sidebar.collapsed {
+  width: 60px;
 }
 
-.coding-question-container .sidebar.expanded .sidebar-nav {
-  opacity: 1;
+/* Right content wrapper to handle layout with fixed sidebar */
+.right-content-wrapper {
+  flex: 1;
+  margin-left: 250px; /* Default for expanded sidebar */
+  transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
+.sidebar-collapsed .right-content-wrapper {
+  margin-left: 60px;
+}
+
+/* Dark mode adjustments */
 .dark-mode .coding-question-container .sidebar {
   background-color: #1f2937;
 }
@@ -40,10 +52,10 @@
   background-color: #ffffff;
 }
 
+/* Content area styles */
 .coding-question-content {
-  margin-left: 250px; /* Start after sidebar */
-  max-width: 1024px; /* Maximum width of content */
-  width: calc(100% - 250px); /* Full width minus sidebar */
+  max-width: 1024px;
+  width: 100%;
   padding: 30px;
   margin-right: auto;
   margin-left: auto;
@@ -409,100 +421,6 @@
   color: var(--text-primary);
 }
 
-/* Mobile media query */
-@media (max-width: 768px) {
-  .coding-question-container .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    top: 0;
-    border-right: none;
-    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
-  }
-  
-  .coding-question-content {
-    margin-left: 0;
-    width: 100%;
-    padding: 20px;
-  }
-  
-  .coding-question-header h2 {
-    font-size: 24px;
-  }
-  
-  .question-meta {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .topic, .difficulty {
-    display: inline-block;
-  }
-  
-  .question-item {
-    padding: 16px;
-  }
-  
-  .question-title strong {
-    font-size: 18px;
-  }
-  
-  .question-text {
-    font-size: 14px;
-  }
-  
-  #code-execution-content {
-    width: 100%;
-  }
-  
-  .code-editor-section {
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .editor-container {
-    width: 100%;
-    margin-bottom: 16px;
-  }
-  
-  .coding-lab-tabs {
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 5px;
-  }
-
-  .coding-lab-tab {
-    padding: 10px 16px;
-    font-size: 14px;
-    white-space: nowrap;
-  }
-
-  .execution-controls {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .submit-button {
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .code-editor {
-    height: 250px; /* Slightly larger height for mobile */
-    font-size: 14px;
-  }
-  
-  .execution-results {
-    padding: 16px;
-  }
-  
-  .status-item {
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 8px;
-  }
-}
-
 /* Updated Code Lab Styling */
 .coding-lab-tabs {
   display: flex;
@@ -599,4 +517,100 @@ html.dark-mode .spinner {
 
 .error-output {
   color: #d32f2f !important;
-} 
+}
+
+/* Mobile media query */
+@media (max-width: 768px) {
+  .right-content-wrapper {
+    margin-left: 0;
+  }
+  
+  .coding-question-container .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+  }
+  
+  .coding-question-content {
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .coding-question-header h2 {
+    font-size: 24px;
+  }
+  
+  .question-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .topic, .difficulty {
+    display: inline-block;
+  }
+  
+  .question-item {
+    padding: 16px;
+  }
+  
+  .question-title strong {
+    font-size: 18px;
+  }
+  
+  .question-text {
+    font-size: 14px;
+  }
+  
+  #code-execution-content {
+    width: 100%;
+  }
+  
+  .code-editor-section {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .editor-container {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .coding-lab-tabs {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .coding-lab-tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .execution-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .submit-button {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .code-editor {
+    height: 250px; /* Slightly larger height for mobile */
+    font-size: 14px;
+  }
+  
+  .execution-results {
+    padding: 16px;
+  }
+  
+  .status-item {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+}

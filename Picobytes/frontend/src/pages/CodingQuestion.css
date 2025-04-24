@@ -429,4 +429,46 @@
   .question-text {
     font-size: 14px;
   }
+}
+
+/* Tab Navigation for Coding Lab */
+.coding-lab-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.coding-lab-tab {
+  padding: 12px 24px;
+  cursor: pointer;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.coding-lab-tab.active {
+  color: var(--primary-color);
+}
+
+.coding-lab-tab.active:after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--primary-color);
+}
+
+.coding-lab-tab:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+html.dark-mode .coding-lab-tab:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Ensure proper styling for both tabs */
+#code-execution-content {
+  width: 100%;
 } 

@@ -2,36 +2,67 @@
 
 .code-execution-container {
     display: flex;
-    flex-direction: row; /* Change to row to place sidebar and content side by side */
+    flex-direction: row;
     min-height: 100vh;
-    
+    width: 100%;
+    position: relative;
+}
+
+/* Make the sidebar in code execution page match other pages */
+.code-execution-container .sidebar {
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    min-height: 100vh;
+    border-right: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.code-execution-container .sidebar.expanded {
+    width: 250px;
+}
+
+.code-execution-container .sidebar.collapsed {
+    width: 60px;
+}
+
+/* New right content wrapper to handle layout with fixed sidebar */
+.right-content-wrapper {
+    flex: 1;
+    margin-left: 250px; /* Default for expanded sidebar */
+    transition: margin-left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sidebar-collapsed .right-content-wrapper {
+    margin-left: 60px;
 }
 
 .code-execution-content {
     display: flex;
     flex-direction: column;
-    padding: 30px; /* Increased padding */
+    padding: 20px;
     flex: 1;
     max-width: 1400px;
 }
 
-
-
 #code-execution-title {
-    font-size: 2.2rem; /* Slightly larger title */
+    font-size: 2rem;
     font-weight: bold;
     margin-top: 10px;
-    margin-bottom: 40px; /* Increased margin */
+    margin-bottom: 30px;
     color: var(--theme-main-color);
-
-    position: absolute;
-    left: 21%;
+    position: relative; /* Changed from absolute to relative */
+    left: 0; /* Reset left position */
 }
 
 #code-execution-title div {
-    font-size: 1.3rem; /* Increased subtitle size */
+    font-size: 1.2rem;
     font-weight: normal;
-    margin-top: 10px; /* Increased margin */
+    margin-top: 5px;
     color: var(--theme-secondary-color);
     
 }
@@ -63,71 +94,58 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--theme-background-secondary);
-    border-radius: 8px;
-    padding: 20px; /* Added padding around the containers */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .editor-container h3 {
-    margin-bottom: 15px; /* Increased margin */
+    margin-bottom: 10px;
     color: var(--theme-main-color);
-    font-size: 1.2rem;
 }
 
 #code-editor, #test-editor {
     width: 100%;
-    height: 320px; /* Increased height */
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* Better monospace fonts */
-    padding: 20px; /* Increased padding */
+    height: 300px;
+    font-family: monospace;
+    padding: 15px;
     border-radius: 8px;
     border: 1px solid #ccc;
     resize: vertical;
     background-color: var(--theme-background-secondary);
     color: var(--theme-text-color);
-    line-height: 1.5; /* Improved line spacing */
-    font-size: 1rem; /* Set font size */
 }
 
 #execution-controls {
     display: flex;
     justify-content: center;
-    margin: 30px 0; /* Increased margin */
+    margin-bottom: 20px;
 }
 
 #execute-button {
-    padding: 14px 28px; /* Larger button */
+    padding: 12px 24px;
     background-color: var(--theme-main-color);
     color: white;
     border: none;
     border-radius: 4px;
-    font-size: 1.1rem; /* Increased font size */
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 #execute-button:hover {
     background-color: var(--theme-hover-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 #execute-button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
 }
 
 #execution-feedback {
-    padding: 18px; /* Increased padding */
+    padding: 15px;
     border-radius: 8px;
-    margin-bottom: 25px; /* Increased margin */
+    margin-bottom: 20px;
     text-align: center;
     font-weight: bold;
-    font-size: 1.1rem; /* Increased font size */
 }
 
 .success-feedback {
@@ -145,32 +163,27 @@
 #execution-results {
     background-color: var(--theme-background-secondary);
     border-radius: 8px;
-    padding: 25px; /* Increased padding */
-    margin-bottom: 30px; /* Increased margin */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 #execution-results h3 {
     margin-top: 0;
-    margin-bottom: 20px; /* Increased margin */
+    margin-bottom: 15px;
     color: var(--theme-main-color);
-    font-size: 1.3rem; /* Increased font size */
 }
 
 .result-status {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px; /* Increased gap */
-    margin-bottom: 25px; /* Increased margin */
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
 .status-item {
     display: flex;
     align-items: center;
-    gap: 10px; /* Increased gap */
-    padding: 8px 15px; /* Added padding */
-    background-color: var(--theme-background-primary);
-    border-radius: 6px;
+    gap: 8px;
 }
 
 .status-label {
@@ -186,36 +199,33 @@
 }
 
 .output-container {
-    margin-bottom: 25px; /* Increased margin */
+    margin-bottom: 20px;
 }
 
 .output-container h4 {
-    margin-bottom: 15px; /* Increased margin */
-    font-size: 1.1rem; /* Increased font size */
+    margin-bottom: 10px;
 }
 
 .output-display {
     background-color: var(--theme-background-primary);
-    padding: 20px; /* Increased padding */
-    border-radius: 6px;
+    padding: 15px;
+    border-radius: 4px;
     white-space: pre-wrap;
     overflow-x: auto;
     max-height: 300px;
     overflow-y: auto;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* Better monospace fonts */
-    line-height: 1.6; /* Increased line height */
+    font-family: monospace;
+    line-height: 1.5;
     border: 1px solid #ccc;
-    font-size: 0.95rem; /* Set font size */
 }
 
 .failed-tests {
-    margin-top: 25px; /* Increased margin */
+    margin-top: 20px;
 }
 
 .failed-tests h4 {
-    margin-bottom: 15px; /* Increased margin */
+    margin-bottom: 10px;
     color: #d32f2f;
-    font-size: 1.1rem; /* Increased font size */
 }
 
 .failed-tests ul {
@@ -225,10 +235,10 @@
 
 .failed-tests li {
     background-color: rgba(244, 67, 54, 0.1);
-    padding: 15px; /* Increased padding */
-    border-radius: 6px;
-    margin-bottom: 10px; /* Increased margin */
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; /* Better monospace fonts */
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    font-family: monospace;
 }
 
 /* Dark mode adjustments */

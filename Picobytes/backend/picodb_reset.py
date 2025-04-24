@@ -21,7 +21,7 @@ def reset_tables():
                     "questions", "true_false", "multiple_choice", "coding", "code_blocks",
                     "user_responses", "user_free_response", "user_multiple_choice",
                     "user_true_false", "user_code_blocks", "user_coding", "free_response",
-                    "users", "question_analytics"
+                    "users", "question_analytics", "daily_goals"
                 ]
 
                 # Drop tables with CASCADE to remove dependencies

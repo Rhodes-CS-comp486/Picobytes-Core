@@ -122,6 +122,29 @@ class Streaks:
         points = self.get_points(uid)
         return (streak, points)
 
+
+    def get_daily_goals(self, uid):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""
+                                SELECT num_questions
+                                FROM daily_goals
+                                WHERE uid = %s
+                                  AND lastgoaltime::date = CURRENT_DATE
+                            """, (uid,))
+
+            result = cursor.fetchone()
+            if result:
+                return result
+            else:
+                return {"num_questions": 0}
+
+
+        except Exception as e:
+            print(f"Error fetching daily goals: {e}")
+            return None
+
     def get_top_10(self):
         try:
             conn = self._connect()

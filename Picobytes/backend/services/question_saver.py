@@ -140,6 +140,53 @@ class QuestionSave:
             print(f"Error in save_coding_response: {e}")
             return False
 
+    def update_daily_goals(uid):
+        """Updates daily_goals for the given uid: insert if missing, increment if today, reset if not."""
+        db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+        current_time = time.time()
+        today = datetime.date.today()
+
+        try:
+            with psycopg.connect(db_url, row_factory=dict_row) as conn:
+                with conn.cursor() as cur:
+                    # Step 1: Check for existing lastgoaltime
+                    cur.execute("""
+                        SELECT lastgoaltime FROM daily_goals WHERE uid = %s
+                    """, (uid,))
+                    row = cur.fetchone()
+
+                    if row is None:
+                        # No record: insert new with count = 1
+                        cur.execute("""
+                            INSERT INTO daily_goals (uid, lastgoaltime, num_questions)
+                            VALUES (%s, to_timestamp(%s), %s)
+                        """, (uid, current_time, 1))
+                    else:
+                        last_date = row['lastgoaltime'].date()
+                        if last_date == today:
+                            # Same day: increment num_questions
+                            cur.execute("""
+                                UPDATE daily_goals
+                                SET num_questions = num_questions + 1
+                                WHERE uid = %s
+                            """, (uid,))
+                        else:
+                            # New day: reset num_questions to 1 and update lastgoaltime
+                            cur.execute("""
+                                UPDATE daily_goals
+                                SET lastgoaltime = to_timestamp(%s),
+                                    num_questions = %s
+                                WHERE uid = %s
+                            """, (current_time, 1, uid))
+
+                conn.commit()
+                conn.close
+
+        except Exception as e:
+            print(f"Error updating daily goals: {e}")
+
+
+
     def save_question(self, uid, qid, response):
         """Dispatch to the appropriate save_* method based on question type."""
         try:
@@ -150,6 +197,9 @@ class QuestionSave:
                 if not row:
                     return {'error': 'Question not found'}
                 qtype = row['qtype']
+
+            update_daily_goals(uid)
+
             if qtype == 'multiple_choice':
                 return self.save_mc_response(uid, qid, response)
             elif qtype == 'true_false':

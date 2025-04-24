@@ -428,23 +428,7 @@ def get_usage_stats():
     return jsonify(data)
 
 
-# @app.route('/api/submit_question', methods=['POST'])
-# def submit_question():
-#     data = request.get_json()
-#     uid = data.get('uid')
-#     qid = data.get('qid')
-#     response = data.get('response')
 
-#     if not uid:
-#         return jsonify({"error": "Missing user id"}), 400
-#     if not qid:
-#         return jsonify({"error": "Missing question id"}), 400
-#     if not response:
-#         return jsonify({"error": "Missing response"}), 400
-
-#     question_save_service.save_question(uid, qid, response)
-
-#     return jsonify({'uid': uid})
 
 
 @app.route('/api/submit_answer', methods=['POST'])
@@ -815,6 +799,26 @@ def test_database():
     finally:
         if 'conn' in locals() and conn:
             conn.close()
+
+
+@app.route('/api/daily_goals', methods=['POST'])
+def get_daily_goals():
+    try:
+        data = request.get_json()
+        uid = data.get('uid')  # Extract UID from request
+
+        if not uid:
+            return jsonify({"error": "Missing uid"}), 400
+
+        # Get the question to verify the correct answer
+        curr_status = streak_service.get_daily_goals(uid)
+
+
+        return jsonify(curr_status), 200
+
+    except Exception as e:
+        print(f"Error in submit_answer: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':

@@ -308,15 +308,21 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
         {!tabLoading && activeTab === 'codelab' && (
           <div key="codelab-panel" data-testid="codelab-panel" id="code-execution-content">
             <div id="code-execution-title">
-              💻 Free Code Lab
-              <div>Write, test, and execute C code</div>
+              <h2>💻 Free Code Lab</h2>
+              <div className="question-count">Write, test, and execute C code</div>
             </div>
 
-            <div id="code-editor-section">
+            <div className="problem-statement">
+              <h3>Instructions</h3>
+              <p>Write C code in the editor below. The code will be compiled and executed on the server. You can also write test cases to verify your code works correctly.</p>
+              <p>Note: Do not include a main function in your code. Functions will be called automatically based on your test cases.</p>
+            </div>
+
+            <div className="code-editor-section">
               <div className="editor-container">
                 <h3>Code Editor</h3>
                 <textarea
-                  id="code-editor"
+                  className="code-editor"
                   value={code}
                   onChange={onCodeChange}
                   placeholder="Write your C code here..."
@@ -327,7 +333,7 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
               <div className="editor-container">
                 <h3>Test Cases (Optional)</h3>
                 <textarea
-                  id="test-editor"
+                  className="code-editor"
                   value={tests}
                   onChange={onTestsChange}
                   placeholder="Write test assertions here (optional)..."
@@ -336,9 +342,9 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
               </div>
             </div>
 
-            <div id="execution-controls">
+            <div className="execution-controls">
               <button 
-                id="execute-button"
+                className="submit-button"
                 onClick={() => executeCode(0)}
                 disabled={isSubmitting || !code.trim()}
               >
@@ -349,23 +355,29 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
             {isSubmitting && <LoadingSpinner />}
 
             {feedback && (
-              <div id="execution-feedback" className={
-                feedback.includes('successfully') ? 'success-feedback' : 'error-feedback'
-              }>
+              <div className={`execution-feedback ${feedback.includes('successfully') ? 'success-feedback' : 'error-feedback'}`}>
                 {feedback}
               </div>
             )}
 
             {result && (
-              <div id="execution-results" className="execution-results">
+              <div className="execution-results">
                 <h3>Execution Results</h3>
                 <div className="result-status">
                   <div className="status-item">
                     <span className="status-label">Compilation:</span>
-                    <span className={result.compile ? "status-success" : "status-error"}>
+                    <span className={`status-value ${result.compile ? "status-success" : "status-error"}`}>
                       {result.compile ? "Successful" : "Failed"}
                     </span>
                   </div>
+                  {result.compile && (
+                    <div className="status-item">
+                      <span className="status-label">Execution:</span>
+                      <span className={`status-value ${!result.error ? "status-success" : "status-error"}`}>
+                        {!result.error ? "Successful" : "Failed"}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {result.compile && result.output && (

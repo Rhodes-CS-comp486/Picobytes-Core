@@ -64,7 +64,8 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
 
   const fetchQuestion = (questionId: string | undefined) => {
     if (!questionId) return;
-    console.log("Fetching question with ID:", index);
+    console.log("Fetching question with Index:", index);
+    console.log("Fetching question with ID:", questionId);
 
     // Reset states when fetching a new question
     setFeedback("");
@@ -101,6 +102,9 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
           setAnswer(null); // Initialize as null so no option is selected by default
         } else if (data.question_type === "free_response") {
           setCorrect(data.professor_answer);
+          setAnswer("")
+        }else if (data.question_type === "coding"){
+          setCorrect(data.correctcode)
           setAnswer("")
         }
       })
@@ -486,6 +490,19 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
               {questionType === "code_blocks" && (
                 <div className="option-content">
                   <Draggable_Question onUpdateAnswer={setDraggedIds} />
+                </div>
+              )}
+              {questionType === "coding" && (
+                <div className="option-container">
+                  <div className="option-content">
+                    <textarea
+                      className="code-input"
+                      placeholder="Write your code here..."
+                      value={answer as string}
+                      onChange={(e) => setAnswer(e.target.value)}
+                      disabled={isSubmitting}
+                    ></textarea>
+                  </div>
                 </div>
               )}
             </div>

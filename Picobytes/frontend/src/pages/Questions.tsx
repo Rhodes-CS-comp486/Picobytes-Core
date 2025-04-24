@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Home_Header from './home/home_header';
 import './questions.css';
 import SideBar from './home/side_bar';
+import { useSidebar } from './home/side_bar_context';
 
 interface Prop {
   toggleDark: () => void;
@@ -22,6 +23,8 @@ const Questions = ({toggleDark} : Prop) => {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const { isVisible } = useSidebar();
 
   useEffect(() => {
     fetch('http://127.0.0.1:5000/api/questions')
@@ -51,28 +54,28 @@ const Questions = ({toggleDark} : Prop) => {
   };
 
   if (loading) return (
-    <div className="duolingo-question-page">
+    <div className={`practice-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
       <Home_Header toggleOverlay={() => {}} />
       <div className="questions-page">Loading questions...</div>
     </div>
   );
   
   if (error) return (
-    <div className="duolingo-question-page">
+    <div className={`practice-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
       <Home_Header toggleOverlay={() => {}} />
       <div className="questions-page">Error: {error}</div>
     </div>
   );
   
   if (!data) return (
-    <div className="duolingo-question-page">
+    <div className={`practice-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
       <Home_Header toggleOverlay={() => {}} />
       <div className="questions-page">No questions available</div>
     </div>
   );
 
   return (
-    <div className="duolingo-question-page">
+    <div className={`practice-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
       <Home_Header toggleOverlay={() => {}} />
       <SideBar toggleDark={toggleDark}/>
       <div className="questions-page">

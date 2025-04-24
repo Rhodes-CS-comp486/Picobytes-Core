@@ -5,6 +5,7 @@ import './code_execution.css';
 import Home_Header from '../home/home_header';
 import Home_Prof_Overlay from '../home/home_prof_overlay';
 import SideBar from '../home/side_bar';
+import { useSidebar } from '../home/side_bar_context';
 
 /// INTERFACES /////////////////////////////////////////////////////////////
 interface Prop {
@@ -33,6 +34,8 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
     const [result, setResult] = useState<ExecutionResult | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [feedback, setFeedback] = useState('');
+
+    const { isVisible } = useSidebar();
 
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
@@ -90,7 +93,7 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
 
     /// MAIN CONTENT ////////////////////////////////////////////////////
     return (
-        <div id="code-execution-container">
+        <div className={`code-execution-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
             {/* Header */}
             <Home_Header toggleOverlay={toggleOverlay} />
             {showOverlay && <Home_Prof_Overlay />}
@@ -99,7 +102,7 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
             <SideBar toggleDark={toggleDark}></SideBar>
 
             {/* MAIN CONTENT */}
-            <div id="code-execution-content">
+            <div className="code-execution-content">
                 <div id="code-execution-title">
                     💻 Free Code Lab
                     <div>Write, test, and execute C code</div>

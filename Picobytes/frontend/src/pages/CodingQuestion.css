@@ -13,10 +13,10 @@
 }
 
 .coding-question-container .sidebar {
-  position: fixed; /* Fix the sidebar position */
+  position: fixed; 
   left: 0;
-  top: 70px; /* Account for header height */
-  height: calc(100vh - 70px); /* Full height minus header */
+  top: 70px; 
+  height: calc(100vh - 70px); 
   width: 250px;
   z-index: 10;
   overflow-y: auto;

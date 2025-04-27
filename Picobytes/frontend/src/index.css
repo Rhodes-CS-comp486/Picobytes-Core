@@ -116,6 +116,8 @@ input {
   --second-bg-color: #ecf0f5;
   --third-bg-color: #ffffff;
 
+  --home-bg-color: #f1f5f9;
+
   --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.1);
 
 
@@ -166,9 +168,11 @@ input {
 
   --primary-shadow-color: #58a700;
 
-  --first-bg-color: #111827;
+  --first-bg-color: #161f32;
   --second-bg-color: #1f2937;
   --third-bg-color: #2d3748;
+
+  --home-bg-color: #111827;
 
   --box-shadow-default: 0 4px 16px rgba(0, 0, 0, 0.2);
 

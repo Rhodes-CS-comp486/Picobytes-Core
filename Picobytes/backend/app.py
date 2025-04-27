@@ -434,23 +434,6 @@ def get_usage_stats():
     return jsonify(data)
 
 
-# @app.route('/api/submit_question', methods=['POST'])
-# def submit_question():
-#     data = request.get_json()
-#     uid = data.get('uid')
-#     qid = data.get('qid')
-#     response = data.get('response')
-
-#     if not uid:
-#         return jsonify({"error": "Missing user id"}), 400
-#     if not qid:
-#         return jsonify({"error": "Missing question id"}), 400
-#     if not response:
-#         return jsonify({"error": "Missing response"}), 400
-
-#     question_save_service.save_question(uid, qid, response)
-
-#     return jsonify({'uid': uid})
 
 
 @app.route('/api/submit_answer', methods=['POST'])

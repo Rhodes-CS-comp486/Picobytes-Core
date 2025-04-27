@@ -108,6 +108,18 @@ def getleaderboard():
         return jsonify({'error!': str(e)}), 500
 
 
+@app.route('/api/get_user_rank/<string:uid>')
+def get_user_rank(uid):
+    print(f"Received uid: {uid}")
+    
+    if verification_service.verify_user(uid):
+        rank = streak_service.get_user_curr_rank(uid)
+        return jsonify({'rank': rank})
+    
+    else:
+        return jsonify({'error': 'User not found or is admin'}), 404
+
+
 ####UPDATED#####
 @app.route('/api/question/<int:qid>', methods=['GET'])
 def question(qid):

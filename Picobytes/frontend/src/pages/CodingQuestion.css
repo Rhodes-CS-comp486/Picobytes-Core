@@ -1,36 +1,49 @@
 /* Coding Question Page Styles */
 
-/* Fix sidebar styling to ensure consistency */
+/* Layout structure */
 .coding-question-container {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
-  padding-top: 70px; /* Account for fixed header */
+  width: 100%;
+  position: relative;
   font-family: 'Nunito', sans-serif;
-  position: relative; /* Added for proper positioning */
-  background-color: var(--first-bg-color); /* Match app theme */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  background-color: var(--first-bg-color);
+  overflow-x: hidden;
 }
 
+/* Make the sidebar in coding question pages match other pages */
 .coding-question-container .sidebar {
-  position: fixed; 
+  position: fixed;
+  height: 100vh;
+  top: 0;
   left: 0;
-  top: 70px; 
-  height: calc(100vh - 70px); 
+  z-index: 100;
   width: 250px;
-  z-index: 10;
-  overflow-y: auto;
+  min-height: 100vh;
   border-right: 1px solid rgba(128, 128, 128, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.coding-question-container .sidebar.collapsed .sidebar-nav {
-  opacity: 0; /* Hide when collapsed */
+.coding-question-container .sidebar.collapsed {
+  width: 60px;
 }
 
-.coding-question-container .sidebar.expanded .sidebar-nav {
-  opacity: 1;
+/* Right content wrapper to handle layout with fixed sidebar */
+.right-content-wrapper {
+  flex: 1;
+  margin-left: 250px; /* Default for expanded sidebar */
+  transition: margin-left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
+.sidebar-collapsed .right-content-wrapper {
+  margin-left: 60px;
+}
+
+/* Dark mode adjustments */
 .dark-mode .coding-question-container .sidebar {
   background-color: #1f2937;
 }
@@ -39,17 +52,15 @@
   background-color: #ffffff;
 }
 
+/* Content area styles */
 .coding-question-content {
-  display: flex;
-  flex-direction: column;
+  max-width: 1024px;
+  width: 100%;
   padding: 30px;
-  flex: 1;
-  max-width: 1000px;
-  margin-left: 250px; /* Match sidebar width */
-  margin-bottom: 40px;
   margin-right: auto;
   margin-left: auto;
-  padding-left: 290px; /* Account for sidebar */
+  display: flex;
+  flex-direction: column;
 }
 
 .coding-question-header {
@@ -127,7 +138,17 @@
 }
 
 .code-editor-section {
+  display: flex;
+  gap: 24px;
   margin-bottom: 24px;
+  width: 100%;
+}
+
+.editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Prevents flex children from overflowing */
 }
 
 .editor-container h3 {
@@ -140,7 +161,7 @@
 .code-editor {
   width: 100%;
   height: 300px;
-  font-family: monospace;
+  font-family: 'Courier New', Courier, monospace;
   padding: 16px;
   border-radius: 12px;
   border: 1px solid rgba(128, 128, 128, 0.2);
@@ -150,13 +171,14 @@
   font-size: 16px;
   line-height: 1.5;
   box-shadow: var(--box-shadow-default);
+  overflow: auto;
 }
 
 .execution-controls {
   display: flex;
   justify-content: center;
   margin-bottom: 30px;
-  margin-top: 20px;
+  margin-top: 0px; /* Reduced top margin */
 }
 
 .submit-button {
@@ -216,6 +238,8 @@
   margin-bottom: 24px;
   box-shadow: var(--box-shadow-default);
   border: 1px solid rgba(128, 128, 128, 0.1);
+  width: 100%;
+  margin-top: 20px;
 }
 
 .execution-results h3 {
@@ -397,12 +421,121 @@
   color: var(--text-primary);
 }
 
-/* Adjustments for smaller screens */
+/* Updated Code Lab Styling */
+.coding-lab-tabs {
+  display: flex;
+  border-bottom: 2px solid rgba(128, 128, 128, 0.15);
+  margin-bottom: 30px;
+  gap: 0;
+}
+
+.coding-lab-tab {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.coding-lab-tab.active {
+  color: var(--theme-main-color);
+}
+
+.coding-lab-tab.active:after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--theme-main-color);
+  border-radius: 3px 3px 0 0;
+}
+
+.coding-lab-tab:hover {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+html.dark-mode .coding-lab-tab:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+#code-execution-content {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+#code-execution-title {
+  margin-bottom: 30px;
+}
+
+#code-execution-title h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--theme-main-color);
+  margin-bottom: 10px;
+}
+
+.codelab-panel-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  height: 100px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(128, 128, 128, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--theme-main-color);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+html.dark-mode .spinner {
+  border-color: rgba(255, 255, 255, 0.1);
+  border-top-color: var(--theme-main-color);
+}
+
+.error-output {
+  color: #d32f2f !important;
+}
+
+/* Mobile media query */
 @media (max-width: 768px) {
-  .coding-question-content {
+  .right-content-wrapper {
     margin-left: 0;
-    padding: 16px;
-    padding-left: 16px;
+  }
+  
+  .coding-question-container .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+  }
+  
+  .coding-question-content {
+    width: 100%;
+    padding: 20px;
   }
   
   .coding-question-header h2 {
@@ -429,4 +562,55 @@
   .question-text {
     font-size: 14px;
   }
-} 
+  
+  #code-execution-content {
+    width: 100%;
+  }
+  
+  .code-editor-section {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .editor-container {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .coding-lab-tabs {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .coding-lab-tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .execution-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .submit-button {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .code-editor {
+    height: 250px; /* Slightly larger height for mobile */
+    font-size: 14px;
+  }
+  
+  .execution-results {
+    padding: 16px;
+  }
+  
+  .status-item {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+}

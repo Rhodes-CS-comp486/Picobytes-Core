@@ -26,6 +26,8 @@ from psycopg.rows import dict_row
 from db_info import *
 from services.code_execution_service import CodeExecutionService
 from config import CODE_EXECUTION_API_URL
+# Import the coding_questions blueprint
+from routes.coding_questions import coding_questions_bp
 
 
 # Connect to an existing database
@@ -73,6 +75,9 @@ analytics_service = AnalyticsService()
 streak_service = Streaks()
 verification_service = Verification()
 code_execution_service = CodeExecutionService()
+
+# Register the coding_questions blueprint
+app.register_blueprint(coding_questions_bp)
 
 
 @app.route('/')

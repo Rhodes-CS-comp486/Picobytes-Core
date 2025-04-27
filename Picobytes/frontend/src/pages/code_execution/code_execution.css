@@ -2,9 +2,43 @@
 
 .code-execution-container {
     display: flex;
-    flex-direction: row; /* Change to row to place sidebar and content side by side */
+    flex-direction: row;
     min-height: 100vh;
-    
+    width: 100%;
+    position: relative;
+}
+
+/* Make the sidebar in code execution page match other pages */
+.code-execution-container .sidebar {
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    min-height: 100vh;
+    border-right: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.code-execution-container .sidebar.expanded {
+    width: 250px;
+}
+
+.code-execution-container .sidebar.collapsed {
+    width: 60px;
+}
+
+/* New right content wrapper to handle layout with fixed sidebar */
+.right-content-wrapper {
+    flex: 1;
+    margin-left: 250px; /* Default for expanded sidebar */
+    transition: margin-left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sidebar-collapsed .right-content-wrapper {
+    margin-left: 60px;
 }
 
 .code-execution-content {
@@ -15,17 +49,14 @@
     max-width: 1400px;
 }
 
-
-
 #code-execution-title {
     font-size: 2rem;
     font-weight: bold;
     margin-top: 10px;
     margin-bottom: 30px;
     color: var(--theme-main-color);
-
-    position: absolute;
-    left: 21%;
+    position: relative; /* Changed from absolute to relative */
+    left: 0; /* Reset left position */
 }
 
 #code-execution-title div {

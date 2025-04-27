@@ -1,0 +1,71 @@
+/* SIDE BAR CSS */
+
+/* Sidebar styles */
+.sidebar {
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(128, 128, 128, 0.2);
+  
+    width: 250px;
+    transition: width 0.3s ease;
+    z-index: 10;
+  }
+  
+  .dark-mode .sidebar {
+    background-color: var(--third-bg-color);
+  }
+  
+  .light-mode .sidebar {
+    background-color: var(--third-bg-color);
+  }
+  
+  .logo-container {
+    padding: 10px;
+    margin-bottom: 30px;
+    text-align: center;
+    transition: none;
+  }
+  
+  .logo-text {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    color: var(--primary-theme-color)
+  }
+  
+
+
+.sidebar.collapsed {
+  width: 0px;
+  background-color: var(--second-bg-color);
+  border-right: 0px solid transparent;
+  
+}
+
+.sidebar.collapsed .sidebar-nav {
+    opacity: 0; 
+}
+
+.sidebar.expanded .sidebar-nav {
+    opacity: 1;
+}
+
+.sidebar.collapsed .logo-container {
+    width: 250px; 
+    transition: none; 
+}
+
+
+.sidebar.expanded .logo-container {
+    width: 250px;
+    transition: none; 
+}
+
+.sidebar-nav {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: opacity 0.2s ease;
+  }

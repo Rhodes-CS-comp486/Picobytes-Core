@@ -1,5 +1,6 @@
 import { useSidebar } from "./side_bar_context";
 import { useNavigate } from "react-router-dom";
+import './side_bar.css'
 
 /// INTERFACE ///////////////////////////////////////
 

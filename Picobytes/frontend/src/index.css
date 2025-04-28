@@ -110,7 +110,7 @@ input {
   --accent-theme-color: #ff4258;
   /*--accent-theme-color: #f29e84;*/
 
-  --primary-shadow-color: #58a700;
+  --primary-shadow-color: #4b8c00;
 
   --first-bg-color: #dfe6eb;
   --second-bg-color: #ecf0f5;
@@ -130,7 +130,7 @@ input {
   /* Used primarily in Admin Dashboard */
   /*--background-primary: #f3f7fb;*/
   --background-primary: var(--second-bg-color);
-  --background-secondary: #ffffff;
+  --background-secondary: #f1f4f6;
   
   --background-accent: #e1e6ec;
 

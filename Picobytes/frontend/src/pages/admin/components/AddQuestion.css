@@ -133,17 +133,17 @@
 .submit-button {
   background-color: var(--accent-green, #58cc02);
   color: white;
-  box-shadow: 0 4px 0 #58a700;
+  box-shadow: 0 4px 0 var(--primary-shadow-color);
 }
 
 .submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #58a700;
+  box-shadow: 0 6px 0 var(--primary-shadow-color);
 }
 
 .submit-button:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 #58a700;
+  box-shadow: 0 2px 0 var(--primary-shadow-color);
 }
 
 .submit-button:disabled {
@@ -154,19 +154,18 @@
 }
 
 .reset-button {
-  background-color: #4b5563;
   color: #e2e8f0;
-  box-shadow: 0 4px 0 #374151;
+  box-shadow: 0 4px 0 var(--primary-shadow-color);
 }
 
 .reset-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #374151;
+  box-shadow: 0 6px 0 var(--primary-shadow-color);
 }
 
 .reset-button:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 #374151;
+  box-shadow: 0 2px 0 var(--primary-shadow-color);
 }
 
 .reset-button:disabled {

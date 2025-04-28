@@ -605,6 +605,7 @@ const Homepage = ({ toggleDark }: Prop) => {
         </div>
       </div>
     </div>
+    </div>
   );
 };
 

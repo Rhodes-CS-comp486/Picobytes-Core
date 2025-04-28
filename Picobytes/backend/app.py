@@ -26,6 +26,8 @@ from psycopg.rows import dict_row
 from db_info import *
 from services.code_execution_service import CodeExecutionService
 from config import CODE_EXECUTION_API_URL
+# Import the coding_questions blueprint
+from routes.coding_questions import coding_questions_bp
 
 
 # Connect to an existing database
@@ -74,6 +76,9 @@ streak_service = Streaks()
 verification_service = Verification()
 code_execution_service = CodeExecutionService()
 
+# Register the coding_questions blueprint
+app.register_blueprint(coding_questions_bp)
+
 
 @app.route('/')
 def home():
@@ -107,6 +112,18 @@ def getleaderboard():
         return top_10, 200;
     except Exception as e:
         return jsonify({'error!': str(e)}), 500
+
+
+@app.route('/api/get_user_rank/<string:uid>')
+def get_user_rank(uid):
+    print(f"Received uid: {uid}")
+    
+    if verification_service.verify_user(uid):
+        rank = streak_service.get_user_curr_rank(uid)
+        return jsonify({'rank': rank})
+    
+    else:
+        return jsonify({'error': 'User not found or is admin'}), 404
 
 
 ####UPDATED#####
@@ -433,7 +450,6 @@ def get_usage_stats():
         
     data = admin_service.get_usage_stats()
     return jsonify(data)
-
 
 @app.route('/api/submit_answer', methods=['POST'])
 def submit_answer():

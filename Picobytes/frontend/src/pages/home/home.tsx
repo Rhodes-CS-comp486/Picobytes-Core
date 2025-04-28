@@ -4,9 +4,7 @@ import Home_Header from "./home_header";
 import Home_Prof_Overlay from "./home_prof_overlay";
 import "./home.css";
 import SideBar from "./side_bar";
-// import Questions from "../Questions";
-import "../Questions.css";
-// import QuestionStats from "../admin/components/QuestionStats";
+import { useSidebar } from "./side_bar_context";
 
 interface Prop {
   toggleDark: () => void;
@@ -21,7 +19,6 @@ interface Topic {
 interface PlayerStats {
   streak: number;
   points: number;
-  progress: number;
 }
 
 interface Player {
@@ -29,45 +26,14 @@ interface Player {
   uid: string;
 }
 
-interface QuestionData {
-  questions: {
-    // id, question, level, topic
-    tf: [number, string, string, string][];
-    // id, question, topic, op1, op2, op3, op4, answer_id, difficulty
-    mc: [
-      number,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      number,
-      string
-    ][];
-    //qid, qlevel, qtext, qtopic
-    fr: { qid: number; qlevel: string; qtext: string; qtopic: string }[];
-    //qid, prompt, topic, difficulty, stuff - --
-    cb: [number, string, string, string, string][];
-  };
-  total_questions: number;
-}
-
-interface Question {
-  id: number;
-  type: string;
-  prompt: string;
-  difficulty: string;
-  topic: string;
-  answered: boolean;
-}
-
 /// MAIN CONTENT ////////////////////////////////////
 
 const Homepage = ({ toggleDark }: Prop) => {
   /// CONSTANTS ///////////////////////////////////////
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [questionData, setQuestionData] = useState<QuestionData | null>(null);
+  const { isVisible } = useSidebar();
+
+  //const [playerStats, setPlayerStats] = useState<{ [key: string]: PlayerStats }>({});
+  //const [players, setPlayers] = useState<Player[]>([]);
 
   // Get username from localStorage with fallback
   const username = localStorage.getItem("username") || "Agent 41";
@@ -77,11 +43,39 @@ const Homepage = ({ toggleDark }: Prop) => {
   const [dailyAnswered, setDailyAnswered] = useState(0);
   const [streak, setStreak] = useState(-1);
   const [points, setPoints] = useState(-1);
-  const [progress, setProgress] = useState(-1);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  // Function to apply the S-curve positioning
+  const getButtonPosition = (index) => {
+    // Calculate S-curve path
+    const curveOffset = 10; // Height offset for each curve step
+    const maxCurveOffset = 70; // Maximum offset (how wide the curve should be)
+    
+    // Using Math.sin to create the S-curve effect
+    const curveY = Math.sin(index * 0.3) * curveOffset; // Adjust the multiplier for curve tightness
+    const curveX = Math.cos(index * 0.3) * maxCurveOffset; // Slight horizontal offset to make it more pronounced
+
+    return { transform: `translateY(${curveY}px) translateX(${curveX}px)` };
+  };
+
+
+  useEffect(() => {
+    const lessonFromURL = queryParams.get("lesson");
+    const answeredFromURL = queryParams.get("answered");
+
+    if (lessonFromURL) {
+      setLessonNumber(lessonFromURL);
+    }
+    if (answeredFromURL) {
+      setAnsweredQuestions(answeredFromURL);
+    }
+  }, [location]);
 
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
+  const [questionStats, setQuestionStats] = useState({
+    totalQuestions: 0,
+    completedQuestions: 0,
+  });
+  // Initialize with empty object, will be populated from API
   const [topicProgress, setTopicProgress] = useState<Record<string, number>>(
     {}
   );
@@ -188,7 +182,11 @@ const Homepage = ({ toggleDark }: Prop) => {
     fetch("http://localhost:5000/api/questions")
       .then((response) => response.json())
       .then((data) => {
-        setQuestionData(data);
+        setQuestionStats({
+          totalQuestions: data.total_questions,
+          // For demo purposes, assume 25% of questions are completed
+          completedQuestions: Math.floor(data.total_questions * 0.25),
+        });
       })
       .catch((error) => {
         console.error("Error fetching total questions:", error);
@@ -245,18 +243,52 @@ const Homepage = ({ toggleDark }: Prop) => {
       });
   }, []);
 
+  /// PLAYER STATS ///
   useEffect(() => {
-    if (questionData != null) {
-      processQuestions(questionData);
-    }
-  }, [questionData]);
+    const fetchPlayerStats = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/get_user_stats/${uid}`);
+        const data = await response.json();
+        if (response.status === 200 && data.streak !== undefined && data.points !== undefined) {
+          setPlayerStats({ [uid]: { streak: data.streak, points: data.points } });
+        } else {
+          setPlayerStats({ [uid]: { streak: 0, points: 0 } });
+        }
+      } catch (error) {
+        console.error(`Error fetching stats for ${uid}:`, error);
+        setPlayerStats({ [uid]: { streak: 0, points: 0 } });
+      }
+    };
+  
+    fetchPlayerStats();
+  }, [uid]);
+
+  /// NAVS ///
 
   const toggleOverlay = () => {
     setShowOverlay(!showOverlay);
   };
 
-  const goToQuestion = (id: number) => {
+  const goToQuestion = (id) => {
     navigate(`/question/${id}`);
+  };
+
+  const goToTopicSelection = () => {
+    navigate("/practice");
+  };
+
+  const goToLessonProgress = () => {
+    navigate("/lessons");
+  };
+
+  const goToAllQuestions = () => {
+    navigate("/questions");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("uid");
+    localStorage.removeItem("username");
+    navigate("/");
   };
 
   // Get greeting based on time of day
@@ -302,6 +334,12 @@ const Homepage = ({ toggleDark }: Prop) => {
     }
   };
 
+  // Calculate overall progress percentage
+  const overallProgress =
+    lessonNumber && answeredQuestions
+      ? Math.round(Number(answeredQuestions) * 10)
+      : 0;
+
   // Get topic icon or character for display
   const getTopicIcon = (topic) => {
     // Handle C programming related topics
@@ -315,58 +353,111 @@ const Homepage = ({ toggleDark }: Prop) => {
     return topic.charAt(0).toUpperCase();
   };
 
+
   /// MAIN CONTENT ///
 
-  const progresspercent = (
-    (100 * progress) /
-    questionData?.total_questions!
-  ).toPrecision(2);
-
   return (
-    <div className="duolingo-layout">
+    <div className={`home-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
       {/* Mobile Menu is included in Header component */}
       <Home_Header toggleOverlay={toggleOverlay} />
       {showOverlay && <Home_Prof_Overlay />}
 
       <SideBar toggleDark={toggleDark}></SideBar>
 
-      {/* Main Content */}
-      <div className="main-content">
-        {/* Enhanced Learning Path */}
-        <div className="learning-path">
-          <h1 className="welcome-heading">
-            {getGreeting()}, {username}!
-          </h1>
-
-          <div className="daily-streak">
-            <div className="daily-streak-title">
-              <span className="streak-flame">🔥</span>
-              Daily Streak
+      <div className="home-content">
+        {/* Main Content */}
+        <div className="main-content">
+          {/*
+          <div className="unit-header">
+            <div className="unit-back" onClick={goToLessonProgress}>
+              <span className="material-icon">←</span>
             </div>
-            <div className="streak-days">{streak} days</div>
-            <div className="progress-label">
-              Your progress: {progresspercent}%
+            <div className="unit-info">
+              <div className="unit-title">Lesson {lessonNumber}</div>
+              <div className="unit-subtitle">See all lesson progress</div>
             </div>
-            <div className="goal-progress-bar">
-              <div
-                className="goal-progress-filled"
-                style={{ width: `${progresspercent}%` }}
-              ></div>
+            <div className="unit-actions">
+              <button className="guidebook-button" onClick={goToAllQuestions}>
+                <span className="material-icon">📖</span>
+                <span>All Questions</span>
+              </button>
             </div>
           </div>
+          */}
 
-          {/* MASCOT */}
-          <div className="mascot-container">
-            <div className="mascot-speech">
-              {progress > 0
-                ? "Great progress! Ready to continue learning C programming?"
-                : "Ready to start learning C programming?"}
+          {/* Enhanced Learning Path */}
+          <div className="learning-path">
+            <h1 className="welcome-heading">
+              {getGreeting()}, {username}!
+            </h1>
+            <div className="progress-info">
+              <div className="progress-label">
+                Your progress: {overallProgress}%
+              </div>
+              <div className="progress-bar">
+                <div
+                  className="progress-filled"
+                  style={{ width: `${overallProgress}%` }}
+                ></div>
+              </div>
             </div>
-            <div className="mascot-character">
-              <img src="/logo.png"></img>
-            </div>
-          </div>
 
+            <div className="daily-streak">
+              <div className="daily-streak-title">
+                <span className="streak-flame">🔥</span>
+                Daily Streak
+              </div>
+              <div className="streak-days">{streak} days</div>
+            </div>
+
+          
+            {/*
+            {isTopicsLoading ? (
+              <div style={{ textAlign: "center", margin: "30px 0" }}>
+                Loading topics...
+              </div>
+            ) : (
+              <div className="topic-path-container">
+                <div className="path-line"></div>
+                <div className="topic-nodes">
+                  {topicsList.map((topic, index) => {
+                    const status = getTopicStatus(index);
+                    const topicIcon = getTopicIcon(topic);
+                    return (
+                      <div
+                        className="topic-node"
+                        key={index}
+                        onClick={() =>
+                          status !== "locked" && goToQuestion(index + 1)
+                        }
+                      >
+                        <div className={`node-circle ${status}`}>
+                          {status === "completed"
+                            ? "✓"
+                            : status === "locked"
+                            ? "🔒"
+                            : topicIcon}
+                        </div>
+                        <div className="node-label">{topic}</div>
+                      </div>
+                    );
+                  })}
+                  <div className="treasure-chest">🏆</div>
+                </div>
+              </div>
+            )}
+              */}
+
+
+            {/* MASCOT */}
+            <div className="mascot-container">
+              <div className="mascot-speech">
+                {overallProgress > 0
+                  ? "Great progress! Ready to continue learning C programming?"
+                  : "Ready to start learning C programming?"}
+              </div>
+              <div className="mascot-character">🤖</div>
+            </div>
           <button
             className="start-learning-button"
             onClick={handleStartLearning}
@@ -398,73 +489,104 @@ const Homepage = ({ toggleDark }: Prop) => {
             </ul>
           </div>
         </div>
-      </div>
 
-      {/* Right Sidebar */}
-      <div className="right-sidebar">
-        {/* User Profile Card */}
-        <div className="user-profile-card">
-          <div className="user-profile-header">
-            <div className="user-avatar">
-              {username.charAt(0).toUpperCase()}
-            </div>
-            <div className="user-info">
-              <div className="user-name">{username}</div>
-              <div className="user-level">Bronze</div>
-            </div>
-          </div>
-
-          <div className="user-stats-container">
-            <div className="stat-item">
-              <div className="stat-icon">🏆</div>
-              <div className="stat-value">{points}</div>
-              <div className="stat-label">Points</div>
-            </div>
-
-            <div className="stat-item">
-              <div className="stat-icon">🔥</div>
-              <div className="stat-value">{streak}</div>
-              <div className="stat-label">Day Streak</div>
-            </div>
-
-            <div className="stat-item">
-              <div className="stat-icon">⭐</div>
-              <div className="stat-value">
-                {progress}
-                {/* {questionStats.completedQuestions || -1} */}
+        {/* Right Sidebar */}
+        <div className="right-sidebar">
+          {/* User Profile Card */}
+          <div className="user-profile-card">
+            <div className="user-profile-header">
+              <div className="user-avatar">
+                {username.charAt(0).toUpperCase()}
               </div>
-              <div className="stat-label">Completed</div>
+              <div className="user-info">
+                <div className="user-name">{username}</div>
+                <div className="user-level">Bronze</div>
+              </div>
+            </div>
+
+            <div className="user-stats-container">
+              <div className="stat-item">
+                <div className="stat-icon">🏆</div>
+                <div className="stat-value">{points}</div>
+                <div className="stat-label">Points</div>
+              </div>
+
+              <div className="stat-item">
+                <div className="stat-icon">🔥</div>
+                <div className="stat-value">{streak}</div>
+                <div className="stat-label">Day Streak</div>
+              </div>
+
+              <div className="stat-item">
+                <div className="stat-icon">⭐</div>
+                <div className="stat-value">
+                  {
+                    Object.keys(topicProgress).filter(
+                      (topic) => topicProgress[topic] >= 100
+                    ).length
+                  }
+                  {/* {questionStats.completedQuestions || -1} */}
+                </div>
+                <div className="stat-label">Completed</div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Overall Progress Section */}
-        <div className="progress-section">
-          <div className="section-header">
-            <div className="section-title">Your Progress</div>
-            {/* <div className="view-all-link" onClick={goToAllQuestions}>
-              VIEW ALL
-            </div> */}
+          {/* Overall Progress Section */}
+          <div className="progress-section">
+            <div className="section-header">
+              <div className="section-title">Your Progress</div>
+              <div className="view-all-link" onClick={goToAllQuestions}>
+                VIEW ALL
+              </div>
+            </div>
+
+            <div className="progress-percentage">{overallProgress}%</div>
+
+            <div className="progress-bar">
+              <div
+                className="progress-filled"
+                style={{ width: `${overallProgress}%` }}
+              ></div>
+            </div>
+
+            <div className="progress-label">
+              {answeredQuestions} of 10 questions completed
+            </div>
           </div>
 
-          <div className="progress-percentage">{progresspercent}%</div>
+          {/* Topic Progress Section */}
+          <div className="topic-progress-section">
+            <div className="section-header">
+              <div className="section-title">Topic Progress</div>
+              <div className="view-all-link" onClick={goToTopicSelection}>
+                VIEW
+              </div>
+            </div>
 
-          <div className="progress-bar">
-            <div
-              className="progress-filled"
-              style={{ width: `${progresspercent}%` }}
-            ></div>
-          </div>
-
-          <div className="progress-label">
-            {progress} of {questionData?.total_questions} questions completed
-          </div>
-        </div>
-
-        {/* Daily Goals Section */}
-        <div className="daily-goals-section">
-          <div className="section-header">
-            <div className="section-title">Daily Goals</div>
+            {isTopicsLoading ? (
+              <div style={{ textAlign: "center", padding: "20px 0" }}>
+                Loading topics...
+              </div>
+            ) : (
+              Object.entries(topicProgress).map(([topic, progress]) => (
+                <div className="topic-item" key={topic}>
+                  <div className="topic-header">
+                    <div className="topic-name">
+                      <div className="topic-icon">{getTopicIcon(topic)}</div>
+                      {topic}
+                    </div>
+                    <div className="topic-percentage">{progress}%</div>
+                  </div>
+                  <div className="progress-bar">
+                    <div
+                      className="progress-filled"
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
           <div className="goal-item">
             <div className="goal-icon">📝</div>
@@ -480,29 +602,6 @@ const Homepage = ({ toggleDark }: Prop) => {
               </div>
             </div>
           </div>
-          {//Removed study topics goal
-          }
-          {/* <div className="goal-item"> 
-            <div className="goal-icon">🎯</div>
-            <div className="goal-details">
-              <div className="goal-title">Study 2 topics</div>
-              <div className="goal-progress-bar">
-                <div
-                  className="goal-progress-filled"
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      (Object.keys(topicProgress).filter(
-                        (t) => topicProgress[t] > 0
-                      ).length /
-                        2) *
-                        100
-                    )}%`,
-                  }}
-                ></div>
-              </div>
-            </div>
-          </div>*/}
         </div>
       </div>
     </div>

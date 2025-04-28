@@ -29,22 +29,33 @@ class CodingQuestionService:
         """
         Fetch all active coding questions from the database.
         
-        For now, this returns a hard-coded list of sample coding questions
-        as we're leaving the database schema unchanged.
-        
         Returns:
             list: A list of coding question dictionaries
         """
-        # This is a temporary implementation until we update the database schema
-        # In a real implementation, we would fetch from the database
-        return [
-            {
-                "qid": 1001,
-                "qtext": "Write a function that reverses a string in-place",
-                "difficulty": "Medium",
-                "topic": "Strings",
-                "function_template": "void strrev(char *str) {\n    // Your code here\n}",
-                "test_code": """
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT q.qid, q.qtext, q.qlevel as difficulty, q.qtopic as topic, 
+                           c.starter as function_template, c.testcases as test_code
+                    FROM questions q
+                    JOIN coding c ON q.qid = c.qid
+                    WHERE q.qtype = 'coding' AND q.qactive = True
+                """)
+                
+                questions = cursor.fetchall()
+                return questions
+        except Exception as e:
+            logger.error(f"Error fetching coding questions: {e}")
+            # Fallback to hardcoded data for development/testing if DB fails
+            return [
+                {
+                    "qid": 1001,
+                    "qtext": "Write a function that reverses a string in-place",
+                    "difficulty": "Medium",
+                    "topic": "Strings",
+                    "function_template": "void strrev(char *str) {\n    // Your code here\n}",
+                    "test_code": """
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -75,14 +86,14 @@ int main() {
     return 0;
 }
 """
-            },
-            {
-                "qid": 1002,
-                "qtext": "Implement a function to find the maximum element in an array",
-                "difficulty": "Easy",
-                "topic": "Arrays",
-                "function_template": "int find_max(int arr[], int size) {\n    // Your code here\n}",
-                "test_code": """
+                },
+                {
+                    "qid": 1002,
+                    "qtext": "Implement a function to find the maximum element in an array",
+                    "difficulty": "Easy",
+                    "topic": "Arrays",
+                    "function_template": "int find_max(int arr[], int size) {\n    // Your code here\n}",
+                    "test_code": """
 #include <stdio.h>
 #include <assert.h>
 
@@ -107,8 +118,8 @@ int main() {
     return 0;
 }
 """
-            }
-        ]
+                }
+            ]
     
     def get_coding_question(self, qid):
         """
@@ -120,13 +131,28 @@ int main() {
         Returns:
             dict: The coding question data or None if not found
         """
-        # Find the question in our hard-coded list for now
-        questions = self.get_coding_questions()
-        for question in questions:
-            if question["qid"] == qid:
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT q.qid, q.qtext, q.qlevel as difficulty, q.qtopic as topic, 
+                           c.starter as function_template, c.testcases as test_code
+                    FROM questions q
+                    JOIN coding c ON q.qid = c.qid
+                    WHERE q.qtype = 'coding' AND q.qactive = True AND q.qid = %s
+                """, (qid,))
+                
+                question = cursor.fetchone()
                 return question
-        return None
-    
+        except Exception as e:
+            logger.error(f"Error fetching coding question {qid}: {e}")
+            # Fallback to hardcoded list for development/testing if DB fails
+            questions = self.get_coding_questions()
+            for question in questions:
+                if question["qid"] == qid:
+                    return question
+            return None
+        
     def validate_coding_submission(self, qid, user_code):
         """
         Validate a user's coding submission using the CodeExecutionService.
@@ -146,30 +172,35 @@ int main() {
                 "is_correct": False
             }
         
+        # Check if the user code matches the starter code
+        if user_code.strip() == question["function_template"].strip():
+            return {
+                "is_correct": False,
+                "error": "Submission is identical to the starter code. Please add your implementation.",
+            }
+        
         # Execute the code using our service
         try:
-            # We append the user's code to the test code
-            # This allows the test code to call the user's function
+            # Append the user's code to the test code
             execution_results = self.code_execution_service.execute_code(
                 user_code, 
                 question["test_code"]
             )
             
+            # Ensure compilation errors are explicitly reported
+            if not execution_results.get("compile", False):
+                return {
+                    "is_correct": False,
+                    "execution_results": execution_results,
+                    "error": "Compilation failed. Please fix the errors and try again.",
+                }
+            
             # Determine if the submission is correct
-            # A submission is correct if:
-            # 1. It compiles successfully
-            # 2. All tests pass (no test failures)
-            # 3. There are no critical errors (valgrind errors are ignored)
             is_correct = (
                 execution_results.get("compile", False) and 
                 not execution_results.get("failed_tests", []) and
                 "error" not in execution_results
             )
-            
-            # Handle the case where there's a valgrind error but tests pass
-            if not is_correct and "error" in execution_results and "valgrind" in execution_results.get("error", "").lower():
-                # If it's just a valgrind error, the code might still be correct
-                is_correct = execution_results.get("compile", False) and not execution_results.get("failed_tests", [])
             
             return {
                 "is_correct": is_correct,
@@ -181,4 +212,4 @@ int main() {
             return {
                 "error": str(e),
                 "is_correct": False
-            } 
+            }

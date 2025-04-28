@@ -179,5 +179,37 @@ class Streaks:
         except Exception as e:
             print(f"Error getting top 10: {e}")
             return jsonify({'error': 'error fetching top 10 users'})
+        
+    def get_user_curr_rank(self, uid):
+        """
+        Gets current user's global ranking based on ROW NUMBER.
+        """
+        query = """
+        WITH ranked_users AS (
+            SELECT uid, upoints,
+                ROW_NUMBER() OVER (ORDER BY upoints DESC) AS rank
+            FROM users
+            WHERE uadmin = 0
+        )
+        SELECT rank FROM ranked_users WHERE uid = %s;
+        """
+
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute(query, (uid,))
+            result = cursor.fetchone()
+            conn.close()
+
+            if result:
+                
+                try:
+                    return result['rank']
+                except (TypeError, KeyError):
+                    return result[0]
+            return None
+        except Exception as e:
+            print(f"Database error in get_user_curr_rank: {e}")
+            return None
 
 

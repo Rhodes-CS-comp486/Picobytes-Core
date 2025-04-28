@@ -174,7 +174,7 @@ def insert_sample_questions():
 
         free_response = [
             (
-                "Why do you have to prefix the program name with “./” when you want to execute it from a Linux/Unix shell?",
+                "Why do you have to prefix the program name with \"./\" when you want to execute it from a Linux/Unix shell?",
                 "free_response",  # Changed from "multiple_choice"
                 "easy",
                 "Linux",
@@ -195,7 +195,7 @@ def insert_sample_questions():
                 "medium",
                 "C Basics",
                 True,
-                "The program’s name or a relative/absolute executable path to that binary executable"
+                "The program's name or a relative/absolute executable path to that binary executable"
             )
 
         ]
@@ -323,6 +323,50 @@ def insert_sample_questions():
             )
         ]
 
+        # Add coding questions
+        coding_questions = [
+            {
+                "qtext": "Write a function that computes the factorial of a number n",
+                "qtype": "coding",
+                "qlevel": "medium",
+                "qtopic": "C Functions",
+                "qactive": True,
+                "starter": "long factorial(int n) {\n    // Your code here\n}",
+                "testcases": """
+#include <stdio.h>
+#include <assert.h>
+
+// Test function
+int main() {
+    // Test case 1: Factorial of 0
+    assert(factorial(0) == 1);
+    
+    // Test case 2: Factorial of 1
+    assert(factorial(1) == 1);
+    
+    // Test case 3: Factorial of 5
+    assert(factorial(5) == 120);
+    
+    // Test case 4: Factorial of 10
+    assert(factorial(10) == 3628800);
+    
+    printf("All tests passed!\\n");
+    return 0;
+}
+""",
+                "correctcode": """
+long factorial(int n) {
+    if (n <= 1) return 1;
+    
+    long result = 1;
+    for (int i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
+"""
+            }
+        ]
 
         # Insert multiple choice questions
         for q in mc_questions:
@@ -386,6 +430,36 @@ def insert_sample_questions():
                       INSERT INTO code_blocks (qid, block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, answer)
                       VALUES (%s, %s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s)
                   """, (qid, q[5], q[6], q[7], q[8], q[9], q[10], q[11], q[12], q[13], q[14], q[15]))
+
+        # Insert coding questions
+        for question in coding_questions:
+            cursor.execute(
+                """
+                INSERT INTO questions (qtext, qtype, qlevel, qtopic, qactive)
+                VALUES (%s, %s, %s, %s, %s) RETURNING qid
+                """,
+                (
+                    question["qtext"],
+                    question["qtype"],
+                    question["qlevel"],
+                    question["qtopic"],
+                    question["qactive"]
+                )
+            )
+            qid = cursor.fetchone()[0]
+            
+            cursor.execute(
+                """
+                INSERT INTO coding (qid, starter, testcases, correctcode)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (
+                    qid,
+                    question["starter"],
+                    question["testcases"],
+                    question["correctcode"]
+                )
+            )
 
         # Commit the changes
         connection.commit()

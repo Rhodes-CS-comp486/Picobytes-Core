@@ -32,6 +32,8 @@ const Leaderboard_All = ({ toggleDark }: Prop) => {
   }>({});
   const [players, setPlayers] = useState<Player[]>([]);
 
+  const [userRank, setUserRank] = useState<string | null>(null);
+
   const [progressValue, setProgressValue] = useState(0); // Initial value is 0
 
   const { isVisible } = useSidebar();
@@ -82,6 +84,26 @@ const Leaderboard_All = ({ toggleDark }: Prop) => {
 
     fetchTop10();
   }, []);
+
+  // Fetch USER RANK
+  useEffect(() => {
+    const fetchUserRank = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/get_user_rank/${uid}`);
+        const data = await response.json();
+        if (response.ok && data.rank !== undefined) {
+          setUserRank(data.rank);
+        } else {
+          setUserRank(null);
+        }
+      } catch (error) {
+        console.error("Error fetching user rank:", error);
+        setUserRank(null);
+      }
+    };
+  
+    fetchUserRank();
+  }, [uid]);
 
   // Fetch user stats only
   useEffect(() => {
@@ -160,7 +182,7 @@ const Leaderboard_All = ({ toggleDark }: Prop) => {
         {/* USER STATS */}
         <div id="ld-all-user-stats">
           <div id="ld-all-user-header">
-            1.
+            {userRank !== null ? `${userRank}.` : "???"}
             <div id="ld-all-user-icon">{username.charAt(0).toUpperCase()}</div>
             {username}
           </div>

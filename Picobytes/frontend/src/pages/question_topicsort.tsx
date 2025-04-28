@@ -495,7 +495,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
               )}
               {questionType === "coding" && (
                 <div className="option-container">
-                  <CodeExecutionPage toggleDark={toggleDark} />
+                  <CodeExecutionPage toggleDark={toggleDark} propIsVisible={false}/>
                 </div>
               )}
             </div>

@@ -10,7 +10,7 @@ import { useSidebar } from '../home/side_bar_context';
 /// INTERFACES /////////////////////////////////////////////////////////////
 interface Prop {
     toggleDark: () => void;
-    isVisible: boolean;
+    propIsVisible: boolean;
 }
 
 interface ExecutionResult {
@@ -27,7 +27,7 @@ interface ExecutionResult {
 /**
  * CodeExecutionPage component - Allows users to write and execute C code
  */
-const CodeExecutionPage = ({ toggleDark }: Prop) => {
+const CodeExecutionPage = ({ toggleDark, propIsVisible }: Prop) => {
     /// CONSTANTS ////////////////////////////////////////////////////////
     const [showOverlay, setShowOverlay] = useState(false);
     const [code, setCode] = useState('// Write your C code here\n// Do not include a main function\n\n');
@@ -35,8 +35,11 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
     const [result, setResult] = useState<ExecutionResult | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [feedback, setFeedback] = useState('');
+    let { isVisible } = useSidebar();
 
-    const { isVisible } = useSidebar();
+    if(window.location.href.startsWith("http://localhost:5173/questionsT/")) {
+        isVisible = propIsVisible;
+    }
 
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
@@ -94,6 +97,7 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
 
     /// MAIN CONTENT ////////////////////////////////////////////////////
     return (
+        console.log(isVisible),
         <div className={`code-execution-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
             {/* Left Sidebar */}
             <SideBar toggleDark={toggleDark}></SideBar>

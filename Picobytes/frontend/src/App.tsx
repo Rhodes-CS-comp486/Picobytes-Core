@@ -108,7 +108,7 @@ function App() {
             />
             <Route path="/leaderboard" element={<Leaderboard_All toggleDark={toggleDark}/>}/>
             <Route path="/practice" element={<Practice_Page toggleDark={toggleDark}/>}/>
-            <Route path="/code-execution" element={<CodeExecutionPage toggleDark={toggleDark} isVisible/>}/>
+            <Route path="/code-execution" element={<CodeExecutionPage toggleDark={toggleDark} propIsVisible/>}/>
             <Route
               path="/questions/:topicName/:questionType"
               element={<Topic_Select />} // Mount Topic_Select component for this route

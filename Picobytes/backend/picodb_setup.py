@@ -225,6 +225,15 @@ def create_table():
         conn.commit()
         print("question_analytics table created successfully")
 
+        cursor.execute('''
+            Create table if not exists daily_goals (
+                uid TEXT NOT NULL PRIMARY KEY,
+                num_questions INTEGER NOT NULL,
+                ulastgoaltime FLOAT NOT NULL
+                );''')
+        conn.commit()
+        print("daily_goals table created successfully")
+
 
         conn.close()
 

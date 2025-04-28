@@ -71,9 +71,7 @@ const Homepage = ({ toggleDark }: Prop) => {
 
   // Get username from localStorage with fallback
   const username = localStorage.getItem("username") || "Agent 41";
-  const [answeredQuestions, setAnsweredQuestions] = useState(
-    null
-  );
+  const [answeredQuestions, setAnsweredQuestions] = useState(null);
   const [dailyAnswered, setDailyAnswered] = useState(0);
   const [streak, setStreak] = useState(-1);
   const [points, setPoints] = useState(-1);
@@ -157,10 +155,13 @@ const Homepage = ({ toggleDark }: Prop) => {
       .then((data) => {
         setStreak(data.streak);
         setPoints(data.points);
-        setProgress(data.answered.length)
-        setAnsweredQuestions(data.answered.map((a) => {
-          console.log(a.qid)
-          return a.qid}))
+        setProgress(data.answered.length);
+        setAnsweredQuestions(
+          data.answered.map((a) => {
+            console.log(a.qid);
+            return a.qid;
+          })
+        );
       })
       .catch((error) => {
         console.error("Error getting user stats:", error);
@@ -328,155 +329,159 @@ const Homepage = ({ toggleDark }: Prop) => {
       <Home_Header toggleOverlay={toggleOverlay} />
       {showOverlay && <Home_Prof_Overlay />}
 
+      <div className="home-content">
+
       <SideBar toggleDark={toggleDark}></SideBar>
+        {/* Main Content */}
+        <div className="main-content">
+          {/* Enhanced Learning Path */}
+          <div className="learning-path">
+            <h1 className="welcome-heading">
+              {getGreeting()}, {username}!
+            </h1>
 
-      {/* Main Content */}
-      <div className="main-content">
-        {/* Enhanced Learning Path */}
-        <div className="learning-path">
-          <h1 className="welcome-heading">
-            {getGreeting()}, {username}!
-          </h1>
-
-          <div className="daily-streak">
-            <div className="daily-streak-title">
-              <span className="streak-flame">🔥</span>
-              Daily Streak
-            </div>
-            <div className="streak-days">{streak} days</div>
-            <div className="progress-label">
-              Your progress: {progresspercent}%
-            </div>
-            <div className="goal-progress-bar">
-              <div
-                className="goal-progress-filled"
-                style={{ width: `${progresspercent}%` }}
-              ></div>
-            </div>
-          </div>
-
-          {/* MASCOT */}
-          <div className="mascot-container">
-            <div className="mascot-speech">
-              {progress > 0
-                ? "Great progress! Ready to continue learning C programming?"
-                : "Ready to start learning C programming?"}
-            </div>
-            <div className="mascot-character">
-              <img src="/logo.png"></img>
-            </div>
-          </div>
-
-          <button
-            className="start-learning-button"
-            onClick={handleStartLearning}
-          >
-            {progress > 0 ? "CONTINUE" : "START"}
-          </button>
-
-          {/* QUESTIONS PATH */}
-          <div id="home-questions-vscroll">
-            <h1>All Question List</h1>
-            <ul>
-              {questions.map((q, i) => {
-                return (
-                  <li
-                    key={q.id}
-                    className={q.answered ? "answered-question-item" : "question-item"}
-                    onClick={() => goToQuestion(q.id)}
-                  >
-                    {q.answered ? "✓ " : ""}
-                    {q.id}: {q.prompt}
-                    <div className="question-info">
-                      <div className="question-type">{q.type}</div>
-                      <div className="difficulty-badge">{q.difficulty}</div>
-                      <div className="topic-badge">{q.topic}</div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Sidebar */}
-      <div className="right-sidebar">
-        {/* User Profile Card */}
-        <div className="user-profile-card">
-          <div className="user-profile-header">
-            <div className="user-avatar">
-              {username.charAt(0).toUpperCase()}
-            </div>
-            <div className="user-info">
-              <div className="user-name">{username}</div>
-              <div className="user-level">Bronze</div>
-            </div>
-          </div>
-
-          <div className="user-stats-container">
-            <div className="stat-item">
-              <div className="stat-icon">🏆</div>
-              <div className="stat-value">{points}</div>
-              <div className="stat-label">Points</div>
-            </div>
-
-            <div className="stat-item">
-              <div className="stat-icon">🔥</div>
-              <div className="stat-value">{streak}</div>
-              <div className="stat-label">Day Streak</div>
-            </div>
-
-            <div className="stat-item">
-              <div className="stat-icon">⭐</div>
-              <div className="stat-value">
-                {progress}
-                {/* {questionStats.completedQuestions || -1} */}
+            <div className="daily-streak">
+              <div className="daily-streak-title">
+                <span className="streak-flame">🔥</span>
+                Daily Streak
               </div>
-              <div className="stat-label">Completed</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Overall Progress Section */}
-        <div className="progress-section">
-          <div className="section-header">
-            <div className="section-title">Your Progress</div>
-            {/* <div className="view-all-link" onClick={goToAllQuestions}>
-              VIEW ALL
-            </div> */}
-          </div>
-
-          <div className="progress-percentage">{progresspercent}%</div>
-
-          <div className="progress-bar">
-            <div
-              className="progress-filled"
-              style={{ width: `${progresspercent}%` }}
-            ></div>
-          </div>
-
-          <div className="progress-label">
-            {progress} of {questionData?.total_questions} questions completed
-          </div>
-        </div>
-
-        {/* Daily Goals Section */}
-        <div className="daily-goals-section">
-          <div className="section-header">
-            <div className="section-title">Daily Goals</div>
-          </div>
-          <div className="goal-item">
-            <div className="goal-icon">📝</div>
-            <div className="goal-details">
-              <div className="goal-title">Complete 5 questions</div>
+              <div className="streak-days">{streak} days</div>
+              <div className="progress-label">
+                Your progress: {progresspercent}%
+              </div>
               <div className="goal-progress-bar">
                 <div
                   className="goal-progress-filled"
-                  style={{
-                    width: `${Math.min(100, (100 * dailyAnswered) / 5)}%`,
-                  }}
+                  style={{ width: `${progresspercent}%` }}
                 ></div>
+              </div>
+            </div>
+
+            {/* MASCOT */}
+            <div className="mascot-container">
+              <div className="mascot-speech">
+                {progress > 0
+                  ? "Great progress! Ready to continue learning C programming?"
+                  : "Ready to start learning C programming?"}
+              </div>
+              <div className="mascot-character">
+                <img src="/logo.png"></img>
+              </div>
+            </div>
+
+            <button
+              className="start-learning-button"
+              onClick={handleStartLearning}
+            >
+              {progress > 0 ? "CONTINUE" : "START"}
+            </button>
+
+            {/* QUESTIONS PATH */}
+            <div id="home-questions-vscroll">
+              <h1>All Question List</h1>
+              <ul>
+                {questions.map((q, i) => {
+                  return (
+                    <li
+                      key={q.id}
+                      className={
+                        q.answered ? "answered-question-item" : "question-item"
+                      }
+                      onClick={() => goToQuestion(q.id)}
+                    >
+                      {q.answered ? "✓ " : ""}
+                      {q.id}: {q.prompt}
+                      <div className="question-info">
+                        <div className="question-type">{q.type}</div>
+                        <div className="difficulty-badge">{q.difficulty}</div>
+                        <div className="topic-badge">{q.topic}</div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="right-sidebar">
+          {/* User Profile Card */}
+          <div className="user-profile-card">
+            <div className="user-profile-header">
+              <div className="user-avatar">
+                {username.charAt(0).toUpperCase()}
+              </div>
+              <div className="user-info">
+                <div className="user-name">{username}</div>
+                <div className="user-level">Bronze</div>
+              </div>
+            </div>
+
+            <div className="user-stats-container">
+              <div className="stat-item">
+                <div className="stat-icon">🏆</div>
+                <div className="stat-value">{points}</div>
+                <div className="stat-label">Points</div>
+              </div>
+
+              <div className="stat-item">
+                <div className="stat-icon">🔥</div>
+                <div className="stat-value">{streak}</div>
+                <div className="stat-label">Day Streak</div>
+              </div>
+
+              <div className="stat-item">
+                <div className="stat-icon">⭐</div>
+                <div className="stat-value">
+                  {progress}
+                  {/* {questionStats.completedQuestions || -1} */}
+                </div>
+                <div className="stat-label">Completed</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Overall Progress Section */}
+          <div className="progress-section">
+            <div className="section-header">
+              <div className="section-title">Your Progress</div>
+              {/* <div className="view-all-link" onClick={goToAllQuestions}>
+              VIEW ALL
+            </div> */}
+            </div>
+
+            <div className="progress-percentage">{progresspercent}%</div>
+
+            <div className="progress-bar">
+              <div
+                className="progress-filled"
+                style={{ width: `${progresspercent}%` }}
+              ></div>
+            </div>
+
+            <div className="progress-label">
+              {progress} of {questionData?.total_questions} questions completed
+            </div>
+          </div>
+
+          {/* Daily Goals Section */}
+          <div className="daily-goals-section">
+            <div className="section-header">
+              <div className="section-title">Daily Goals</div>
+            </div>
+            <div className="goal-item">
+              <div className="goal-icon">📝</div>
+              <div className="goal-details">
+                <div className="goal-title">Complete 5 questions</div>
+                <div className="goal-progress-bar">
+                  <div
+                    className="goal-progress-filled"
+                    style={{
+                      width: `${Math.min(100, (100 * dailyAnswered) / 5)}%`,
+                    }}
+                  ></div>
+                </div>
               </div>
             </div>
           </div>

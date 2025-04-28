@@ -6,6 +6,7 @@ from .streak import Streaks
 from .analytics_service import AnalyticsService
 from .code_execution_service import CodeExecutionService
 from db_info import DBUSER, DBPASS
+from datetime import datetime
 
 streaks_service = Streaks()
 analytics_service = AnalyticsService()
@@ -140,29 +141,29 @@ class QuestionSave:
             print(f"Error in save_coding_response: {e}")
             return False
 
-    def update_daily_goals(uid):
+    def update_daily_goals(self, uid):
         """Updates daily_goals for the given uid: insert if missing, increment if today, reset if not."""
         db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
         current_time = time.time()
-        today = datetime.date.today()
+        today = datetime.today()
 
         try:
             with psycopg.connect(db_url, row_factory=dict_row) as conn:
                 with conn.cursor() as cur:
                     # Step 1: Check for existing lastgoaltime
                     cur.execute("""
-                        SELECT lastgoaltime FROM daily_goals WHERE uid = %s
+                        SELECT ulastgoaltime FROM daily_goals WHERE uid = %s
                     """, (uid,))
                     row = cur.fetchone()
 
                     if row is None:
                         # No record: insert new with count = 1
                         cur.execute("""
-                            INSERT INTO daily_goals (uid, lastgoaltime, num_questions)
-                            VALUES (%s, to_timestamp(%s), %s)
+                            INSERT INTO daily_goals (uid, ulastgoaltime, num_questions)
+                            VALUES (%s, %s, %s)
                         """, (uid, current_time, 1))
                     else:
-                        last_date = row['lastgoaltime'].date()
+                        last_date = datetime.fromtimestamp(row['ulastgoaltime']).date()
                         if last_date == today:
                             # Same day: increment num_questions
                             cur.execute("""
@@ -174,7 +175,7 @@ class QuestionSave:
                             # New day: reset num_questions to 1 and update lastgoaltime
                             cur.execute("""
                                 UPDATE daily_goals
-                                SET lastgoaltime = to_timestamp(%s),
+                                SET ulastgoaltime = %s,
                                     num_questions = %s
                                 WHERE uid = %s
                             """, (current_time, 1, uid))
@@ -192,11 +193,15 @@ class QuestionSave:
                 cur = conn.cursor()
                 cur.execute("SELECT qtype FROM questions WHERE qid = %s", (qid,))
                 row = cur.fetchone()
+                # conn.close()
                 if not row:
                     return {'error': 'Question not found'}
                 qtype = row['qtype']
 
-            update_daily_goals(uid)
+                conn.close()
+
+            self.update_daily_goals(uid)
+
 
             if qtype == 'multiple_choice':
                 return self.save_mc_response(uid, qid, response)

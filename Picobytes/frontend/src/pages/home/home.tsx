@@ -71,14 +71,10 @@ const Homepage = ({ toggleDark }: Prop) => {
 
   // Get username from localStorage with fallback
   const username = localStorage.getItem("username") || "Agent 41";
-  // const uid = localStorage.getItem("uid") || "pvCYNLaP7Z";
-
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  // const [lessonNumber, setLessonNumber] = useState<string | null>(null);
-  const [answeredQuestions, setAnsweredQuestions] = useState<string | null>(
+  const [answeredQuestions, setAnsweredQuestions] = useState(
     null
   );
+  const [dailyAnswered, setDailyAnswered] = useState(0);
   const [streak, setStreak] = useState(-1);
   const [points, setPoints] = useState(-1);
   const [progress, setProgress] = useState(-1);
@@ -92,7 +88,7 @@ const Homepage = ({ toggleDark }: Prop) => {
   const [isTopicsLoading, setIsTopicsLoading] = useState(true);
 
   const processQuestions = (qs: QuestionData) => {
-    // Addding Code Block Questions
+    // Process Code Block Questions
     var qlist: Question[] = [];
     qs.questions.cb.forEach((q) => {
       const question: Question = {
@@ -101,11 +97,11 @@ const Homepage = ({ toggleDark }: Prop) => {
         prompt: q[1],
         difficulty: q[3],
         topic: q[2],
-        answered: false,
+        answered: (answeredQuestions || [-1]).includes(q[0]),
       };
       qlist = [...qlist, question];
     });
-    // Adding Free Response Questions
+    // Process Free Response Questions
     qs.questions.fr.forEach((q) => {
       const question: Question = {
         id: q.qid,
@@ -113,12 +109,12 @@ const Homepage = ({ toggleDark }: Prop) => {
         prompt: q.qtext,
         difficulty: q.qlevel,
         topic: q.qtopic,
-        answered: false,
+        answered: (answeredQuestions || [-1]).includes(q[0]),
       };
       qlist = [...qlist, question];
     });
 
-    // Adding Mulitiple Choice Questions
+    // Process Mulitiple Choice Questions
     qs.questions.mc.forEach((q) => {
       const question: Question = {
         id: q[0],
@@ -126,11 +122,12 @@ const Homepage = ({ toggleDark }: Prop) => {
         prompt: q[1],
         difficulty: q[8],
         topic: q[2],
-        answered: false,
+        answered: (answeredQuestions || [-1]).includes(q[0]),
       };
       qlist = [...qlist, question];
     });
 
+    // Process True/False Questions
     qs.questions.tf.forEach((q) => {
       const question: Question = {
         id: q[0],
@@ -138,15 +135,16 @@ const Homepage = ({ toggleDark }: Prop) => {
         prompt: q[1],
         difficulty: q[2],
         topic: q[3],
-        answered: false,
+        answered: (answeredQuestions || [-1]).includes(q[0]),
       };
       qlist = [...qlist, question];
     });
 
-    // sorting list
+    // sorting list (in order of ID)
     qlist = qlist.sort((a, b) => {
-      return a.id-b.id;
-    })
+      return a.id - b.id;
+    });
+
     setQuestions(qlist);
   };
 
@@ -159,11 +157,28 @@ const Homepage = ({ toggleDark }: Prop) => {
       .then((data) => {
         setStreak(data.streak);
         setPoints(data.points);
-        // setProgress(data.progress); //TODO: Send Progress from app
-        setProgress(10); //filler value
+        setProgress(data.answered.length)
+        setAnsweredQuestions(data.answered.map((a) => {
+          console.log(a.qid)
+          return a.qid}))
       })
       .catch((error) => {
         console.error("Error getting user stats:", error);
+      });
+  }, []);
+
+  //TODO: fetch daily goals
+  useEffect(() => {
+    fetch(
+      `http://localhost:5000/api/daily_goals?uid=${localStorage.getItem("uid")}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setDailyAnswered(data.num_questions);
+        // console.log(data);
+      })
+      .catch((e) => {
+        console.error("Eror getting daily goals");
       });
   }, []);
 
@@ -195,7 +210,7 @@ const Homepage = ({ toggleDark }: Prop) => {
           }
         });
 
-        console.log(topicsSet);
+        // console.log(topicsSet);
 
         // If no topics are found, use fallback topics
         if (Object.keys(topicProgressData).length === 0) {
@@ -364,52 +379,23 @@ const Homepage = ({ toggleDark }: Prop) => {
             <h1>All Question List</h1>
             <ul>
               {questions.map((q, i) => {
-                  return (
-                    <li
-                      // key={q.id}
-                      className="question-item"
-                      onClick={() => goToQuestion(q.id)}
-                    >
-                      {q.id}: {q.prompt}
-                      <div className="question-info">
-                        <div className="question-type">{q.type}</div>
-                        <div className="difficulty-badge">{q.difficulty}</div>
-                        <div className="topic-badge">{q.topic}</div>
-                      </div>
-                    </li>
-                  );
-                })}
-            </ul>
-
-            {/* {[...Array(total_questions)].map((_, index) => {
-              const questionId = index + 1;
-              const isCompleted = false
-              // const isCompleted =
-              //   questionId <= questionStats.completedQuestions;
-
-              // Get the dynamic positioning for each button
-              const buttonPosition = getButtonPosition(index);
-
-              return (
-                <div
-                  key={questionId}
-                  id="home-question-button-container"
-                  style={buttonPosition}
-                >
-                  <button
-                    className={`home-question-button ${
-                      isCompleted ? "completed" : ""
-                    }`}
-                    onClick={() => goToQuestion(questionId)}
+                return (
+                  <li
+                    key={q.id}
+                    className={q.answered ? "answered-question-item" : "question-item"}
+                    onClick={() => goToQuestion(q.id)}
                   >
-                    <span className="home-question-text">
-                      {isCompleted ? "✓ " : ""}
-                      {questionId}
-                    </span>
-                  </button>
-                </div>
-              );
-            })} */}
+                    {q.answered ? "✓ " : ""}
+                    {q.id}: {q.prompt}
+                    <div className="question-info">
+                      <div className="question-type">{q.type}</div>
+                      <div className="difficulty-badge">{q.difficulty}</div>
+                      <div className="topic-badge">{q.topic}</div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         </div>
       </div>
@@ -480,7 +466,6 @@ const Homepage = ({ toggleDark }: Prop) => {
           <div className="section-header">
             <div className="section-title">Daily Goals</div>
           </div>
-
           <div className="goal-item">
             <div className="goal-icon">📝</div>
             <div className="goal-details">
@@ -489,14 +474,15 @@ const Homepage = ({ toggleDark }: Prop) => {
                 <div
                   className="goal-progress-filled"
                   style={{
-                    width: `${5}%`,
+                    width: `${Math.min(100, (100 * dailyAnswered) / 5)}%`,
                   }}
                 ></div>
               </div>
             </div>
           </div>
-
-          <div className="goal-item">
+          {//Removed study topics goal
+          }
+          {/* <div className="goal-item"> 
             <div className="goal-icon">🎯</div>
             <div className="goal-details">
               <div className="goal-title">Study 2 topics</div>
@@ -516,7 +502,7 @@ const Homepage = ({ toggleDark }: Prop) => {
                 ></div>
               </div>
             </div>
-          </div>
+          </div>*/}
         </div>
       </div>
     </div>

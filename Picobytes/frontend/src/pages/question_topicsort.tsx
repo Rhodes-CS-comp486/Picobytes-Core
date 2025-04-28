@@ -4,6 +4,7 @@ import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 import SideBar from "./home/side_bar"; // Import SideBar component
 import Draggable_Question from "./draggable_question";
+import CodeExecutionPage from "./code_execution/code_execution_page";
 
 const Question = () => {
   const [answer, setAnswer] = useState<number | boolean | string | null>(null);
@@ -494,15 +495,7 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
               )}
               {questionType === "coding" && (
                 <div className="option-container">
-                  <div className="option-content">
-                    <textarea
-                      className="code-input"
-                      placeholder="Write your code here..."
-                      value={answer as string}
-                      onChange={(e) => setAnswer(e.target.value)}
-                      disabled={isSubmitting}
-                    ></textarea>
-                  </div>
+                  <CodeExecutionPage toggleDark={toggleDark} />
                 </div>
               )}
             </div>

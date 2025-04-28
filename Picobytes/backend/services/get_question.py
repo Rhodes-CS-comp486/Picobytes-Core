@@ -120,11 +120,11 @@ class GetQuestions:
                     'question_id': question_data['qid'],
                     'question_text': question_data['qtext'],
                     'question_type': question_data['qtype'],
-                    'question_topic': question_data['qtopic'],
-                    'question_level': question_data['qlevel'],
-                    'starter_code': question_data['starter'],
-                    'test_cases': question_data['testcases'],
-                    'correct_code': question_data['correctcode'],
+                    'question_topic': question_data['topic'],
+                    'question_level': question_data['difficulty'],
+                    'starter_code': question_data['function_template'],
+                    'test_cases': question_data['test_code'],
+                    'correct_code': question_data['correct_code'],
                 }
                 return jsonify(response)
 

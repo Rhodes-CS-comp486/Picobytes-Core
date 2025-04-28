@@ -10,6 +10,7 @@ import { useSidebar } from '../home/side_bar_context';
 /// INTERFACES /////////////////////////////////////////////////////////////
 interface Prop {
     toggleDark: () => void;
+    isVisible: boolean;
 }
 
 interface ExecutionResult {

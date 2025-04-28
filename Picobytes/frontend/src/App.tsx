@@ -108,12 +108,11 @@ function App() {
             />
             <Route path="/leaderboard" element={<Leaderboard_All toggleDark={toggleDark}/>}/>
             <Route path="/practice" element={<Practice_Page toggleDark={toggleDark}/>}/>
-            <Route path="/code-execution" element={<Navigate to="/coding-questions?tab=codelab" replace />}/>
+            <Route path="/code-execution" element={<CodeExecutionPage toggleDark={toggleDark} isVisible/>}/>
             <Route
               path="/questions/:topicName/:questionType"
               element={<Topic_Select />} // Mount Topic_Select component for this route
             />
-            <Route path="/draggable_question" element={<Draggable_Question onUpdateAnswer={() => {}} />} />
             <Route path="/lessons" element={<Lesson_Progress toggleDark={toggleDark}/>}/>
             <Route path="/forgot_password" element={<ForgotPassword />} />
             

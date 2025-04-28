@@ -4,12 +4,20 @@ import psycopg
 from psycopg.rows import dict_row
 from .streak import Streaks
 from .analytics_service import AnalyticsService
+import sys
+import os
+import logging
+
+# Fix import paths
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from db_info import *
 from .code_execution_service import CodeExecutionService
-from db_info import DBUSER, DBPASS
 
 streaks_service = Streaks()
 analytics_service = AnalyticsService()
 code_execution_service = CodeExecutionService()
+
+logger = logging.getLogger(__name__)
 
 def get_multiplier(num_correct):
     if num_correct < 4:
@@ -26,6 +34,7 @@ class QuestionSave:
     def __init__(self):
         """Initialize the connection string for Postgres."""
         self.db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
+        self.code_execution_service = CodeExecutionService()
 
     def _connect(self):
         """Return a psycopg connection with dict_row factory."""
@@ -123,21 +132,48 @@ class QuestionSave:
             with self._connect() as conn:
                 cur = conn.cursor()
                 cur.execute("INSERT INTO user_responses (uid, qid) VALUES (%s, %s)", (uid, qid))
-                cur.execute("SELECT correctcode, testcases FROM coding WHERE qid = %s", (qid,))
+                cur.execute("SELECT testcases FROM coding WHERE qid = %s", (qid,))
                 row = cur.fetchone()
                 if not row:
                     return False
+                
+                # Get test cases from the database
                 testcases = row['testcases']
-                is_correct, results = code_execution_service.validate_code_answer(response, testcases)
-                compile_status = results.get('compile', False)
-                run_status = results.get('run', False)
+                
+                # Execute and validate the code
+                execution_results = self.code_execution_service.execute_code(response, testcases)
+                
+                # Determine if the submission is correct
+                is_correct = (
+                    execution_results.get("compile", False) and 
+                    not execution_results.get("failed_tests", []) and
+                    "error" not in execution_results
+                )
+                
+                # Handle the case where there's a valgrind error but tests pass
+                if not is_correct and "error" in execution_results and "valgrind" in execution_results.get("error", "").lower():
+                    # If it's just a valgrind error, the code might still be correct
+                    is_correct = execution_results.get("compile", False) and not execution_results.get("failed_tests", [])
+                
+                # Get status flags for database
+                compile_status = "success" if execution_results.get('compile', False) else "failed"
+                run_status = "success" if execution_results.get('run', False) else "failed"
+                
+                # Save the user's submission
                 cur.execute(
                     "INSERT INTO user_coding (uid, qid, usercode, compile_status, run_status) VALUES (%s, %s, %s, %s, %s)",
                     (uid, qid, response, compile_status, run_status)
                 )
+                
+                # Record in analytics table
+                cur.execute(
+                    "INSERT INTO question_analytics (qid, uid, is_correct) VALUES (%s, %s, %s)",
+                    (qid, uid, is_correct)
+                )
+                
                 return is_correct
         except Exception as e:
-            print(f"Error in save_coding_response: {e}")
+            logger.error(f"Error in save_coding_response: {e}")
             return False
 
     def save_question(self, uid, qid, response):

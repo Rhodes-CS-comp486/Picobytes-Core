@@ -5,6 +5,7 @@ import './code_execution.css';
 import Home_Header from '../home/home_header';
 import Home_Prof_Overlay from '../home/home_prof_overlay';
 import SideBar from '../home/side_bar';
+import { useSidebar } from '../home/side_bar_context';
 
 /// INTERFACES /////////////////////////////////////////////////////////////
 interface Prop {
@@ -33,6 +34,8 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
     const [result, setResult] = useState<ExecutionResult | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [feedback, setFeedback] = useState('');
+
+    const { isVisible } = useSidebar();
 
     const toggleOverlay = () => {
         setShowOverlay(!showOverlay);
@@ -90,111 +93,113 @@ const CodeExecutionPage = ({ toggleDark }: Prop) => {
 
     /// MAIN CONTENT ////////////////////////////////////////////////////
     return (
-        <div id="code-execution-container">
-            {/* Header */}
-            <Home_Header toggleOverlay={toggleOverlay} />
-            {showOverlay && <Home_Prof_Overlay />}
-
+        <div className={`code-execution-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
             {/* Left Sidebar */}
             <SideBar toggleDark={toggleDark}></SideBar>
-
-            {/* MAIN CONTENT */}
-            <div id="code-execution-content">
-                <div id="code-execution-title">
-                    💻 Code Execution
-                    <div>Write, test, and execute C code</div>
-                </div>
-
-                <div id="code-editor-section">
-                    <div className="editor-container">
-                        <h3>Code Editor</h3>
-                        <textarea
-                            id="code-editor"
-                            value={code}
-                            onChange={onCodeChange}
-                            placeholder="Write your C code here..."
-                            disabled={isSubmitting}
-                        ></textarea>
+            
+            <div className="right-content-wrapper">
+                {/* Header */}
+                <Home_Header toggleOverlay={toggleOverlay} />
+                {showOverlay && <Home_Prof_Overlay />}
+    
+                {/* MAIN CONTENT */}
+                <div className="code-execution-content">
+                    <div id="code-execution-title">
+                        💻 Code Execution
+                        <div>Write, test, and execute C code</div>
                     </div>
-
-                    <div className="editor-container">
-                        <h3>Test Cases (Optional)</h3>
-                        <textarea
-                            id="test-editor"
-                            value={tests}
-                            onChange={onTestsChange}
-                            placeholder="Write test assertions here (optional)..."
-                            disabled={isSubmitting}
-                        ></textarea>
+    
+                    <div id="code-editor-section">
+                        <div className="editor-container">
+                            <h3>Code Editor</h3>
+                            <textarea
+                                id="code-editor"
+                                value={code}
+                                onChange={onCodeChange}
+                                placeholder="Write your C code here..."
+                                disabled={isSubmitting}
+                            ></textarea>
+                        </div>
+    
+                        <div className="editor-container">
+                            <h3>Test Cases (Optional)</h3>
+                            <textarea
+                                id="test-editor"
+                                value={tests}
+                                onChange={onTestsChange}
+                                placeholder="Write test assertions here (optional)..."
+                                disabled={isSubmitting}
+                            ></textarea>
+                        </div>
                     </div>
-                </div>
-
-                <div id="execution-controls">
-                    <button 
-                        id="execute-button"
-                        onClick={executeCode}
-                        disabled={isSubmitting || !code.trim()}
-                    >
-                        {isSubmitting ? 'Executing...' : 'Execute Code'}
-                    </button>
-                </div>
-
-                {feedback && (
-                    <div id="execution-feedback" className={
-                        feedback.includes('successfully') ? 'success-feedback' : 'error-feedback'
-                    }>
-                        {feedback}
+    
+                    <div id="execution-controls">
+                        <button 
+                            id="execute-button"
+                            onClick={executeCode}
+                            disabled={isSubmitting || !code.trim()}
+                        >
+                            {isSubmitting ? 'Executing...' : 'Execute Code'}
+                        </button>
                     </div>
-                )}
-
-                {result && (
-                    <div id="execution-results">
-                        <h3>Execution Results</h3>
-                        
-                        <div className="result-status">
-                            <div className="status-item">
-                                <span className="status-label">Compilation:</span>
-                                <span className={`status-value ${result.compile ? 'status-success' : 'status-error'}`}>
-                                    {result.compile ? 'Success' : 'Failed'}
-                                </span>
-                            </div>
+    
+                    {feedback && (
+                        <div id="execution-feedback" className={
+                            feedback.includes('successfully') ? 'success-feedback' : 'error-feedback'
+                        }>
+                            {feedback}
+                        </div>
+                    )}
+    
+                    {result && (
+                        <div id="execution-results">
+                            <h3>Execution Results</h3>
                             
-                            {result.compile && (
+                            <div className="result-status">
                                 <div className="status-item">
-                                    <span className="status-label">Execution:</span>
-                                    <span className={`status-value ${result.run ? 'status-success' : 'status-error'}`}>
-                                        {result.run ? 'Success' : 'Failed'}
+                                    <span className="status-label">Compilation:</span>
+                                    <span className={`status-value ${result.compile ? 'status-success' : 'status-error'}`}>
+                                        {result.compile ? 'Success' : 'Failed'}
                                     </span>
                                 </div>
-                            )}
+                                
+                                {result.compile && (
+                                    <div className="status-item">
+                                        <span className="status-label">Execution:</span>
+                                        <span className={`status-value ${result.run ? 'status-success' : 'status-error'}`}>
+                                            {result.run ? 'Success' : 'Failed'}
+                                        </span>
+                                    </div>
+                                )}
+                                
+                                {result.valgrind && result.valgrind !== "Not available" && (
+                                    <div className="status-item">
+                                        <span className="status-label">Memory Analysis:</span>
+                                        <span className="status-value">
+                                            {result.valgrind}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                             
-                            {result.valgrind && result.valgrind !== "Not available" && (
-                                <div className="status-item">
-                                    <span className="status-label">Memory Analysis:</span>
-                                    <span className="status-value">
-                                        {result.valgrind}
-                                    </span>
+                            <div className="output-container">
+                                <h4>Output:</h4>
+                                <pre className="output-display">{result.output || 'No output'}</pre>
+                            </div>
+                            
+                            {result.failed_tests && result.failed_tests.length > 0 && (
+                                <div className="failed-tests">
+                                    <h4>Failed Tests:</h4>
+                                    <ul>
+                                        {result.failed_tests.map((test, index) => (
+                                            <li key={index}>{test}</li>
+                                        ))}
+                                    </ul>
                                 </div>
                             )}
                         </div>
-                        
-                        <div className="output-container">
-                            <h4>Output:</h4>
-                            <pre className="output-display">{result.output || 'No output'}</pre>
-                        </div>
-                        
-                        {result.failed_tests && result.failed_tests.length > 0 && (
-                            <div className="failed-tests">
-                                <h4>Failed Tests:</h4>
-                                <ul>
-                                    {result.failed_tests.map((test, index) => (
-                                        <li key={index}>{test}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

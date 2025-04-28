@@ -9,6 +9,7 @@
 }
 
 /* Main layout */
+/*
 .duolingo-layout {
   display: grid;
   grid-template-columns: 220px 1fr 350px;
@@ -28,90 +29,31 @@
   background-color: #f1f5f9;
   color: #1f2937;
 }
+  */
 
-/* Sidebar styles */
-.sidebar {
-  padding: 20px 10px;
+/* NEW HOME MAIN LAYOUT*/
+.home-container {
   display: flex;
-  flex-direction: column;
-  border-right: 1px solid rgba(128, 128, 128, 0.2);
+  flex-direction: row;
+  min-height: 100vh;
+  background-color: var(--second-bg-color);
+  
+  margin: 0px;
+
+  
 }
 
-.dark-mode .sidebar {
-  background-color: #1f2937;
-}
+.home-content {
+  
+  display: flex;
+  flex-direction: row;
 
-.light-mode .sidebar {
-  background-color: #ffffff;
-}
-
-.logo-container {
-  padding: 10px;
-  margin-bottom: 30px;
-  text-align: center;
-  transition: none;
-}
-
-.logo-text {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800;
-  font-size: 24px;
-}
-
-
-.dark-mode .logo-text {
-  color: #ffffff;
-}
-
-.light-mode .logo-text {
-  color: #58cc02;
-}
-
-/*edit */
-.sidebar {
-  width: 250px;
-  transition: width 0.3s ease;
-}
-
-.sidebar.collapsed {
-  width: 60px; /* Collapsed width */
-  background-color: transparent;
-  border-right: 1px solid transparent;
-
-  --side-bar-width2: 0px 1fr;
-}
-
-
-.sidebar.collapsed ~ .duolingo {
-  grid-template-columns: 60px 1fr 350px;
-}
-
-.sidebar.collapsed .sidebar-nav {
-  opacity: 0; /* Hide when collapsed */
-}
-
-.sidebar.collapsed .logo-container {
-  width: 250px; /* Keep the width the same, even when collapsed */
-  transition: none; /* Prevent logo text from being affected */
-}
-
-.sidebar.expanded .sidebar-nav {
-  opacity: 1;
-}
-
-.sidebar.expanded .logo-container {
-  width: 250px; /* Keep the width the same, even when collapsed */
-  transition: none; /* Prevent logo text from being affected */
-}
-/**/
-
-.sidebar-nav {
   flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: opacity 0.3s ease;
+
 }
+
+
+
 
 .nav-item {
   display: flex;
@@ -169,6 +111,7 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .dark-mode .main-content {
@@ -592,18 +535,21 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   gap: 20px;
   border-left: 1px solid rgba(128, 128, 128, 0.2);
+  width: 350px;
   
 }
 
 .dark-mode .right-sidebar {
-  background-color: #1f2937;
+  background-color: var(--third-bg-color)/*#1f2937;*/
 }
 
 .light-mode .right-sidebar {
-  background-color: #ffffff;
+  background-color: var(--third-bg-color);
 }
+
 
 /* User profile card with enhanced styling */
 .user-profile-card {

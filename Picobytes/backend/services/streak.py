@@ -6,6 +6,7 @@ from flask import jsonify
 import psycopg
 from psycopg.rows import dict_row
 from db_info import *
+from datetime import datetime, date
 
 
 class Streaks:
@@ -121,17 +122,33 @@ class Streaks:
         try:
             conn = self._connect()
             cursor = conn.cursor()
-            cursor.execute("""
-                                   SELECT num_questions
-                                   FROM daily_goals
-                                   WHERE uid = %s
-                                     AND lastgoaltime::date = CURRENT_DATE
-                               """, (uid,))
 
-            result = cursor.fetchone()
-            if result:
+            cursor.execute("""
+                        SELECT ulastgoaltime FROM daily_goals WHERE uid = %s
+                    """, (uid,))
+            row = cursor.fetchone()
+
+            if row is None:
+                print("Can't find any answered questions")
+                conn.close()
+                return {"num_questions": 0}
+            
+            last_date = datetime.fromtimestamp(row['ulastgoaltime']).date()
+
+            if last_date == date.today():
+                print("Questions answered today")
+                cursor.execute("""
+                                    SELECT num_questions
+                                    FROM daily_goals
+                                    WHERE uid = %s
+                                """, (uid,))
+                result = cursor.fetchone()
+                conn.close()
                 return result
             else:
+                print("Questions not answered today")
+                print(f"Today: {date.today()}, Last Answered: {last_date}")
+                conn.close()
                 return {"num_questions": 0}
 
 
@@ -144,7 +161,22 @@ class Streaks:
     def get_stats(self, uid):
         streak = self.get_streak(uid)
         points = self.get_points(uid)
-        return (streak, points)
+        answered = self.get_answered_qids(uid)
+        return (streak, points, answered)
+
+    def get_answered_qids(self, uid):
+        try:
+            conn = self._connect()
+            cursor = conn.cursor()
+            cursor.execute("""SELECT qid 
+                            FROM user_responses
+                            WHERE uid = %s""", (uid,))
+            result = cursor.fetchall()
+            conn.close()
+            return result
+        except Exception as e:
+            print(f"Error fetching answered questions {e}")
+            return None
 
     def get_top_10(self):
         try:

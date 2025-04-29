@@ -45,6 +45,18 @@
   font-size: var(--font-size-medium);
 }
 
+.answered-question-item {
+  background-color: #58cc02;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 16px 0;
+  width: 100%;
+  box-shadow: 0 4px 16px #5acc026d;
+  transition: transform 0.3s ease;
+
+  font-size: var(--font-size-medium);
+}
+
 .question-item:hover {
   transform: translateY(-4px);
 }

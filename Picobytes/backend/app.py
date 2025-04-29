@@ -89,13 +89,14 @@ def home():
 def get_user_stats(uid):
     print(f"Received uid: {uid}")
     if verification_service.verify_user(uid):
-        curr_streak, curr_points = streak_service.get_stats(uid)
+        curr_streak, curr_points, answered = streak_service.get_stats(uid)
         if curr_streak == -1:
             return jsonify({'error getting streak'}), 500
         response = {
             'streak': curr_streak,
             'points': curr_points,
-            'uid': uid
+            'uid': uid,
+            'answered': answered
         }
         #return response
         return jsonify(response), 200
@@ -450,9 +451,6 @@ def get_usage_stats():
     data = admin_service.get_usage_stats()
     return jsonify(data)
 
-
-
-
 @app.route('/api/submit_answer', methods=['POST'])
 def submit_answer():
     try:
@@ -465,11 +463,13 @@ def submit_answer():
             return jsonify({"error": "Missing uid"}), 400
         if not question_id:
             return jsonify({"error": "Missing question_id"}), 400
-        #if not response:
-            #return jsonify({"error": "Missing user response"}), 400
+        if not response:
+            return jsonify({"error": "Missing user response"}), 400
 
         # Get the question to verify the correct answer
         correctanswer = question_fetcher_service.get_answer(question_id)
+
+        print(f"Response: {response}")
 
         db_url = f"host=dbclass.rhodescs.org dbname=pico user={DBUSER} password={DBPASS}"
         conn = psycopg.connect(db_url, row_factory=dict_row)
@@ -478,8 +478,6 @@ def submit_answer():
         cur.execute("SELECT 1 FROM user_responses WHERE uid = %s AND qid = %s", (uid, question_id))
         if cur.fetchone():
             return jsonify({'error': 'Question already answered'})
-        
-
 
         correct = question_save_service.save_question(uid, question_id, response)
 
@@ -826,11 +824,13 @@ def test_database():
 
 
 
-@app.route('/api/daily_goals', methods=['POST'])
+@app.route('/api/daily_goals', methods=['GET'])
 def get_daily_goals():
     try:
-        data = request.get_json()
-        uid = data.get('uid')  # Extract UID from request
+        uid = request.args.get("uid")
+        # data = request.get_json()
+        # uid = data.get('uid')  # Extract UID from request
+        print(f"uid: {uid}")
 
         if not uid:
             return jsonify({"error": "Missing uid"}), 400

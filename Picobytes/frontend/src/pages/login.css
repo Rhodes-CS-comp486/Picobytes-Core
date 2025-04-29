@@ -68,6 +68,10 @@
   transition: all 0.2s ease;
 }
 
+.dark-mode .form-input::-ms-reveal {
+  filter: invert(100%);
+}
+
 .form-input:focus {
   outline: none;
   border-color: #58cc02;

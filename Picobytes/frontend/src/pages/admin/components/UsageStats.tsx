@@ -72,7 +72,7 @@ const UsageStats: React.FC<UsageStatsProps> = ({ data }) => {
         display: 'flex', 
         justifyContent: 'space-between',
         marginTop: '20px',
-        backgroundColor: '#2d3748',
+        backgroundColor: 'var(--background-accent)',
         padding: '16px',
         borderRadius: '12px'
       }}>

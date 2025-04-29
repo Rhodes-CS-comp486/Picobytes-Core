@@ -135,7 +135,7 @@ const ActiveUsers: React.FC<ActiveUsersProps> = ({ onPeriodChange, data: propDat
       {/* Period context information */}
       <div style={{ 
         marginTop: '16px',
-        backgroundColor: '#2d3748',
+        backgroundColor: 'var(--background-accent)',
         padding: '12px',
         borderRadius: '12px',
         fontSize: '14px',

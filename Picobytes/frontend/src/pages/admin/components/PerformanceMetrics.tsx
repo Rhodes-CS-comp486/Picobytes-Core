@@ -31,7 +31,7 @@ const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ data }) => {
         </div>
       </div>
       
-      <h3 style={{ fontSize: '16px', marginTop: '20px', marginBottom: '10px', color: '#e2e8f0', fontWeight: 600 }}>
+      <h3 style={{ fontSize: '16px', marginTop: '20px', marginBottom: '10px', color: 'var(--text-primary)', fontWeight: 600 }}>
         Completions (Last 7 Days)
       </h3>
       

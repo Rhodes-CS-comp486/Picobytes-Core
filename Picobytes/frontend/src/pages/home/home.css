@@ -115,11 +115,11 @@
 }
 
 .dark-mode .main-content {
-  background-color: #111827;
+  background-color: var(--home-bg-color);
 }
 
 .light-mode .main-content {
-  background-color: #f1f5f9;
+  background-color: var(--home-bg-color);
 }
 
 .unit-header {
@@ -747,14 +747,15 @@
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
   background-color: rgba(255, 255, 255, 0.05);
   transition: background-color 0.2s;
 }
 
 .goal-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--third-bg-color)
 }
 
 .goal-icon {
@@ -775,7 +776,7 @@
 
 .goal-title {
   font-weight: 600;
-  color: white;
+  
   margin-bottom: 4px;
 }
 
@@ -835,6 +836,11 @@
 .light-mode .home-question-button {
   background-color: var(--first-bg-color);
 }
+
+.dark-mode .home-question-button {
+  background-color: var(--first-bg-color);
+}
+
 #home-questions-vscroll {
   display: flex;
   flex-direction: column;

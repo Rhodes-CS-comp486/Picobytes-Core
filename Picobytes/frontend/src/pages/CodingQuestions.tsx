@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import Home_Header from './home/home_header';
 import SideBar from './home/side_bar';
 import { useSidebar } from './home/side_bar_context';
@@ -250,6 +251,22 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
     }
   };
 
+  // Add helper function after the imports
+  const getPreviewText = (text: string): string => {
+    // First remove any markdown headers
+    const cleanText = text.replace(/^#+ +.*$/gm, '').trim();
+    
+    // Get the first paragraph or segment
+    const firstParagraph = cleanText.split('\n\n')[0];
+    
+    // Limit to 150 characters
+    if (firstParagraph.length > 150) {
+      return `${firstParagraph.substring(0, 150)}...`;
+    }
+    
+    return firstParagraph;
+  };
+
   return (
     <div className={`coding-question-container ${isVisible ? "sidebar-expanded" : "sidebar-collapsed"}`}>
       {/* Left Sidebar */}
@@ -303,7 +320,11 @@ const CodingQuestions = ({ toggleDark }: Prop) => {
                           </span>
                         </div>
                       </div>
-                      <div className="question-text">{question.qtext}</div>
+                      <div className="question-text">
+                        <ReactMarkdown>
+                          {getPreviewText(question.qtext)}
+                        </ReactMarkdown>
+                      </div>
                     </li>
                   ))}
                 </ul>

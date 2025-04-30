@@ -648,3 +648,40 @@ html.dark-mode .spinner {
 .question-markdown h1 + p {
   margin-left: 2rem;
 }
+
+/* Markdown content styling in question list view */
+.question-item .question-text {
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  max-height: 100px;
+}
+
+.question-item .question-text p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.question-item .question-text code {
+  background-color: var(--third-bg-color);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  color: var(--theme-main-color);
+}
+
+/* Existing question-markdown styling */
+.question-markdown {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}

@@ -30,6 +30,10 @@ class CodeExecutionService:
             dict: Result of execution including compile status, errors, and test results
         """
         try:
+            # Preprocess tests to handle pico_assert if needed
+            if tests and "pico_assert" in tests:
+                tests = "#define pico_assert(condition) assert(condition)\n" + tests
+            
             # Prepare the payload
             json_payload = {
                 "code": code, 

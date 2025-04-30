@@ -52,7 +52,7 @@ void do_test(char *input, char *expected) {
   char actual[256]; 
  
   strrev(actual, input); 
-  pico_assert(strcmp(expected, actual) == 0); 
+  assert(strcmp(expected, actual) == 0); 
 } 
  
 void run_tests() { 
@@ -66,6 +66,8 @@ void run_tests() {
   /* palindromic strings */ 
   do_test("tacocat", "tacocat"); 
   do_test("step on no pets", "step on no pets"); 
+  
+  printf("All tests passed!\\n");
 }""",
             "correctcode": """#include <string.h> 
  

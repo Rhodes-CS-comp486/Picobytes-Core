@@ -62,6 +62,13 @@ interface Question {
   answered: boolean;
 }
 
+interface Achievement {
+  id: string;
+  icon: string;
+  title: string;
+  unlocked: boolean;
+}
+
 /// MAIN CONTENT ////////////////////////////////////
 
 const Homepage = ({ toggleDark }: Prop) => {
@@ -77,6 +84,14 @@ const Homepage = ({ toggleDark }: Prop) => {
   const [points, setPoints] = useState(-1);
   const [progress, setProgress] = useState(-1);
   const [questions, setQuestions] = useState<Question[]>([]);
+
+  // Add achievement data
+  const [achievements, setAchievements] = useState<Achievement[]>([
+    { id: "first_question", icon: "🎯", title: "First Question", unlocked: false },
+    { id: "streak_3", icon: "🔥", title: "3-Day Streak", unlocked: false },
+    { id: "points_50", icon: "🏆", title: "50 Points", unlocked: false },
+    { id: "code_master", icon: "💻", title: "Code Master", unlocked: false },
+  ]);
 
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
@@ -161,11 +176,42 @@ const Homepage = ({ toggleDark }: Prop) => {
             return a.qid;
           })
         );
+        
+        // Update achievements based on user stats
+        updateAchievements(data.answered.length, data.streak, data.points);
       })
       .catch((error) => {
         console.error("Error getting user stats:", error);
       });
   }, []);
+
+  // Update achievements based on user progress
+  const updateAchievements = (answeredCount: number, currentStreak: number, userPoints: number) => {
+    const updatedAchievements = [...achievements];
+    
+    // First question achievement
+    if (answeredCount > 0) {
+      updatedAchievements[0].unlocked = true;
+    }
+    
+    // 3-day streak achievement
+    if (currentStreak >= 3) {
+      updatedAchievements[1].unlocked = true;
+    }
+    
+    // 50 points achievement
+    if (userPoints >= 50) {
+      updatedAchievements[2].unlocked = true;
+    }
+    
+    // Code Master achievement (placeholder logic)
+    // In a real app, you would have specific criteria for this
+    if (answeredCount >= 10) {
+      updatedAchievements[3].unlocked = true;
+    }
+    
+    setAchievements(updatedAchievements);
+  };
 
   //TODO: fetch daily goals
   useEffect(() => {
@@ -254,6 +300,11 @@ const Homepage = ({ toggleDark }: Prop) => {
 
   const goToQuestion = (id: number) => {
     navigate(`/question/${id}`);
+  };
+
+  // Navigate to coding lab
+  const goToCodingLab = () => {
+    navigate('/coding-questions');
   };
 
   // Get greeting based on time of day
@@ -382,7 +433,7 @@ const Homepage = ({ toggleDark }: Prop) => {
                   {q.answered ? "✓ " : ""}Question {q.id}: {q.prompt.length > 60 ? q.prompt.substring(0, 60) + "..." : q.prompt}
                   <div className="question-info">
                     <div className="question-type">{q.type}</div>
-                    <div className="difficulty-badge">{q.difficulty}</div>
+                    <div className={`difficulty-badge ${q.difficulty.toLowerCase()}`}>{q.difficulty}</div>
                     <div className="topic-badge">{q.topic}</div>
                   </div>
                 </li>
@@ -446,6 +497,25 @@ const Homepage = ({ toggleDark }: Prop) => {
             </div>
           </div>
 
+          {/* Achievements Section */}
+          <div className="achievements-section">
+            <div className="section-header">
+              <div className="section-title">Achievements</div>
+            </div>
+            
+            <div className="badges-container">
+              {achievements.map((badge) => (
+                <div 
+                  key={badge.id} 
+                  className={`badge ${badge.unlocked ? 'badge-unlocked' : ''}`}
+                  data-title={badge.title}
+                >
+                  {badge.icon}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Daily Goals Section */}
           <div className="daily-goals-section">
             <div className="section-header">
@@ -466,7 +536,7 @@ const Homepage = ({ toggleDark }: Prop) => {
               </div>
             </div>
             
-            <div className="goal-item">
+            <div className="goal-item" onClick={goToCodingLab}>
               <div className="goal-icon">💻</div>
               <div className="goal-details">
                 <div className="goal-title">Try a coding question</div>

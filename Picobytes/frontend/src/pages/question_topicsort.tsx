@@ -540,7 +540,8 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                   (questionType === "multiple_choice" && answer === null) ||
                   (questionType === "true_false" && answer === null) ||
                   (questionType === "free_response" && !answer) ||
-                  (questionType === "code_blocks" && draggedIds.length === 0)
+                  (questionType === "code_blocks" && draggedIds.length === 0) ||
+                  (questionType === "coding")
                 }
               >
                 {isSubmitting ? "Checking..." : "Check Answer"}

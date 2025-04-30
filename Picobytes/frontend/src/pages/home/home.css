@@ -8,6 +8,42 @@
   box-sizing: border-box;
 }
 
+:root {
+  --duolingo-green: #58cc02;
+  --duolingo-green-hover: #46a302;
+  --duolingo-green-pressed: #2b8400;
+  --duolingo-blue: #1cb0f6;
+  --duolingo-blue-hover: #0095d6;
+  --duolingo-blue-pressed: #0077b3;
+  --duolingo-orange: #ff9600;
+  --duolingo-red: #ff4b4b;
+  --duolingo-purple: #ce82ff;
+  --duolingo-yellow: #ffc800;
+  
+  --card-color: rgba(255, 255, 255, 0.1);
+  --font-size-subtitle: 14px;
+}
+
+/* Dark mode variables */
+.dark-mode {
+  --home-bg-color: #111827;
+  --second-bg-color: #1f2937;
+  --text-color: #ffffff;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --active-background-color: rgba(88, 204, 2, 0.2);
+  --active-text-color: var(--duolingo-green);
+}
+
+/* Light mode variables */
+.light-mode {
+  --home-bg-color: #f8f9fa;
+  --second-bg-color: #ffffff;
+  --text-color: #333333;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --active-background-color: rgba(88, 204, 2, 0.1);
+  --active-text-color: var(--duolingo-green);
+}
+
 /* Main layout */
 /*
 .duolingo-layout {
@@ -39,8 +75,8 @@
   background-color: var(--second-bg-color);
   
   margin: 0px;
-
-  
+  font-family: 'Nunito', sans-serif;
+  color: var(--text-color);
 }
 
 .home-content {
@@ -59,529 +95,293 @@
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
 .nav-item.active {
-  background-color: var(--active-background-color); /* Use a different variable for the Topics background */
-  color: var(--active-text-color); /* Adjust the text color */
+  background-color: var(--duolingo-green);
+  color: white;
 }
 
-.dark-mode .nav-item {
-  color: #d1d5db;
+.nav-item:hover:not(.active) {
+  background-color: var(--active-background-color);
+  transform: translateY(-2px);
 }
 
-.light-mode .nav-item {
-  color: #4b5563;
-}
-
-.nav-item:hover {
-  background-color: var(--card-color);
-}
-
-.dark-mode .nav-item:hover {
-  color: #ffffff;
-}
-
-.light-mode .nav-item:hover {
-  color: #111827;
-}
-
-.nav-item.active {
-  background-color: #58cc02;
-  color: #ffffff;
-  font-weight: 700;
+.nav-item:active {
+  transform: translateY(1px);
 }
 
 .nav-item .material-icon {
   margin-right: 12px;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .sidebar-footer {
   margin-top: auto;
-  border-top: 1px solid rgba(128, 128, 128, 0.2);
   padding-top: 16px;
 }
 
 /* Main content area */
 .main-content {
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   width: 100%;
-}
-
-.dark-mode .main-content {
   background-color: var(--home-bg-color);
-}
-
-.light-mode .main-content {
-  background-color: var(--home-bg-color);
-}
-
-.unit-header {
-  display: flex;
-  align-items: center;
-  padding: 16px 24px;
-  background-color: #58cc02;
-  border-radius: 16px;
-  margin-bottom: 30px;
-  color: white;
-}
-
-.unit-back {
-  cursor: pointer;
-  background-color: rgba(255, 255, 255, 0.2);
-  height: 40px;
-  width: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  margin-right: 16px;
-}
-
-.unit-info {
-  flex-grow: 1;
-}
-
-.unit-title {
-  font-size: 22px;
-  font-weight: 800;
-}
-
-.unit-subtitle {
-  font-size: var(--font-size-subtitle);
-  opacity: 0.9;
-}
-
-.unit-actions {
-  display: flex;
-  gap: 10px;
-}
-
-/* Styling for the guidebook button (All Questions) */
-.guidebook-button {
-  background-color: rgba(0, 0, 0, 0.2); /* Dark semi-transparent background for contrast */
-  border: 2px solid white; /* White border for emphasis */
-  color: white; /* White text for visibility against green header */
-  padding: 10px 18px; /* Increased padding for better visibility */
-  border-radius: 12px; /* Increased border radius */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-weight: 700; /* Made font weight bolder */
-  font-size: 16px; /* Increased font size */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Added subtle shadow for depth */
-  transition: all 0.2s ease; /* Added transition for hover effects */
-}
-
-.guidebook-button:hover {
-  background-color: rgba(255, 255, 255, 0.25); /* Lighter on hover */
-  transform: translateY(-2px); /* Slight lift effect on hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
-}
-
-.guidebook-button:active {
-  transform: translateY(1px); /* Press down effect on click */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.guidebook-button .material-icon {
-  margin-right: 8px;
-  font-size: 20px; /* Increased icon size */
-}
-
-/* Enhanced Learning Path */
-.learning-path {
-  position: relative;
-  margin: 40px 0;
-  padding: 20px 0;
+  border-radius: 20px 0 0 20px;
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .welcome-heading {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   text-align: center;
-}
-
-.progress-info {
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto 20px;
-}
-
-.progress-label {
-  margin-bottom: 8px;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.progress-bar {
-  height: 12px;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.dark-mode .progress-bar {
-  background-color: var(--second-bg-color);
-}
-
-.light-mode .progress-bar {
-  background-color: var(--second-bg-color);
-}
-
-.progress-filled {
-  height: 100%;
-  background-color: #58cc02;
-  border-radius: 6px;
-  transition: width 0.3s ease;
+  color: var(--text-color);
 }
 
 /* Daily streak box */
 .daily-streak {
-  background-color: var(--card-color);
-  border-radius: 12px;
-  padding: 15px;
-  margin: 20px auto;
-  max-width: 300px;
-  text-align: center;
-  border: 1px solid var(--border-color);
+  background-color: var(--second-bg-color);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--card-shadow);
+  border: 2px solid rgba(88, 204, 2, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.daily-streak:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
 }
 
 .daily-streak-title {
-  font-size: 16px;
-  
-  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  color: var(--text-color);
 }
 
 .streak-flame {
-  font-size: 20px;
+  font-size: 24px;
+  margin-right: 10px;
+  animation: flicker 1.5s infinite alternate;
 }
 
 .streak-days {
-  font-size: 24px;
-  font-weight: bold;
-  color: #58cc02;
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--duolingo-green);
 }
 
-/* Path line connecting nodes */
-.topic-path-container {
-  position: relative;
-  margin: 40px 0;
+.progress-label {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-color);
 }
 
-.path-line {
-  position: absolute;
-  top: 30px;
-  left: 10%;
-  right: 10%;
-  height: 4px;
-  background: #4b5563;
-  z-index: 0;
-  border-radius: 4px;
-}
-
-/* Topic nodes container */
-.topic-nodes {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-  padding: 0 10%;
-}
-
-/* Individual topic node */
-.topic-node {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.topic-node:hover {
-  transform: translateY(-5px);
-}
-
-/* Node circle styling */
-.node-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+/* Mascot section */
+.mascot-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
+  margin: 20px 0 30px;
   position: relative;
-  border: 3px solid #4b5563;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.dark-mode .node-circle {
-  background-color: #2b3445;
-  color: #adb5bd;
-}
-
-.light-mode .node-circle {
-  background-color: #e2e8f0;
-  color: #4b5563;
-}
-
-/* Locked node (not yet available) */
-.node-circle.locked {
-  background-color: #4b5563;
-  color: #8d959e;
-  cursor: not-allowed;
-}
-
-/* Current node (active) */
-.node-circle.current {
-  background-color: #58cc02;
-  border-color: #58cc02;
-  color: white;
-  animation: pulse 2s infinite;
-}
-
-/* Completed node */
-.node-circle.completed {
-  background-color: #1cb0f6;
-  border-color: #1cb0f6;
-  color: white;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(88, 204, 2, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(88, 204, 2, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(88, 204, 2, 0);
-  }
-}
-
-/* Node label */
-.node-label {
-  font-size: 14px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.dark-mode .node-label {
-  color: white;
-}
-
-.light-mode .node-label {
-  color: #1f2937;
-}
-
-/* Achievement treasure chest */
-.treasure-chest {
-  position: relative;
-  font-size: 40px;
-  filter: grayscale(60%);
-  opacity: 0.8;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.treasure-chest:hover {
-  filter: grayscale(0%);
-  opacity: 1;
-  transform: scale(1.1);
-}
-
-/* Mascot character with speech bubble */
-.mascot-container {
-  position: relative;
-  text-align: center;
-  margin: 30px 0;
 }
 
 .mascot-speech {
-  background-color: white;
-  color: #1f2937;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-weight: 700;
-  margin-bottom: 12px;
+  background-color: var(--second-bg-color);
+  border-radius: 16px;
+  padding: 16px;
+  max-width: 70%;
   position: relative;
-  max-width: 250px;
-  margin: 0 auto 15px;
+  margin-right: 20px;
+  box-shadow: var(--card-shadow);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-color);
+  border: 2px solid rgba(88, 204, 2, 0.3);
 }
 
 .mascot-speech:after {
   content: '';
   position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 8px solid white;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: 12px solid var(--second-bg-color);
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
 }
 
 .mascot-character {
-  font-size: 60px;
-  display: inline-block;
+  width: 100px;
+  height: 100px;
   animation: bounce 2s infinite;
-  width: 50px;
-  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+.mascot-character img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-/* Start learning button */
+/* Button styles */
 .start-learning-button {
-  display: block;
-  margin: 30px auto;
-  background-color: #58cc02;
+  background-color: var(--duolingo-green);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 16px 40px;
-  font-size: 18px;
+  border-radius: 16px;
+  padding: 16px 32px;
+  font-size: 20px;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 4px 0 #58a700;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  margin: 0 auto 30px;
+  display: block;
+  box-shadow: 0 4px 0 var(--duolingo-green-pressed);
+  transition: all 0.2s ease;
 }
 
 .start-learning-button:hover {
+  background-color: var(--duolingo-green-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #58a700;
 }
 
 .start-learning-button:active {
+  background-color: var(--duolingo-green-pressed);
+  box-shadow: 0 2px 0 var(--duolingo-green-pressed);
   transform: translateY(2px);
-  box-shadow: 0 2px 0 #58a700;
 }
 
-/* All questions section */
-.all-questions-section {
-  margin-top: 50px;
-  padding: 0 20px;
+/* Questions section */
+#home-questions-vscroll {
+  background-color: var(--second-bg-color);
+  border-radius: 16px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: var(--card-shadow);
+  border: 2px solid rgba(28, 176, 246, 0.3);
+  max-height: 400px;
+  overflow-y: auto;
 }
 
-.all-questions-section h2 {
+#home-questions-vscroll h1 {
   font-size: 24px;
-  margin-bottom: 20px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--duolingo-blue);
   text-align: center;
 }
 
-.questions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
+#home-questions-vscroll ul {
+  list-style: none;
 }
 
-.question-button {
-  width: 100%;
+.question-item, .answered-question-item {
+  background-color: var(--home-bg-color);
+  margin-bottom: 10px;
   padding: 15px;
   border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: none;
+  transition: all 0.2s ease;
+  border-left: 4px solid var(--duolingo-blue);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.dark-mode .question-button {
-  background-color: #2d3748;
-  color: #e2e8f0;
+.answered-question-item {
+  border-left: 4px solid var(--duolingo-green);
 }
 
-.light-mode .question-button {
-  background-color: #e2e8f0;
-  color: #1f2937;
+.question-item:hover, .answered-question-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.question-button.completed {
-  background-color: #58cc02;
+.question-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.question-type, .difficulty-badge, .topic-badge {
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.question-type {
+  background-color: var(--duolingo-purple);
   color: white;
-  box-shadow: 0 2px 0 #58a700;
 }
 
-.question-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.difficulty-badge {
+  background-color: var(--duolingo-orange);
+  color: white;
+}
+
+.topic-badge {
+  background-color: var(--duolingo-blue);
+  color: white;
 }
 
 /* Right sidebar */
 .right-sidebar {
-  padding: 20px;
+  width: 300px;
+  padding: 24px;
+  background-color: var(--second-bg-color);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
   gap: 20px;
-  border-left: 1px solid rgba(128, 128, 128, 0.2);
-  width: 350px;
-  
 }
 
-.dark-mode .right-sidebar {
-  background-color: var(--third-bg-color)/*#1f2937;*/
-}
-
-.light-mode .right-sidebar {
-  background-color: var(--third-bg-color);
-}
-
-
-/* User profile card with enhanced styling */
+/* User profile card */
 .user-profile-card {
-  background-color: var(--card-color);
+  background-color: var(--home-bg-color);
   border-radius: 16px;
   padding: 20px;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s ease;
+}
+
+.user-profile-card:hover {
+  transform: translateY(-5px);
 }
 
 .user-profile-header {
   display: flex;
   align-items: center;
-  gap: 12px;
   margin-bottom: 16px;
 }
 
 .user-avatar {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
+  background-color: var(--duolingo-blue);
+  color: white;
   border-radius: 50%;
-  background-color: #4b5563;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  font-weight: bold;
-  color: white;
-  border: 2px solid #58cc02;
+  font-size: 24px;
+  font-weight: 700;
+  margin-right: 12px;
 }
 
 .user-info {
@@ -591,53 +391,55 @@
 .user-name {
   font-size: 18px;
   font-weight: 700;
+  margin-bottom: 4px;
 }
 
 .user-level {
-  display: inline-block;
-  background-color: #1cb0f6;
-  padding: 4px 12px;
-  border-radius: 100px;
   font-size: 14px;
-  font-weight: 700;
-  margin-top: 4px;
+  font-weight: 600;
+  color: var(--duolingo-orange);
+  background-color: rgba(255, 150, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 20px;
+  display: inline-block;
 }
 
-/* Stats container */
 .user-stats-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   margin-top: 16px;
 }
 
 .stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  text-align: center;
+  flex: 1;
 }
 
 .stat-icon {
   font-size: 24px;
+  margin-bottom: 4px;
 }
 
 .stat-value {
   font-size: 20px;
   font-weight: 800;
-  
+  color: var(--duolingo-green);
+  margin-bottom: 2px;
 }
 
 .stat-label {
   font-size: 12px;
-  color: #a0aec0;
+  font-weight: 600;
+  color: var(--text-color);
 }
 
-/* Progress section with enhanced styling */
-.progress-section {
-  background-color: var(--card-color);
+/* Progress section */
+.progress-section, .daily-goals-section {
+  background-color: var(--home-bg-color);
   border-radius: 16px;
   padding: 20px;
-  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
 }
 
 .section-header {
@@ -652,122 +454,55 @@
   font-weight: 700;
 }
 
-.view-all-link {
-  background-color: #1cb0f6;
-  color: white;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 6px 12px;
-  border-radius: 8px;
-  box-shadow: 0 2px 0 #0891d1;
-}
-
-.view-all-link:hover {
-  background-color: #0891d1;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 0 #0076b2;
-  text-decoration: none;
-}
-
-.view-all-link:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 0 #0076b2;
-}
-
 .progress-percentage {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 800;
-  color: #58cc02;
   text-align: center;
-  margin: 16px 0;
+  margin-bottom: 8px;
+  color: var(--duolingo-green);
 }
 
-.progress-text {
-  font-size: 14px;
-  color: #a0aec0;
-  text-align: center;
+.progress-bar, .goal-progress-bar {
+  height: 12px;
+  background-color: rgba(88, 204, 2, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 8px;
 }
 
-/* Topic progress with enhanced styling */
-.topic-progress-section {
-  background-color: var(--card-color);
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid var(--border-color);
+.progress-filled, .goal-progress-filled {
+  height: 100%;
+  background-color: var(--duolingo-green);
+  border-radius: 6px;
+  transition: width 0.3s ease;
 }
 
-.topic-item {
-  margin-bottom: 16px;
-}
-
-.topic-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.topic-name {
-  font-weight: 600;
-  
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.topic-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: #1cb0f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  color: white;
-}
-
-.topic-percentage {
-  color: #58cc02;
-  font-weight: 700;
-}
-
-/* Daily goals section */
-.daily-goals-section {
-  background-color: var(--card-color);
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid var(--border-color);
-}
-
+/* Goal items */
 .goal-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding: 20px;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  background-color: rgba(255, 255, 255, 0.05);
-  transition: background-color 0.2s;
+  padding: 12px;
+  background-color: var(--second-bg-color);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  transition: transform 0.2s ease;
 }
 
 .goal-item:hover {
-  background-color: var(--third-bg-color)
+  transform: translateY(-2px);
 }
 
 .goal-icon {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background-color: #1cb0f6;
+  background-color: rgba(28, 176, 246, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  color: white;
+  font-size: 20px;
+  margin-right: 12px;
+  color: var(--duolingo-blue);
 }
 
 .goal-details {
@@ -775,43 +510,32 @@
 }
 
 .goal-title {
+  font-size: 16px;
   font-weight: 600;
-  
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
-.goal-progress-bar {
-  height: 8px;
-  background-color: #4b5563;
-  border-radius: 4px;
-  overflow: hidden;
+/* Animations */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 
-.goal-progress-filled {
-  height: 100%;
-  background-color: var(--primary-theme-color);
-  border-radius: 4px;
-  transition: width 0.3s ease;
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
-/* Mobile adjustments */
-@media (max-width: 1200px) {
-  .duolingo-layout {
-    grid-template-columns: 180px 1fr 300px;
-  }
-}
-
+/* Media queries */
 @media (max-width: 991px) {
-  .duolingo-layout {
-    grid-template-columns: 1fr;
+  .home-content {
+    flex-direction: column;
   }
   
-  .sidebar, .right-sidebar {
-    display: none;
-  }
-
-  .questions-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  .right-sidebar {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
 

@@ -541,7 +541,7 @@
 
 /* Enhanced right sidebar */
 .right-sidebar {
-  width: 320px;
+  width: 520px;
   padding: 28px;
   background-color: var(--second-bg-color);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -902,13 +902,15 @@
 .badges-container {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 20px;
   margin-top: 15px;
+  flex-wrap: wrap;
+  padding: 5px 0;
 }
 
 .badge {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   background-color: var(--second-bg-color);
   border-radius: 50%;
   display: flex;
@@ -920,6 +922,11 @@
   position: relative;
   filter: grayscale(0.7);
   opacity: 0.7;
+  aspect-ratio: 1 / 1;
+  min-width: 70px;
+  min-height: 70px;
+  max-width: 70px;
+  max-height: 70px;
 }
 
 .badge::after {
@@ -975,7 +982,7 @@
 /* Media queries */
 @media (max-width: 1200px) {
   .right-sidebar {
-    width: 300px;
+    width: 350px;
   }
 }
 

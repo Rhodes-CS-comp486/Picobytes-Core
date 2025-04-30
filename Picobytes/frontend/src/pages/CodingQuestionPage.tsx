@@ -155,7 +155,34 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
         
         <div className="problem-statement">
           <h3>Problem Statement</h3>
-          <p>{question.qtext}</p>
+          <div className="question-markdown">
+            {question.qtext.split('\n\n').map((paragraph, index) => {
+              if (paragraph.startsWith('# ')) {
+                const headerText = paragraph.substring(2);
+                return (
+                  <div key={index}>
+                    <h1>{headerText}</h1>
+                  </div>
+                );
+              } else {
+                // Parse and render code in backticks
+                const parts = paragraph.split(/(`[^`]+`)/);
+                return (
+                  <p key={index}>
+                    {parts.map((part, partIndex) => {
+                      if (part.startsWith('`') && part.endsWith('`')) {
+                        // This is code, so render it with the appropriate styling
+                        return <code key={partIndex}>{part.slice(1, -1)}</code>;
+                      } else {
+                        // Regular text
+                        return <span key={partIndex}>{part}</span>;
+                      }
+                    })}
+                  </p>
+                );
+              }
+            })}
+          </div>
         </div>
         
         <div className="code-editor-section">

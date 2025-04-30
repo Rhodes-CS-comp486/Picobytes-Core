@@ -179,6 +179,44 @@ int main() {
                 "error": "Submission is identical to the starter code. Please add your implementation.",
             }
         
+        # Check for minimal implementation (just declaring variables with no real implementation)
+        # This detects cases where user just adds a variable declaration without actual logic
+        function_name = ""
+        
+        # Extract function name from template
+        template_lines = question["function_template"].strip().split("\n")[0].strip()
+        if "(" in template_lines:
+            function_name = template_lines.split("(")[0].split()[-1]
+        
+        # Detect minimal implementations that won't actually work
+        user_code_lines = user_code.strip().split("\n")
+        implementation_lines = [line for line in user_code_lines if line.strip() and 
+                              not line.strip().startswith("//") and 
+                              not line.strip().startswith("/*") and
+                              not line.strip().startswith("*") and
+                              not line.strip().startswith("*/") and
+                              not line.strip().startswith("{") and
+                              not line.strip().startswith("}") and
+                              not line.strip().startswith(function_name)]
+        
+        # If there are only variable declarations and no calculations or return statements with calculations
+        has_calculations = False
+        for line in implementation_lines:
+            # Check if line has any calculations (operators like +, -, *, /, etc.)
+            if any(op in line for op in ['+', '-', '*', '/', '%', '=', '>', '<', '!', '&', '|']):
+                # Skip simple variable initializations without calculations
+                if '=' in line and not any(op in line for op in ['+', '-', '*', '/', '%']):
+                    continue
+                has_calculations = True
+                break
+        
+        # If no meaningful implementation is found
+        if not has_calculations:
+            return {
+                "is_correct": False,
+                "error": "Your solution appears to be incomplete. Please implement the required functionality.",
+            }
+        
         # Execute the code using our service
         try:
             # Append the user's code to the test code

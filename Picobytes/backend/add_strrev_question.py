@@ -44,7 +44,8 @@ Provide an implementation for the `strrev()` function, which is described in the
   // Your code here... 
 }""",
             "test_code": """#include <string.h>
-            #include <stdio.h> 
+            #include <stdio.h>
+            #include <assert.h>
  
 // prototype for function under test 
 void strrev(char *dest, const char *src); 

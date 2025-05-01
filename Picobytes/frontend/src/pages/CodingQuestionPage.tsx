@@ -245,33 +245,44 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
             
             <div className="result-status">
               <div className="status-item">
-                <span className="status-label">Compilation:</span>
+                <span className="status-label">
+                  <span className="status-icon">{result.execution_results.compile ? '✅' : '❌'}</span> Compilation Status:
+                </span>
                 <span className={`status-value ${result.execution_results.compile ? 'status-success' : 'status-error'}`}>
-                  {result.execution_results.compile ? 'Success' : 'Failed'}
+                  {result.execution_results.compile ? 'Compiled Successfully' : 'Compilation Failed'}
                 </span>
               </div>
               
               {result.execution_results.compile && (
                 <div className="status-item">
-                  <span className="status-label">Execution:</span>
+                  <span className="status-label">
+                    <span className="status-icon">{result.execution_results.run ? '✅' : '❌'}</span> Execution Status:
+                  </span>
                   <span className={`status-value ${result.execution_results.run ? 'status-success' : 'status-error'}`}>
-                    {result.execution_results.run ? 'Success' : 'Failed'}
+                    {result.execution_results.run ? 'Executed Successfully' : 'Execution Failed'}
                   </span>
                 </div>
               )}
               
               {result.execution_results.compile && result.execution_results.run && (
                 <div className="status-item">
-                  <span className="status-label">Test Results:</span>
+                  <span className="status-label">
+                    <span className="status-icon">
+                      {result.is_correct || 
+                      ((result.execution_results.passed_tests?.length ?? 0) > 0 && 
+                        (!result.execution_results.failed_tests || (result.execution_results.failed_tests?.length ?? 0) === 0))
+                        ? '✅' : '❌'}
+                    </span> Test Result:
+                  </span>
                   <span className={`status-value ${
                     result.is_correct || 
                     ((result.execution_results.passed_tests?.length ?? 0) > 0 && 
-                     (!result.execution_results.failed_tests || (result.execution_results.failed_tests?.length ?? 0) === 0))
+                      (!result.execution_results.failed_tests || (result.execution_results.failed_tests?.length ?? 0) === 0))
                     ? 'status-success' : 'status-error'}`}>
                     {result.is_correct || 
-                     ((result.execution_results.passed_tests?.length ?? 0) > 0 && 
-                      (!result.execution_results.failed_tests || (result.execution_results.failed_tests?.length ?? 0) === 0))
-                      ? 'All Tests Passed' 
+                      ((result.execution_results.passed_tests?.length ?? 0) > 0 && 
+                        (!result.execution_results.failed_tests || (result.execution_results.failed_tests?.length ?? 0) === 0))
+                      ? 'All Tests Passed Successfully' 
                       : <strong>{result.execution_results.passed_tests?.length || 0} Passed / {(result.execution_results.passed_tests?.length || 0) + (result.execution_results.failed_tests?.length || 0)} Total</strong>}
                   </span>
                 </div>

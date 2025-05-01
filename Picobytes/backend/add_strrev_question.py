@@ -43,7 +43,8 @@ Provide an implementation for the `strrev()` function, which is described in the
             "function_template": """void strrev(char *dest, const char *src) {
   // Your code here... 
 }""",
-            "test_code": """#include <string.h> 
+            "test_code": """#include <string.h>
+            #include <stdio.h> 
  
 // prototype for function under test 
 void strrev(char *dest, const char *src); 

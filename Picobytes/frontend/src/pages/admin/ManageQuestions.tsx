@@ -69,7 +69,7 @@ const ManageQuestions = () => {
         </div>
       </header>
 
-      <div className="admin-content" style={{ width: '100%', padding: 0, maxWidth: '100%' }}>
+      <div className="admin-content" style={{ width: '100%', padding: '0 20px', maxWidth: '100%' }}>
         <div className="question-management-full-container" style={{ maxWidth: '100%', margin: 0 }}>
           <QuestionManagement />
         </div>

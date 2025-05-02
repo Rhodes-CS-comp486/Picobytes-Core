@@ -19,7 +19,7 @@ const AddQuestion = () => {
   };
 
   return (
-    <div className="admin-dashboard" style={{ width: '100vw', minHeight: '100vh', boxSizing: 'border-box' }}>
+    <div className="admin-dashboard" style={{ width: '100vw', minHeight: '100vh', boxSizing: 'border-box', padding: '20px 0' }}>
       <Home_Header toggleOverlay={toggleOverlay} />
       {showOverlay && <div onClick={toggleOverlay} style={{ 
         position: 'fixed', 
@@ -30,7 +30,7 @@ const AddQuestion = () => {
         zIndex: 10 
       }}></div>}
 
-      <header className="admin-header">
+      <header className="admin-header" style={{ paddingLeft: '20px', paddingRight: '20px' }}>
         <h1>Add New Question</h1>
         <div className="admin-nav">
           <button 
@@ -75,7 +75,7 @@ const AddQuestion = () => {
         </div>
       </header>
 
-      <div className="admin-content">
+      <div className="admin-content" style={{ width: '100%', padding: '0 20px', maxWidth: '100%' }}>
         <div className="add-question-full-container">
           <AddQuestionForm onQuestionAdded={handleQuestionAdded} />
         </div>

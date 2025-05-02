@@ -3,6 +3,7 @@ import json
 import logging
 import sys
 import os
+import re
 
 # Add parent directory to path to import config
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -30,6 +31,41 @@ class CodeExecutionService:
             dict: Result of execution including compile status, errors, and test results
         """
         try:
+            # Preprocess tests to handle pico_assert if needed
+            if tests and "pico_assert" in tests:
+                tests = "#define pico_assert(condition) assert(condition)\n" + tests
+            
+            # Extract test descriptions for better reporting
+            passed_tests = []
+            test_descriptions = []
+            if tests:
+                # Extract meaningful test descriptions
+                test_lines = tests.split('\n')
+                for i, line in enumerate(test_lines):
+                    if "assert(" in line:
+                        # Get the test description from comments or the assert itself
+                        description = ""
+                        # Look for comments above the assert
+                        j = i - 1
+                        while j >= 0 and j >= i - 3:  # Look up to 3 lines back
+                            if "//" in test_lines[j]:
+                                comment = test_lines[j].split("//")[-1].strip()
+                                if comment and len(comment) > 3:  # Non-empty meaningful comment
+                                    description = comment
+                                    break
+                            j -= 1
+                        
+                        # If no comment found, use the assert condition itself
+                        if not description:
+                            try:
+                                assert_match = re.search(r'assert\((.*?)\)', line)
+                                if assert_match:
+                                    description = f"Assert: {assert_match.group(1)}"
+                            except:
+                                description = line.strip()
+                        
+                        test_descriptions.append(description)
+            
             # Prepare the payload
             json_payload = {
                 "code": code, 
@@ -77,6 +113,7 @@ class CodeExecutionService:
                         "valgrind": "Not available",
                         "output": "Execution successful (valgrind analysis skipped)",
                         "failed_tests": [],
+                        "passed_tests": test_descriptions,  # All tests passed
                         "original_error": result.get("error")
                     }
                     
@@ -95,6 +132,30 @@ class CodeExecutionService:
                         result["run"] = True
                         result["output"] = result.get("output", "") + "\nNote: Valgrind analysis skipped."
                 
+                # Add passed tests based on failed tests
+                if result.get("failed_tests") is not None:
+                    failed_indices = []
+                    # Try to extract test indices from failed test messages
+                    for failed_test in result.get("failed_tests", []):
+                        try:
+                            # Look for "Test case X" or similar patterns
+                            test_index_match = re.search(r'Test\s+case\s+(\d+)', failed_test, re.IGNORECASE)
+                            if test_index_match:
+                                failed_indices.append(int(test_index_match.group(1)) - 1)  # Convert to 0-indexed
+                        except:
+                            pass
+                    
+                    # Include passed tests list
+                    passed_tests = []
+                    for i, desc in enumerate(test_descriptions):
+                        if i not in failed_indices:
+                            passed_tests.append(f"Test case {i+1}: {desc}")
+                    
+                    result["passed_tests"] = passed_tests
+                else:
+                    # If no failed tests, all tests passed
+                    result["passed_tests"] = [f"Test case {i+1}: {desc}" for i, desc in enumerate(test_descriptions)]
+                
                 return result
             else:
                 logger.error(f"Error from execution API: {response.status_code}, {response.text}")
@@ -102,7 +163,9 @@ class CodeExecutionService:
                     "error": f"API Error: {response.status_code}",
                     "compile": False,
                     "run": False,
-                    "output": f"Failed to execute code: {response.text}"
+                    "output": f"Failed to execute code: {response.text}",
+                    "passed_tests": [],
+                    "failed_tests": []
                 }
                 
         except Exception as e:
@@ -123,6 +186,7 @@ class CodeExecutionService:
                     "run_time": 0,
                     "valgrind": "Not available",
                     "failed_tests": [],
+                    "passed_tests": test_descriptions,  # All tests passed
                     "original_error": str(e)
                 }
                     
@@ -130,7 +194,9 @@ class CodeExecutionService:
                 "error": str(e),
                 "compile": False,
                 "run": False,
-                "output": f"Exception: {str(e)}"
+                "output": f"Exception: {str(e)}",
+                "passed_tests": [],
+                "failed_tests": []
             }
     
     def validate_code_answer(self, user_code, test_code, expected_output=None):

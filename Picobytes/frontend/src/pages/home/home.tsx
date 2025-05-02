@@ -62,6 +62,13 @@ interface Question {
   answered: boolean;
 }
 
+interface Achievement {
+  id: string;
+  icon: string;
+  title: string;
+  unlocked: boolean;
+}
+
 /// MAIN CONTENT ////////////////////////////////////
 
 const Homepage = ({ toggleDark }: Prop) => {
@@ -77,6 +84,14 @@ const Homepage = ({ toggleDark }: Prop) => {
   const [points, setPoints] = useState(-1);
   const [progress, setProgress] = useState(-1);
   const [questions, setQuestions] = useState<Question[]>([]);
+
+  // Add achievement data
+  const [achievements, setAchievements] = useState<Achievement[]>([
+    { id: "first_question", icon: "🎯", title: "First Question", unlocked: false },
+    { id: "streak_3", icon: "🔥", title: "3-Day Streak", unlocked: false },
+    { id: "points_50", icon: "🏆", title: "50 Points", unlocked: false },
+    { id: "code_master", icon: "💻", title: "Code Master", unlocked: false },
+  ]);
 
   const navigate = useNavigate();
   const [showOverlay, setShowOverlay] = useState(false);
@@ -107,7 +122,7 @@ const Homepage = ({ toggleDark }: Prop) => {
         prompt: q.qtext,
         difficulty: q.qlevel,
         topic: q.qtopic,
-        answered: (answeredQuestions || [-1]).includes(q[0]),
+        answered: (answeredQuestions || [-1]).includes(q.qid),
       };
       qlist = [...qlist, question];
     });
@@ -157,16 +172,46 @@ const Homepage = ({ toggleDark }: Prop) => {
         setPoints(data.points);
         setProgress(data.answered.length);
         setAnsweredQuestions(
-          data.answered.map((a) => {
-            console.log(a.qid);
+          data.answered.map((a: { qid: number }) => {
             return a.qid;
           })
         );
+        
+        // Update achievements based on user stats
+        updateAchievements(data.answered.length, data.streak, data.points);
       })
       .catch((error) => {
         console.error("Error getting user stats:", error);
       });
   }, []);
+
+  // Update achievements based on user progress
+  const updateAchievements = (answeredCount: number, currentStreak: number, userPoints: number) => {
+    const updatedAchievements = [...achievements];
+    
+    // First question achievement
+    if (answeredCount > 0) {
+      updatedAchievements[0].unlocked = true;
+    }
+    
+    // 3-day streak achievement
+    if (currentStreak >= 3) {
+      updatedAchievements[1].unlocked = true;
+    }
+    
+    // 50 points achievement
+    if (userPoints >= 50) {
+      updatedAchievements[2].unlocked = true;
+    }
+    
+    // Code Master achievement (placeholder logic)
+    // In a real app, you would have specific criteria for this
+    if (answeredCount >= 10) {
+      updatedAchievements[3].unlocked = true;
+    }
+    
+    setAchievements(updatedAchievements);
+  };
 
   //TODO: fetch daily goals
   useEffect(() => {
@@ -176,10 +221,9 @@ const Homepage = ({ toggleDark }: Prop) => {
       .then((response) => response.json())
       .then((data) => {
         setDailyAnswered(data.num_questions);
-        // console.log(data);
       })
       .catch((e) => {
-        console.error("Eror getting daily goals");
+        console.error("Error getting daily goals");
       });
   }, []);
 
@@ -210,8 +254,6 @@ const Homepage = ({ toggleDark }: Prop) => {
             topicProgressData[topic] = 0; // Initialize progress to 0
           }
         });
-
-        // console.log(topicsSet);
 
         // If no topics are found, use fallback topics
         if (Object.keys(topicProgressData).length === 0) {
@@ -260,6 +302,11 @@ const Homepage = ({ toggleDark }: Prop) => {
     navigate(`/question/${id}`);
   };
 
+  // Navigate to coding lab
+  const goToCodingLab = () => {
+    navigate('/coding-questions');
+  };
+
   // Get greeting based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -272,7 +319,7 @@ const Homepage = ({ toggleDark }: Prop) => {
   const topicsList = Object.keys(topicProgress);
 
   // Determine status of each topic (completed, current, locked)
-  const getTopicStatus = (index) => {
+  const getTopicStatus = (index: number) => {
     const topicName = topicsList[index];
     const progress = topicProgress[topicName] || 0;
 
@@ -304,7 +351,7 @@ const Homepage = ({ toggleDark }: Prop) => {
   };
 
   // Get topic icon or character for display
-  const getTopicIcon = (topic) => {
+  const getTopicIcon = (topic: string) => {
     // Handle C programming related topics
     if (topic.includes("C Basics")) return "B";
     if (topic.includes("C Functions")) return "F";
@@ -318,89 +365,80 @@ const Homepage = ({ toggleDark }: Prop) => {
 
   /// MAIN CONTENT ///
 
-  const progresspercent = (
-    (100 * progress) /
-    questionData?.total_questions!
-  ).toPrecision(2);
+  const progressPercent = questionData?.total_questions 
+    ? Math.min(100, Math.round((100 * progress) / questionData.total_questions))
+    : 0;
 
   return (
-    <div className="duolingo-layout">
+    <div className="home-container">
       {/* Mobile Menu is included in Header component */}
       <Home_Header toggleOverlay={toggleOverlay} />
       {showOverlay && <Home_Prof_Overlay />}
 
       <div className="home-content">
-
-      <SideBar toggleDark={toggleDark}></SideBar>
+        <SideBar toggleDark={toggleDark}></SideBar>
+        
         {/* Main Content */}
         <div className="main-content">
-          {/* Enhanced Learning Path */}
-          <div className="learning-path">
-            <h1 className="welcome-heading">
-              {getGreeting()}, {username}!
-            </h1>
+          <h1 className="welcome-heading">
+            {getGreeting()}, {username}!
+          </h1>
 
-            <div className="daily-streak">
-              <div className="daily-streak-title">
-                <span className="streak-flame">🔥</span>
-                Daily Streak
-              </div>
-              <div className="streak-days">{streak} days</div>
-              <div className="progress-label">
-                Your progress: {progresspercent}%
-              </div>
-              <div className="goal-progress-bar">
-                <div
-                  className="goal-progress-filled"
-                  style={{ width: `${progresspercent}%` }}
-                ></div>
-              </div>
+          <div className="daily-streak">
+            <div className="daily-streak-title">
+              <span className="streak-flame">🔥</span>
+              Daily Streak
             </div>
-
-            {/* MASCOT */}
-            <div className="mascot-container">
-              <div className="mascot-speech">
-                {progress > 0
-                  ? "Great progress! Ready to continue learning C programming?"
-                  : "Ready to start learning C programming?"}
-              </div>
-              <div className="mascot-character">
-                <img src="/logo.png"></img>
-              </div>
+            <div className="streak-days">{streak} days</div>
+            <div className="progress-label">
+              Your progress: {progressPercent}%
             </div>
-
-            <button
-              className="start-learning-button"
-              onClick={handleStartLearning}
-            >
-              {progress > 0 ? "CONTINUE" : "START"}
-            </button>
-
-            {/* QUESTIONS PATH */}
-            <div id="home-questions-vscroll">
-              <h1>All Question List</h1>
-              <ul>
-                {questions.map((q, i) => {
-                  return (
-                    <li
-                      key={q.id}
-                      className={
-                        q.answered ? "answered-question-item" : "question-item"
-                      }
-                      onClick={() => goToQuestion(q.id)}
-                    >
-                      {q.answered ? "✓ " : ""}
-                      {q.id}: {q.prompt}
-                      <div className="question-info">
-                        <div className="question-type">{q.type}</div>
-                        <div className="difficulty-badge">{q.difficulty}</div>
-                        <div className="topic-badge">{q.topic}</div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+            <div className="goal-progress-bar">
+              <div
+                className="goal-progress-filled"
+                style={{ width: `${progressPercent}%` }}
+              ></div>
             </div>
+          </div>
+
+          {/* MASCOT */}
+          <div className="mascot-container">
+            <div className="mascot-speech">
+              {progress > 0
+                ? "Great progress! Ready to continue mastering C programming?"
+                : "Let's start learning C programming today!"}
+            </div>
+            <div className="mascot-character">
+              <img src="/logo.png" alt="Picobytes mascot" />
+            </div>
+          </div>
+
+          <button
+            className="start-learning-button"
+            onClick={handleStartLearning}
+          >
+            {progress > 0 ? "CONTINUE LEARNING" : "START LEARNING"}
+          </button>
+
+          {/* QUESTIONS LIST */}
+          <div id="home-questions-vscroll">
+            <h1>Practice Questions</h1>
+            <ul>
+              {questions.map((q) => (
+                <li
+                  key={q.id}
+                  className={q.answered ? "answered-question-item" : "question-item"}
+                  onClick={() => goToQuestion(q.id)}
+                >
+                  {q.answered ? "✓ " : ""}Question {q.id}: {q.prompt.length > 60 ? q.prompt.substring(0, 60) + "..." : q.prompt}
+                  <div className="question-info">
+                    <div className="question-type">{q.type}</div>
+                    <div className={`difficulty-badge ${q.difficulty.toLowerCase()}`}>{q.difficulty}</div>
+                    <div className="topic-badge">{q.topic}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
@@ -428,15 +466,12 @@ const Homepage = ({ toggleDark }: Prop) => {
               <div className="stat-item">
                 <div className="stat-icon">🔥</div>
                 <div className="stat-value">{streak}</div>
-                <div className="stat-label">Day Streak</div>
+                <div className="stat-label">Streak</div>
               </div>
 
               <div className="stat-item">
                 <div className="stat-icon">⭐</div>
-                <div className="stat-value">
-                  {progress}
-                  {/* {questionStats.completedQuestions || -1} */}
-                </div>
+                <div className="stat-value">{progress}</div>
                 <div className="stat-label">Completed</div>
               </div>
             </div>
@@ -446,22 +481,38 @@ const Homepage = ({ toggleDark }: Prop) => {
           <div className="progress-section">
             <div className="section-header">
               <div className="section-title">Your Progress</div>
-              {/* <div className="view-all-link" onClick={goToAllQuestions}>
-              VIEW ALL
-            </div> */}
             </div>
 
-            <div className="progress-percentage">{progresspercent}%</div>
+            <div className="progress-percentage">{progressPercent}%</div>
 
             <div className="progress-bar">
               <div
                 className="progress-filled"
-                style={{ width: `${progresspercent}%` }}
+                style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
 
             <div className="progress-label">
-              {progress} of {questionData?.total_questions} questions completed
+              {progress} of {questionData?.total_questions || 0} questions completed
+            </div>
+          </div>
+
+          {/* Achievements Section */}
+          <div className="achievements-section">
+            <div className="section-header">
+              <div className="section-title">Achievements</div>
+            </div>
+            
+            <div className="badges-container">
+              {achievements.map((badge) => (
+                <div 
+                  key={badge.id} 
+                  className={`badge ${badge.unlocked ? 'badge-unlocked' : ''}`}
+                  data-title={badge.title}
+                >
+                  {badge.icon}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -480,6 +531,32 @@ const Homepage = ({ toggleDark }: Prop) => {
                     style={{
                       width: `${Math.min(100, (100 * dailyAnswered) / 5)}%`,
                     }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="goal-item" onClick={goToCodingLab}>
+              <div className="goal-icon">💻</div>
+              <div className="goal-details">
+                <div className="goal-title">Try a coding question</div>
+                <div className="goal-progress-bar">
+                  <div
+                    className="goal-progress-filled"
+                    style={{ width: "0%" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="goal-item">
+              <div className="goal-icon">🏆</div>
+              <div className="goal-details">
+                <div className="goal-title">Earn 50 points</div>
+                <div className="goal-progress-bar">
+                  <div
+                    className="goal-progress-filled"
+                    style={{ width: `${Math.min(100, (100 * points) / 50)}%` }}
                   ></div>
                 </div>
               </div>

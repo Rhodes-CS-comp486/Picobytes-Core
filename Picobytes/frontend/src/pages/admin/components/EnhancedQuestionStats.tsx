@@ -6,18 +6,22 @@ interface Question {
   title: string;
   attempts: number;
   success_rate?: number;
+  avg_time?: number;
 }
 
 interface EnhancedQuestionStatsProps {
-  data?: {
+  initialData?: {
     most_attempted: Question[];
     problematic: Question[];
+    by_category?: any;
+    recent_attempts?: any;
+    question_analytics?: any;
   };
 }
 
-const EnhancedQuestionStats: React.FC<EnhancedQuestionStatsProps> = ({ data: propData }) => {
-  const [data, setData] = useState(propData);
-  const [loading, setLoading] = useState(false);
+const EnhancedQuestionStats: React.FC<EnhancedQuestionStatsProps> = ({ initialData }) => {
+  const [data, setData] = useState(initialData);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'most_attempted' | 'problematic' | 'all'>('most_attempted');
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,9 +53,9 @@ const EnhancedQuestionStats: React.FC<EnhancedQuestionStatsProps> = ({ data: pro
       console.error('Error fetching question stats:', err);
       setError('Failed to load question statistics');
       // Fall back to prop data if available
-      if (propData) {
-        setData(propData);
-        updateFilteredQuestions(propData, activeTab, searchTerm, sortConfig);
+      if (initialData) {
+        setData(initialData);
+        updateFilteredQuestions(initialData, activeTab, searchTerm, sortConfig);
       }
     } finally {
       setLoading(false);
@@ -134,7 +138,7 @@ const EnhancedQuestionStats: React.FC<EnhancedQuestionStatsProps> = ({ data: pro
     
     if (exportFormat === 'csv') {
       // Create CSV content
-      const headers = ['ID', 'Title', 'Attempts', 'Success Rate (%)'];
+      const headers = ['ID', 'Title', 'Attempts', 'Success Rate (%)', 'Avg Time (s)'];
       content = headers.join(',') + '\n';
       
       filteredQuestions.forEach(question => {
@@ -142,7 +146,8 @@ const EnhancedQuestionStats: React.FC<EnhancedQuestionStatsProps> = ({ data: pro
           question.id,
           `"${question.title.replace(/"/g, '""')}"`, // Escape quotes in CSV
           question.attempts,
-          question.success_rate !== undefined ? question.success_rate.toFixed(1) : 'N/A'
+          question.success_rate !== undefined ? question.success_rate.toFixed(1) : 'N/A',
+          question.avg_time !== undefined ? question.avg_time : 'N/A'
         ];
         content += row.join(',') + '\n';
       });
@@ -169,20 +174,20 @@ const EnhancedQuestionStats: React.FC<EnhancedQuestionStatsProps> = ({ data: pro
 
   // Initial fetch on component mount
   useEffect(() => {
-    if (!propData) {
+    if (!initialData) {
       fetchQuestionStats();
     } else {
-      updateFilteredQuestions(propData, activeTab, searchTerm, sortConfig);
+      updateFilteredQuestions(initialData, activeTab, searchTerm, sortConfig);
     }
   }, []);
 
-  // When propData changes (e.g. from parent re-render)
+  // When initialData changes (e.g. from parent re-render)
   useEffect(() => {
-    if (propData && !loading) {
-      setData(propData);
-      updateFilteredQuestions(propData, activeTab, searchTerm, sortConfig);
+    if (initialData && !loading) {
+      setData(initialData);
+      updateFilteredQuestions(initialData, activeTab, searchTerm, sortConfig);
     }
-  }, [propData]);
+  }, [initialData]);
 
   return (
     <div className="enhanced-question-stats">

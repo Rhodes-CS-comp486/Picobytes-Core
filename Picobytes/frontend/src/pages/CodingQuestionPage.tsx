@@ -29,6 +29,7 @@ interface ExecutionResult {
     build?: boolean;
     valgrind?: string;
     failed_tests?: string[];
+    passed_tests?: string[];
     original_error?: string;
   };
   error?: string;
@@ -46,6 +47,7 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
   const [feedback, setFeedback] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [showPassedTests, setShowPassedTests] = useState<boolean>(false);
   
   // Fetch the question when the component mounts
   useEffect(() => {
@@ -97,10 +99,21 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
       
       if (data.error) {
         setFeedback(data.error);
+      } else if (!data.execution_results.compile) {
+        setFeedback('Compilation failed. Please fix the errors and try again.');
       } else if (data.is_correct) {
         setFeedback('Correct! All tests passed successfully.');
       } else {
-        setFeedback('Your solution did not pass all tests. Please try again.');
+        if (data.execution_results && data.execution_results.failed_tests && data.execution_results.failed_tests.length > 0) {
+          setFeedback(`Your solution passed ${data.execution_results.passed_tests?.length || 0} tests but failed ${data.execution_results.failed_tests.length} tests. Please review and try again.`);
+        } else if (data.execution_results && data.execution_results.passed_tests && 
+                  data.execution_results.passed_tests.length > 0 && 
+                  (!data.execution_results.failed_tests || data.execution_results.failed_tests.length === 0)) {
+          // If all tests have passed but is_correct is false for some reason, show success message
+          setFeedback('Correct! All tests passed successfully.');
+        } else {
+          setFeedback('Your solution did not pass all tests. Please try again.');
+        }
       }
     } catch (err) {
       console.error('Error submitting code:', err);
@@ -155,7 +168,34 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
         
         <div className="problem-statement">
           <h3>Problem Statement</h3>
-          <p>{question.qtext}</p>
+          <div className="question-markdown">
+            {question.qtext.split('\n\n').map((paragraph, index) => {
+              if (paragraph.startsWith('# ')) {
+                const headerText = paragraph.substring(2);
+                return (
+                  <div key={index}>
+                    <h1>{headerText}</h1>
+                  </div>
+                );
+              } else {
+                // Parse and render code in backticks
+                const parts = paragraph.split(/(`[^`]+`)/);
+                return (
+                  <p key={index}>
+                    {parts.map((part, partIndex) => {
+                      if (part.startsWith('`') && part.endsWith('`')) {
+                        // This is code, so render it with the appropriate styling
+                        return <code key={partIndex}>{part.slice(1, -1)}</code>;
+                      } else {
+                        // Regular text
+                        return <span key={partIndex}>{part}</span>;
+                      }
+                    })}
+                  </p>
+                );
+              }
+            })}
+          </div>
         </div>
         
         <div className="code-editor-section">
@@ -183,9 +223,19 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
         
         {feedback && (
           <div className={`execution-feedback ${
-            feedback.includes('Correct') ? 'success-feedback' : 'error-feedback'
+            feedback.includes('Correct') || 
+            ((result?.execution_results?.passed_tests?.length ?? 0) > 0 && 
+             (!result?.execution_results?.failed_tests || (result?.execution_results?.failed_tests?.length ?? 0) === 0) &&
+             result?.execution_results?.compile)
+            ? 'success-feedback' : 'error-feedback'
           }`}>
-            {feedback}
+            {((result?.execution_results?.passed_tests?.length ?? 0) > 0 && 
+              (!result?.execution_results?.failed_tests || (result?.execution_results?.failed_tests?.length ?? 0) === 0) &&
+              result?.execution_results?.compile)
+              ? 'Correct! All tests passed successfully.' 
+              : (result?.execution_results?.compile === false 
+                 ? 'Compilation failed. Please fix the errors and try again.' 
+                 : feedback)}
           </div>
         )}
         
@@ -195,17 +245,45 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
             
             <div className="result-status">
               <div className="status-item">
-                <span className="status-label">Compilation:</span>
+                <span className="status-label">
+                  <span className="status-icon">{result.execution_results.compile ? '✅' : '❌'}</span> Compilation Status:
+                </span>
                 <span className={`status-value ${result.execution_results.compile ? 'status-success' : 'status-error'}`}>
-                  {result.execution_results.compile ? 'Success' : 'Failed'}
+                  {result.execution_results.compile ? 'Compiled Successfully' : 'Compilation Failed'}
                 </span>
               </div>
               
               {result.execution_results.compile && (
                 <div className="status-item">
-                  <span className="status-label">Execution:</span>
+                  <span className="status-label">
+                    <span className="status-icon">{result.execution_results.run ? '✅' : '❌'}</span> Execution Status:
+                  </span>
                   <span className={`status-value ${result.execution_results.run ? 'status-success' : 'status-error'}`}>
-                    {result.execution_results.run ? 'Success' : 'Failed'}
+                    {result.execution_results.run ? 'Executed Successfully' : 'Execution Failed'}
+                  </span>
+                </div>
+              )}
+              
+              {result.execution_results.compile && result.execution_results.run && (
+                <div className="status-item">
+                  <span className="status-label">
+                    <span className="status-icon">
+                      {result.is_correct || 
+                      ((result.execution_results.passed_tests?.length ?? 0) > 0 && 
+                        (!result.execution_results.failed_tests || (result.execution_results.failed_tests?.length ?? 0) === 0))
+                        ? '✅' : '❌'}
+                    </span> Test Result:
+                  </span>
+                  <span className={`status-value ${
+                    result.is_correct || 
+                    ((result.execution_results.passed_tests?.length ?? 0) > 0 && 
+                      (!result.execution_results.failed_tests || (result.execution_results.failed_tests?.length ?? 0) === 0))
+                    ? 'status-success' : 'status-error'}`}>
+                    {result.is_correct || 
+                      ((result.execution_results.passed_tests?.length ?? 0) > 0 && 
+                        (!result.execution_results.failed_tests || (result.execution_results.failed_tests?.length ?? 0) === 0))
+                      ? 'All Tests Passed Successfully' 
+                      : <strong>{result.execution_results.passed_tests?.length || 0} Passed / {(result.execution_results.passed_tests?.length || 0) + (result.execution_results.failed_tests?.length || 0)} Total</strong>}
                   </span>
                 </div>
               )}
@@ -216,16 +294,38 @@ const CodingQuestionPage = ({ toggleDark }: Prop) => {
               <pre className="output-display">{result.execution_results.output || 'No output'}</pre>
             </div>
             
-            {result.execution_results.failed_tests && result.execution_results.failed_tests.length > 0 && (
-              <div className="failed-tests">
-                <h4>Failed Tests:</h4>
-                <ul>
-                  {result.execution_results.failed_tests.map((test, index) => (
-                    <li key={index}>{test}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            {/* Test Results Section */}
+            <div className="test-results">
+              {/* Failed Tests */}
+              {result.execution_results.failed_tests && result.execution_results.failed_tests.length > 0 && (
+                <div className="failed-tests">
+                  <h4>Failed Tests:</h4>
+                  <ul className="test-list failed-test-list">
+                    {result.execution_results.failed_tests.map((test, index) => (
+                      <li key={`failed-${index}`} className="test-item failed-test-item">{test}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {/* Passed Tests - toggleable */}
+              {result.execution_results.passed_tests && result.execution_results.passed_tests.length > 0 && (
+                <div className="passed-tests">
+                  <div className="test-header" onClick={() => setShowPassedTests(!showPassedTests)}>
+                    <h4>Passed Tests ({result.execution_results.passed_tests.length}):</h4>
+                    <span className="toggle-indicator">{showPassedTests ? '▼' : '►'}</span>
+                  </div>
+                  
+                  {showPassedTests && (
+                    <ul className="test-list passed-test-list">
+                      {result.execution_results.passed_tests.map((test, index) => (
+                        <li key={`passed-${index}`} className="test-item passed-test-item">{test}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
         

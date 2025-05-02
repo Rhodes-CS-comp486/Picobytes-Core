@@ -52,6 +52,16 @@ long factorial(int n) {
             "should_pass": False
         },
         {
+            "name": "Only variable declaration (incomplete implementation)",
+            "code": """
+long factorial(int n) {
+    int i = 0;
+    // No implementation beyond variable declaration
+}
+""",
+            "should_pass": False
+        },
+        {
             "name": "Recursive implementation",
             "code": """
 long factorial(int n) {

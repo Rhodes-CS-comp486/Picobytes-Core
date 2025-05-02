@@ -154,6 +154,7 @@ const Question = ({ toggleDark }: Prop) => {
       if (Number(answer) + 1 == correct) {
         setIsCorrect(true);
         setFeedback("Correct");
+        setShowCelebration(true);
       } else {
         setIsCorrect(false);
         setFeedback(
@@ -261,6 +262,8 @@ const Question = ({ toggleDark }: Prop) => {
       setIsSubmitting(true);
     } else if (questionType === "free_response") {
       setFeedback("Placeholder");
+      // Add celebration for all responses as it will be manually graded
+      setShowCelebration(true);
       fetch("http://127.0.0.1:5000/api/submit_answer", {
         method: "POST",
         headers: {
@@ -296,6 +299,10 @@ const Question = ({ toggleDark }: Prop) => {
             setError(data.error);
           } else {
             setFeedback(data.message || "Answer submitted successfully!");
+            // Show celebration for code block questions when correct
+            if (data.message && data.message.includes("Correct")) {
+              setShowCelebration(true);
+            }
           }
           setIsSubmitting(false);
         })
@@ -517,6 +524,10 @@ const Question = ({ toggleDark }: Prop) => {
               <div className="confetti confetti-4">⭐</div>
               <div className="confetti confetti-5">🎊</div>
               <div className="confetti confetti-6">✨</div>
+              <div className="confetti confetti-1" style={{left: "10%", animationDelay: "0.1s"}}>🎉</div>
+              <div className="confetti confetti-2" style={{left: "85%", animationDelay: "0.3s"}}>⭐</div>
+              <div className="confetti confetti-3" style={{left: "25%", animationDelay: "0.5s"}}>🎊</div>
+              <div className="confetti confetti-4" style={{left: "75%", animationDelay: "0.7s"}}>✨</div>
             </div>
           )}
 

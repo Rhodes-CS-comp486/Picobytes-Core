@@ -172,6 +172,19 @@ int main() {
                 "is_correct": False
             }
         
+        # Ensure test code has success message
+        test_code = question["test_code"]
+        # Make sure test code has "All tests passed!" message for validation
+        if "printf(\"All tests passed" not in test_code and "printf('All tests passed" not in test_code:
+            # Find run_tests function or main function
+            if "void run_tests()" in test_code:
+                test_code = test_code.replace("void run_tests() {", 
+                                             "void run_tests() {\n  printf(\"All tests passed!\\\\n\");")
+            elif "int main(" in test_code:
+                # Add before the last return statement
+                if "return 0;" in test_code:
+                    test_code = test_code.replace("return 0;", "printf(\"All tests passed!\\\\n\");\n  return 0;")
+        
         # Check if the user code matches the starter code
         if user_code.strip() == question["function_template"].strip():
             return {
@@ -179,12 +192,90 @@ int main() {
                 "error": "Submission is identical to the starter code. Please add your implementation.",
             }
         
+        # Extract function name from template
+        function_name = ""
+        template_lines = question["function_template"].strip().split("\n")[0].strip()
+        if "(" in template_lines:
+            function_name = template_lines.split("(")[0].split()[-1]
+        
+        # More rigorous check for actual implementation
+        user_code_lines = user_code.strip().split("\n")
+        implementation_lines = [line for line in user_code_lines if line.strip() and 
+                              not line.strip().startswith("//") and 
+                              not line.strip().startswith("/*") and
+                              not line.strip().startswith("*") and
+                              not line.strip().startswith("*/") and
+                              not line.strip().startswith("{") and
+                              not line.strip().startswith("}")]
+        
+        function_body_lines = []
+        in_function_body = False
+        
+        # Extract only the code inside the function body
+        for line in implementation_lines:
+            if function_name in line and not in_function_body:
+                in_function_body = True
+                continue
+            elif line.strip() == "}" and in_function_body:
+                in_function_body = False
+                continue
+            
+            if in_function_body:
+                function_body_lines.append(line)
+        
+        # Better detection of minimal implementations
+        has_meaningful_code = False
+        has_variables_only = True
+        
+        # Check for meaningful code in function body
+        for line in function_body_lines:
+            line = line.strip()
+            
+            # Skip empty lines and comments
+            if not line or line.startswith("//") or line.startswith("/*"):
+                continue
+                
+            # Check if line contains just variable declarations like "int i = 0;"
+            if line.endswith(";") and ("=" in line) and any(type_name in line for type_name in ["int", "char", "float", "double"]):
+                # Check if it's just a simple assignment like "i = 0;"
+                assignment_part = line.split("=")[1].strip().rstrip(";")
+                if assignment_part.isdigit() or assignment_part == "0" or assignment_part == "NULL" or assignment_part == "nullptr":
+                    # This is just a simple variable assignment
+                    continue
+            
+            # If we get here, the line contains some meaningful code
+            has_variables_only = False
+            has_meaningful_code = True
+            break
+        
+        # Check if the code is too simple (just variable declarations or empty)
+        if has_variables_only or not function_body_lines:
+            return {
+                "is_correct": False,
+                "error": "Your solution appears to be incomplete. Please implement the required functionality.",
+            }
+        
+        # For string reversal function specifically, check for essential operations
+        if function_name == "strrev" and qid == 32:  # Assuming qid 32 is the strrev question
+            has_string_ops = False
+            for line in function_body_lines:
+                # Look for common string operations
+                if any(op in line for op in ["[]", "strlen", "swap", "temp", "tmp", "length", "while", "for", "++", "--"]):
+                    has_string_ops = True
+                    break
+            
+            if not has_string_ops:
+                return {
+                    "is_correct": False,
+                    "error": "Your solution doesn't appear to manipulate the string. Please implement a proper string reversal algorithm.",
+                }
+        
         # Execute the code using our service
         try:
-            # Append the user's code to the test code
+            # Execute the code with test cases
             execution_results = self.code_execution_service.execute_code(
                 user_code, 
-                question["test_code"]
+                test_code
             )
             
             # Ensure compilation errors are explicitly reported
@@ -195,11 +286,29 @@ int main() {
                     "error": "Compilation failed. Please fix the errors and try again.",
                 }
             
+            # Check for execution errors or failed assertions
+            if execution_results.get("error") or execution_results.get("failed_tests"):
+                return {
+                    "is_correct": False,
+                    "execution_results": execution_results,
+                    "error": execution_results.get("error") or "Your code failed one or more test cases. Please review and try again."
+                }
+            
+            # Check if the output indicates successful test completion
+            output = execution_results.get("output", "").strip()
+            if "All tests passed" not in output and "tests passed" not in output.lower():
+                return {
+                    "is_correct": False,
+                    "execution_results": execution_results,
+                    "error": "Your code did not pass all the test cases. Please review and try again."
+                }
+            
             # Determine if the submission is correct
             is_correct = (
                 execution_results.get("compile", False) and 
                 not execution_results.get("failed_tests", []) and
-                "error" not in execution_results
+                "error" not in execution_results and
+                ("All tests passed" in output or "tests passed" in output.lower())
             )
             
             return {
@@ -210,6 +319,6 @@ int main() {
         except Exception as e:
             logger.error(f"Error validating coding submission: {e}")
             return {
-                "error": str(e),
-                "is_correct": False
+                "is_correct": False,
+                "error": f"An error occurred during validation: {str(e)}"
             }

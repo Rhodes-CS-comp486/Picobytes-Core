@@ -10,12 +10,14 @@ from services.code_blocks_question_pull import CB_QuestionFetcher
 from services.free_response_question_pull import FR_QuestionFetcher
 from services.mc_question_pull import MC_QuestionFetcher
 from services.tf_question_pull import QuestionService
+from services.coding_question_service import CodingQuestionService
 import json
 
 mc_question_service = MC_QuestionFetcher()
 tf_question_service = QuestionService()
 fr_question_service = FR_QuestionFetcher()
 cb_question_service = CB_QuestionFetcher()
+cd_question_service = CodingQuestionService()
 
 
 class GetQuestions:
@@ -110,6 +112,19 @@ class GetQuestions:
                     'block10': question_data['block10'],
                     'answer': question_data['answer'],
                     #'uid': uid
+                }
+                return jsonify(response)
+            elif q_type == 'coding':
+                question_data = cd_question_service.get_coding_question(qid)
+                response = {
+                    'question_id': question_data['qid'],
+                    'question_text': question_data['qtext'],
+                    'question_type': question_data['qtype'],
+                    'question_topic': question_data['topic'],
+                    'question_level': question_data['difficulty'],
+                    'starter_code': question_data['function_template'],
+                    'test_cases': question_data['test_code'],
+                    'correct_code': question_data['correct_code'],
                 }
                 return jsonify(response)
 

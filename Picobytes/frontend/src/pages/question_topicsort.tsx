@@ -4,6 +4,7 @@ import Home_Header from "./home/home_header";
 import "./question.css"; // Import the new CSS file
 import SideBar from "./home/side_bar"; // Import SideBar component
 import Draggable_Question from "./draggable_question";
+import CodeExecutionPage from "./code_execution/code_execution_page";
 
 const Question = () => {
   const [answer, setAnswer] = useState<number | boolean | string | null>(null);
@@ -64,7 +65,8 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
 
   const fetchQuestion = (questionId: string | undefined) => {
     if (!questionId) return;
-    console.log("Fetching question with ID:", index);
+    console.log("Fetching question with Index:", index);
+    console.log("Fetching question with ID:", questionId);
 
     // Reset states when fetching a new question
     setFeedback("");
@@ -101,6 +103,9 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
           setAnswer(null); // Initialize as null so no option is selected by default
         } else if (data.question_type === "free_response") {
           setCorrect(data.professor_answer);
+          setAnswer("")
+        }else if (data.question_type === "coding"){
+          setCorrect(data.correctcode)
           setAnswer("")
         }
       })
@@ -488,6 +493,11 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                   <Draggable_Question onUpdateAnswer={setDraggedIds} />
                 </div>
               )}
+              {questionType === "coding" && (
+                <div className="option-container">
+                  <CodeExecutionPage toggleDark={toggleDark} propIsVisible={false}/>
+                </div>
+              )}
             </div>
           </div>
 
@@ -530,7 +540,8 @@ const { index, setIndex, incrementIndex, decrementIndex } = useQuestionIndex();
                   (questionType === "multiple_choice" && answer === null) ||
                   (questionType === "true_false" && answer === null) ||
                   (questionType === "free_response" && !answer) ||
-                  (questionType === "code_blocks" && draggedIds.length === 0)
+                  (questionType === "code_blocks" && draggedIds.length === 0) ||
+                  (questionType === "coding")
                 }
               >
                 {isSubmitting ? "Checking..." : "Check Answer"}

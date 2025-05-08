@@ -36,8 +36,9 @@ class CodingQuestionService:
             with self._connect() as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
-                    SELECT q.qid, q.qtext, q.qlevel as difficulty, q.qtopic as topic, 
-                           c.starter as function_template, c.testcases as test_code
+
+                    SELECT q.qid, q.qtext, q.qtype, q.qlevel as difficulty, q.qtopic as topic, 
+                           c.starter as function_template, c.testcases as test_code, c.correctcode as correct_code
                     FROM questions q
                     JOIN coding c ON q.qid = c.qid
                     WHERE q.qtype = 'coding' AND q.qactive = True
@@ -135,8 +136,8 @@ int main() {
             with self._connect() as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
-                    SELECT q.qid, q.qtext, q.qlevel as difficulty, q.qtopic as topic, 
-                           c.starter as function_template, c.testcases as test_code
+                    SELECT q.qid, q.qtext, q.qtype, q.qlevel as difficulty, q.qtopic as topic, 
+                           c.starter as function_template, c.testcases as test_code, c.correctcode as correct_code
                     FROM questions q
                     JOIN coding c ON q.qid = c.qid
                     WHERE q.qtype = 'coding' AND q.qactive = True AND q.qid = %s

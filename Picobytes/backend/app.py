@@ -259,6 +259,17 @@ def topic_selection():
                 'question_type': item[1], # answer
                 'qlevel': item[4],
                 })
+            elif item[1] == 'coding':
+                responses.append({
+                'question_id': item[0],
+                'question_text': item[2],
+                'starter': item[3],
+                'testcases': item[4],
+                'correctcode': item[5],
+                'question_type': item[1],
+                'qlevel': item[6],
+            })
+                
     elif qtype == "MC":
         topic_data = topic_service.get_mc_by_topic(topic)
         responses = []
@@ -307,6 +318,20 @@ def topic_selection():
                 'question_type': item[3],
                 'qlevel': item[4],
             })
+    elif qtype == "CD":
+        topic_data = topic_service.get_cd_by_topic(topic)
+        responses = []
+        for item in topic_data:
+            responses.append({
+                'question_id': item[0],
+                'question_text': item[2],
+                'starter': item[3],
+                'testcases': item[4],
+                'correctcode': item[5],
+                'question_type': item[1],
+                'qlevel': item[6],
+            })
+
     else:
         return jsonify({"error": "Topic not found"}), 404
 

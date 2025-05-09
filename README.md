@@ -80,7 +80,8 @@ Picobytes follows a three-tier architecture with additional specialized services
 
 
 ### Student Dashboard
-![Student Dashboard - Placeholder for actual screenshot]()
+![Capture-2025-05-08-190112](https://github.com/user-attachments/assets/e912febe-71e2-4c67-b6ec-db18714117c9)
+
 *Shows the main student interface with progress metrics, streak information, and quick access to different question types*
 
 ### Code Quiz Interface

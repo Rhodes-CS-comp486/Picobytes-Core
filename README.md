@@ -85,11 +85,15 @@ Picobytes follows a three-tier architecture with additional specialized services
 *Shows the main student interface with progress metrics, streak information, and quick access to different question types*
 
 ### Code Quiz Interface
-![Code Quiz Interface - Placeholder for actual screenshot]()
+![Capture-2025-05-08-190206](https://github.com/user-attachments/assets/b058b447-f60e-4b92-8a07-5f6fa1c687d7)
+
 *Displays the coding question interface with editor, instructions, and submission controls*
 
 ### Instructor Analytics
-![Instructor Analytics - Placeholder for actual screenshot]()
+![Capture-2025-05-08-190311](https://github.com/user-attachments/assets/6498a37c-067e-49ca-8d4d-0c8bd9a605de)
+![Capture-2025-05-08-190357](https://github.com/user-attachments/assets/ff92636f-255c-4546-9746-bfce01f523b5)
+
+
 *Shows the admin view of student performance data and question statistics*
 
 ## 💻 Project Dependencies
